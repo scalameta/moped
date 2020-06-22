@@ -1,11 +1,11 @@
 package mopt
 
-sealed abstract class JsonElement {
-  private var pos: Position = NoPosition
-  def position = pos
+sealed abstract class JsonElement extends Product with Serializable {
+  private var myPosition: Position = NoPosition
+  def position = myPosition
   def withPosition(newPosition: Position): JsonElement = {
     val copy = copyThis()
-    copy.pos = newPosition
+    copy.myPosition = newPosition
     copy
   }
   private def copyThis(): JsonElement =
@@ -23,6 +23,6 @@ final case class JsonNull() extends JsonPrimitive
 final case class JsonNumber(value: Double) extends JsonPrimitive
 final case class JsonBoolean(value: Boolean) extends JsonPrimitive
 final case class JsonString(value: String) extends JsonPrimitive
-final case class JsonArray(value: List[JsonElement]) extends JsonElement
-final case class JsonObject(value: List[JsonMember]) extends JsonElement
+final case class JsonArray(elements: List[JsonElement]) extends JsonElement
+final case class JsonObject(members: List[JsonMember]) extends JsonElement
 final case class JsonMember(key: JsonString, value: JsonElement)

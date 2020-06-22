@@ -2,6 +2,7 @@ package mopt
 
 import fansi.Attr
 import fansi.Color
+import fansi.Attrs
 
 sealed abstract class Severity(val name: String, val priority: Int)
     extends Ordered[Severity] {
@@ -10,6 +11,7 @@ sealed abstract class Severity(val name: String, val priority: Int)
   }
 }
 object Severity {
+  val all: List[Severity] = 0.to(4).toList.map(fromPriority)
   def fromPriority(n: Int): Severity =
     n match {
       case 0     => SilentSeverity
@@ -19,14 +21,17 @@ object Severity {
       case 4     => ErrorSeverity
       case other => throw new IndexOutOfBoundsException(other.toString())
     }
-  val all = 0.to(4).toList.map(fromPriority)
-  def color(sev: Severity): Attr =
-    sev match {
-      case SilentSeverity  => Color.LightMagenta
-      case DebugSeverity   => Color.LightGreen
-      case InfoSeverity    => Color.LightBlue
-      case WarningSeverity => Color.LightYellow
-      case ErrorSeverity   => Color.LightRed
+  def color(sev: Severity): Attrs =
+    if (Terminals.isColorEnabled) {
+      Attrs.Empty
+    } else {
+      sev match {
+        case SilentSeverity  => Color.LightMagenta
+        case DebugSeverity   => Color.LightGreen
+        case InfoSeverity    => Color.LightBlue
+        case WarningSeverity => Color.LightYellow
+        case ErrorSeverity   => Color.LightRed
+      }
     }
 }
 case object SilentSeverity extends Severity("silent", 0)

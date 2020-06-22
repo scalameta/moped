@@ -3,6 +3,7 @@ package mopt
 import mopt.internal.diagnostics.TypeMismatchDiagnostic
 import scala.collection.compat._
 import scala.collection.mutable
+import java.nio.file.Path
 
 trait JsonDecoder[A] { self =>
 
@@ -35,8 +36,18 @@ object JsonDecoder {
     fromJson[Double]("JsonNumber") {
       case JsonNumber(value) => Right(value)
     }
+  implicit val stringJsonDecoder: JsonDecoder[String] =
+    fromJson[String]("JsonString") {
+      case JsonString(value) => Right(value)
+    }
+  implicit val booleanJsonDecoder: JsonDecoder[Boolean] =
+    fromJson[Boolean]("JsonBoolean") {
+      case JsonBoolean(value) => Right(value)
+    }
   implicit val unitJsonDecoder: JsonDecoder[Unit] =
     _ => Right(())
+  implicit val pathJsonDecoder: JsonDecoder[Path] =
+    _ => Right(???)
 
   implicit def arrayJsonDecoder[C[_], A](implicit
       ev: JsonDecoder[A],
@@ -44,20 +55,20 @@ object JsonDecoder {
   ): JsonDecoder[C[A]] = { context =>
     context.json match {
       case JsonArray(value) =>
-        val successB = factory.newBuilder
-        val errorB = List.newBuilder[Diagnostic]
-        successB.sizeHint(value.length)
+        val successValues = factory.newBuilder
+        val errors = List.newBuilder[Diagnostic]
+        successValues.sizeHint(value.length)
         value.zipWithIndex.foreach {
           case (value, i) =>
             val cursor = SelectIndexCursor(i).withParent(context.cursor)
             ev.decode(DecodingContext(value, cursor)) match {
-              case Left(e)  => errorB += e
-              case Right(e) => successB += e
+              case Left(e)  => errors += e
+              case Right(e) => successValues += e
             }
         }
-        Diagnostic.fromDiagnostics(errorB.result()) match {
+        Diagnostic.fromDiagnostics(errors.result()) match {
           case Some(x) => Left(x)
-          case None    => Right(successB.result())
+          case None    => Right(successValues.result())
         }
       case _ =>
         Left(new TypeMismatchDiagnostic("JsonArray", context))
@@ -69,22 +80,31 @@ object JsonDecoder {
   ): JsonDecoder[Map[String, A]] = { context =>
     context.json match {
       case JsonObject(members) =>
-        val buf = Map.newBuilder[String, A]
+        val successValues = Map.newBuilder[String, A]
         val errors = mutable.ListBuffer.empty[Diagnostic]
         members.foreach { member =>
           val cursor =
             SelectMemberCursor(member.key.value).withParent(context.cursor)
           ev.decode(DecodingContext(member.value, cursor)) match {
             case Left(error)  => errors += error
-            case Right(value) => buf += (member.key.value -> value)
+            case Right(value) => successValues += (member.key.value -> value)
           }
         }
         Diagnostic.fromDiagnostics(errors.result()) match {
           case Some(x) => Left(x)
-          case None    => Right(buf.result())
+          case None    => Right(successValues.result())
         }
       case _ =>
         Left(new TypeMismatchDiagnostic("JsonObject", context))
+    }
+  }
+
+  implicit def optionJsonDecoder[A](implicit
+      ev: JsonDecoder[A]
+  ): JsonDecoder[Option[A]] = { context =>
+    context.json match {
+      case JsonNull() => Right(None)
+      case other      => ev.decode(context).map(Some(_))
     }
   }
 

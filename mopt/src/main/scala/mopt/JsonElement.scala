@@ -1,5 +1,7 @@
 package mopt
 
+import scala.collection.mutable
+
 sealed abstract class JsonElement extends Product with Serializable {
   private var myPosition: Position = NoPosition
   def position = myPosition
@@ -17,6 +19,29 @@ sealed abstract class JsonElement extends Product with Serializable {
       case JsonArray(value)   => JsonArray(value)
       case JsonObject(value)  => JsonObject(value)
     }
+  // TODO(olafur) rename this method
+  final def normalize: JsonElement = {
+    def expandKeys(conf: JsonElement): JsonElement =
+      conf match {
+        case _: JsonPrimitive    => conf
+        case JsonArray(elements) => JsonArray(elements.map(_.normalize))
+        case JsonObject(members) =>
+          val expandedKeys: List[JsonMember] = members.map {
+            case JsonMember(
+                  mopt.internal.Extractors.NestedKey(key, rest),
+                  value
+                ) =>
+              JsonMember(
+                JsonString(key),
+                JsonObject(List(JsonMember(JsonString(rest), value.normalize)))
+              )
+            case JsonMember(key, value) =>
+              JsonMember(key, value.normalize)
+          }
+          JsonObject(expandedKeys)
+      }
+    expandKeys(this)
+  }
 }
 sealed abstract class JsonPrimitive extends JsonElement
 final case class JsonNull() extends JsonPrimitive
@@ -24,5 +49,12 @@ final case class JsonNumber(value: Double) extends JsonPrimitive
 final case class JsonBoolean(value: Boolean) extends JsonPrimitive
 final case class JsonString(value: String) extends JsonPrimitive
 final case class JsonArray(elements: List[JsonElement]) extends JsonElement
-final case class JsonObject(members: List[JsonMember]) extends JsonElement
+final case class JsonObject(members: List[JsonMember]) extends JsonElement {
+  private lazy val map =
+    new mutable.LinkedHashMap() ++
+      members.iterator.map(m => m.key.value -> m.value)
+  def getMember(key: String): Option[JsonElement] = {
+    map.get(key)
+  }
+}
 final case class JsonMember(key: JsonString, value: JsonElement)

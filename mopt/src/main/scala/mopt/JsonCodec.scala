@@ -25,16 +25,7 @@ object JsonCodec {
         d.decode(conf)
     }
 
-  val IntCodec: JsonCodec[Int] = encoderDecoderJsonCodec[Int](
-    JsonEncoder.intJsonEncoder,
-    JsonDecoder.intJsonDecoder
-  )
-  val StringCodec: JsonCodec[String] = encoderDecoderJsonCodec[String](
-    JsonEncoder.stringJsonEncoder,
-    JsonDecoder.stringJsonDecoder
-  )
-  val BooleanCodec: JsonCodec[Boolean] = encoderDecoderJsonCodec[Boolean](
-    JsonEncoder.booleanJsonEncoder,
-    JsonDecoder.booleanJsonDecoder
-  )
+  val IntCodec: JsonCodec[Int] = JsonCodec[Int]
+  val StringCodec: JsonCodec[String] = JsonCodec[String]
+  val BooleanCodec: JsonCodec[Boolean] = JsonCodec[Boolean]
 }

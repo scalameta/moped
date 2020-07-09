@@ -1,4 +1,4 @@
-lazy val mopt = project
+lazy val moped = project
   .settings(
     libraryDependencies ++= List(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
@@ -16,4 +16,4 @@ lazy val tests = project
       "org.scalameta" %% "munit" % "0.7.9"
     )
   )
-  .dependsOn(mopt)
+  .dependsOn(moped)

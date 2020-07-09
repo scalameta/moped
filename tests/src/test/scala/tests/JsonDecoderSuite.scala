@@ -1,8 +1,8 @@
 package tests
 
-import mopt.JsonDecoder
-import mopt.DecodingResult
-import mopt.ValueResult
+import moped.JsonDecoder
+import moped.DecodingResult
+import moped.ValueResult
 
 class JsonDecoderSuite extends munit.FunSuite {
   test("foo") {

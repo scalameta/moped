@@ -19,6 +19,15 @@ abstract class Diagnostic(
 
   def message: String
 
+  def all: List[Diagnostic] = {
+    val buf = mutable.ListBuffer.empty[Diagnostic]
+    def loop(d: Diagnostic): Unit = {
+      buf += d
+      d.causes.foreach(loop)
+    }
+    buf.result()
+  }
+
   def overrideSeverity(why: String, newSeverity: Severity): Unit = {
     severityOverrides += new OverrideSeverityDiagnostic(why, newSeverity)
   }

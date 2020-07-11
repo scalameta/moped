@@ -6,12 +6,18 @@ import moped.console.CommandParser
 import moped.console.Command
 import moped.annotations.PositionalArguments
 import moped.json.JsonCodec
+import moped.annotations.CommandName
+import moped.annotations.TabComplete
+import moped.console.TabCompletionItem
+import moped.console.HelpCommand
 
+@CommandName("echo")
+@TabComplete(context => List(TabCompletionItem("hello world")))
 case class EchoCommand(
     verbose: Boolean = false,
     @PositionalArguments()
     args: List[String] = Nil
-) extends Command("echo") {
+) extends Command {
   def run(app: Application): Int = {
     val toPrint =
       if (verbose) args.map(_.toUpperCase())
@@ -22,7 +28,7 @@ case class EchoCommand(
 }
 
 object EchoCommand {
-  implicit val codec = JsonCodec.derive(EchoCommand())
+  implicit val parser = CommandParser.derive(EchoCommand())
 }
 
 class ApplicationSuite extends munit.FunSuite {
@@ -30,11 +36,12 @@ class ApplicationSuite extends munit.FunSuite {
     "app",
     "1.0.0",
     commands = List(
-      CommandParser[EchoCommand](???, ???, ???)
+      CommandParser[HelpCommand],
+      CommandParser[EchoCommand]
     )
   )
 
   test("foo") {
-    val x = ValueResult(1).upcast
+    // app.run(List("echo", "--verbose", "Hello world!"))
   }
 }

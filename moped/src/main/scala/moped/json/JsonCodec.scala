@@ -25,8 +25,6 @@ trait JsonCodec[A]
 }
 
 object JsonCodec {
-  def derive[A](default: A): JsonCodec[A] =
-    macro moped.internal.generic.Macros.deriveJsonCodecImpl[A]
   def apply[A](implicit ev: JsonCodec[A]): JsonCodec[A] = ev
   implicit def encoderDecoderJsonCodec[A](implicit
       c: ClassDefinition[A],

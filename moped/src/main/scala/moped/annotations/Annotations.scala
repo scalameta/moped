@@ -2,6 +2,8 @@ package moped.annotations
 
 import scala.annotation.StaticAnnotation
 import org.typelevel.paiges.Doc
+import moped.console.TabCompletionContext
+import moped.console.TabCompletionItem
 
 final case class ShortName(value: Char) extends StaticAnnotation
 final case class ExtraName(value: String) extends StaticAnnotation
@@ -15,6 +17,7 @@ final case class DeprecatedName(
 }
 final case class ExampleValue(value: String) extends StaticAnnotation
 final case class BinaryName(value: String) extends StaticAnnotation
+final case class CommandName(value: String*) extends StaticAnnotation
 final case class Usage(value: String) extends StaticAnnotation
 final case class Description(value: String) extends StaticAnnotation
 final case class ExampleUsage(value: String) extends StaticAnnotation
@@ -32,3 +35,6 @@ final case class Section(name: String) extends StaticAnnotation
 final case class TabCompleteAsPath() extends StaticAnnotation
 final case class CatchInvalidFlags() extends StaticAnnotation
 final case class TabCompleteAsOneOf(options: String*) extends StaticAnnotation
+final case class TabComplete(
+    fn: TabCompletionContext => List[TabCompletionItem]
+) extends StaticAnnotation

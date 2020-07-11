@@ -4,6 +4,9 @@ import java.nio.file.Path
 
 trait JsonEncoder[A] {
   def encode(value: A): JsonElement
+
+  final def contramap[B](f: B => A): JsonEncoder[B] =
+    value => encode(f(value))
 }
 
 object JsonEncoder {

@@ -12,6 +12,9 @@ import moped.internal.console.HelpMessage
 
 object ClassDefinition {
   def apply[T](
+      f: List[List[ParameterDefinition]]
+  ): ClassDefinition[T] = apply[T](f, Nil)
+  def apply[T](
       f: List[List[ParameterDefinition]],
       a: List[StaticAnnotation]
   ): ClassDefinition[T] =

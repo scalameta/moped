@@ -44,6 +44,11 @@ class Macros(val c: blackbox.Context) {
      """
   }
 
+  def deriveCommandParserImpl[T: c.WeakTypeTag](default: Tree): Tree = {
+    val T = assumeClass[T]
+    q"_root_.moped.console.CommandParser.fromCodec(_root_.moped.generic.deriveCodec[$T]($default))"
+  }
+
   def deriveJsonEncoderImpl[T: c.WeakTypeTag]: Tree = {
     val T = assumeClass[T]
     val params = this.params(T)
@@ -93,7 +98,7 @@ class Macros(val c: blackbox.Context) {
         val getter = T.member(param.name)
         val fallback = q"tmp.$getter"
         val next =
-          q"conf.getSettingOrElse[$P](settings.unsafeGet($name), $fallback)"
+          q"_root_.moped.internal.json.DrillIntoJson.getOrElse[$P](conf, $fallback, settings.get($name).get)"
         next
       }
     }
@@ -121,7 +126,7 @@ class Macros(val c: blackbox.Context) {
 
     val result = q"""
        new ${weakTypeOf[JsonDecoder[T]]} {
-         def read(
+         override def decode(
              context: ${weakTypeOf[DecodingContext]}
          ): ${weakTypeOf[DecodingResult[T]]} = {
            val conf = context.json

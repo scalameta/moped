@@ -1,12 +1,16 @@
 package moped
 
 import scala.concurrent.Promise
+import scala.runtime.EmptyMethodCache
 
 case class Application(
-    commands: List[CommandParser[_]]
+    binaryName: String,
+    version: String,
+    commands: List[CommandParser[_]],
+    env: Environment = Environment.default,
+    token: CancelToken = CancelToken.empty()
 ) {
   val parser = commands.head
   val command = parser.parseCommand(List()).get
-  val future =
-    command.intoFuture(command.run(Environment()), Promise.successful(false))
+  val future = command.intoFuture(command.run(this), CancelToken.empty())
 }

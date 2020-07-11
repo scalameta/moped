@@ -2,13 +2,13 @@ package moped.internal
 
 import moped._
 import moped.generic.Setting
-import moped.generic.Settings
+import moped.generic.Structure
 import moped.annotation.Inline
 import moped.internal.CommandLineParser._
 
 class CommandLineParser[T](
     args: List[String],
-    settings: Settings[T],
+    settings: Structure[T],
     toInline: Map[String, Setting]
 ) {
   def loop(
@@ -136,7 +136,7 @@ object CommandLineParser {
 
   def parseArgs[T](
       args: List[String]
-  )(implicit settings: Settings[T]): DecodingResult[JsonElement] = {
+  )(implicit settings: Structure[T]): DecodingResult[JsonElement] = {
     val toInline = inlinedSettings(settings)
     val parser = new CommandLineParser[T](args, settings, toInline)
     parser.loop(JsonObject(Nil), args, NoFlag).map(_.normalize)
@@ -167,7 +167,7 @@ object CommandLineParser {
     }
   }
 
-  def inlinedSettings(settings: Settings[_]): Map[String, Setting] =
+  def inlinedSettings(settings: Structure[_]): Map[String, Setting] =
     settings.settings.iterator.flatMap { setting =>
       if (setting.annotations.exists(_.isInstanceOf[Inline])) {
         for {
@@ -179,7 +179,7 @@ object CommandLineParser {
       }
     }.toMap
 
-  def allSettings(settings: Settings[_]): Map[String, Setting] =
+  def allSettings(settings: Structure[_]): Map[String, Setting] =
     inlinedSettings(settings) ++ settings.settings.map(s => s.name -> s)
 
   private sealed trait State

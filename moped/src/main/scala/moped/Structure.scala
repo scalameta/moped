@@ -1,9 +1,5 @@
-package moped.generic
+package moped
 
-import moped.JsonMember
-import moped.JsonObject
-import moped.JsonElement
-import moped.JsonEncoder
 import moped.annotation.DeprecatedName
 import scala.annotation.StaticAnnotation
 import moped.annotation.DescriptionDoc
@@ -12,26 +8,15 @@ import moped.annotation.Description
 import moped.annotation.Usage
 import moped.annotation.ExampleUsage
 import moped.internal.HelpMessage
+import moped.generic.Field
+import moped.generic.Setting
 
-final class Settings[T](
+final class Structure[T](
     val settings: List[Setting],
     val annotations: List[StaticAnnotation]
 ) {
   def this(settings: List[Setting]) = this(settings, Nil)
   def fields: List[Field] = settings.map(_.field)
-
-  def flat(default: JsonObject): List[(Setting, JsonElement)] = {
-    settings.zip(default.members).flatMap {
-      case (deepSetting, JsonMember(_, conf: JsonObject)) =>
-        deepSetting.underlying.toList
-          .flatMap(_.withPrefix(deepSetting.name).flat(conf))
-      case (s, JsonMember(_, defaultValue)) =>
-        (s, defaultValue) :: Nil
-    }
-  }
-
-  def withPrefix(prefix: String): Settings[T] =
-    new Settings(settings.map(s => s.withName(prefix + "." + s.name)))
 
   override def toString: String = s"Surface(settings=$settings)"
   object Deprecated {
@@ -93,9 +78,9 @@ final class Settings[T](
 
 }
 
-object Settings {
-  implicit def FieldsToSettings[T](implicit ev: Surface[T]): Settings[T] =
+object Structure {
+  implicit def FieldsToSettings[T](implicit ev: Surface[T]): Structure[T] =
     apply(ev)
-  def apply[T](implicit ev: Surface[T]): Settings[T] =
-    new Settings[T](ev.fields.flatten.map(new Setting(_)), ev.annotations)
+  def apply[T](implicit ev: Surface[T]): Structure[T] =
+    new Structure[T](ev.fields.flatten.map(new Setting(_)), ev.annotations)
 }

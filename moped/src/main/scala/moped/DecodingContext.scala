@@ -2,7 +2,8 @@ package moped
 
 final class DecodingContext private (
     val json: JsonElement,
-    val cursor: Cursor
+    val cursor: Cursor,
+    val environment: Environment
 )
 
 object DecodingContext {
@@ -12,7 +13,8 @@ object DecodingContext {
   def apply(json: JsonElement, cursor: Cursor): DecodingContext = {
     new DecodingContext(
       json,
-      cursor
+      cursor,
+      Environment.default
     )
   }
 }

@@ -4,7 +4,7 @@ import scala.annotation.StaticAnnotation
 import scala.reflect.macros.blackbox
 import moped._
 import moped.generic.Field
-import moped.generic.Settings
+import moped.generic.Structure
 import moped.generic.Surface
 import java.nio.file.Path
 import java.io.File
@@ -65,11 +65,11 @@ class Macros(val c: blackbox.Context) {
   def deriveJsonDecoderImpl[T: c.WeakTypeTag](default: Tree): Tree = {
     val T = assumeClass[T]
     val Tclass = T.typeSymbol.asClass
-    val settings = c.inferImplicitValue(weakTypeOf[Settings[T]])
+    val settings = c.inferImplicitValue(weakTypeOf[Structure[T]])
     if (settings == null || settings.isEmpty) {
       c.abort(
         c.enclosingPosition,
-        s"Missing implicit for ${weakTypeOf[Settings[T]]}]. " +
+        s"Missing implicit for ${weakTypeOf[Structure[T]]}]. " +
           s"Hint, add `implicit val surface: ${weakTypeOf[Surface[T]]}` " +
           s"to the companion ${T.companion.typeSymbol}"
       )
@@ -81,13 +81,17 @@ class Macros(val c: blackbox.Context) {
 
     val (head :: params) :: Nil = paramss
     def next(param: Symbol): Tree = {
-      val P = param.info.resultType
-      val name = param.name.decodedName.toString
-      val getter = T.member(param.name)
-      val fallback = q"tmp.$getter"
-      val next =
-        q"conf.getSettingOrElse[$P](settings.unsafeGet($name), $fallback)"
-      next
+      if (param.info <:< typeOf[Environment]) {
+        q"context.environment"
+      } else {
+        val P = param.info.resultType
+        val name = param.name.decodedName.toString
+        val getter = T.member(param.name)
+        val fallback = q"tmp.$getter"
+        val next =
+          q"conf.getSettingOrElse[$P](settings.unsafeGet($name), $fallback)"
+        next
+      }
     }
     val product = params.foldLeft(next(head)) {
       case (accum, param) => q"$accum.product(${next(param)})"

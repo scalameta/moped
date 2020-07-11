@@ -7,16 +7,16 @@ abstract class BaseCommand(
     val subcommandName: String
 ) {
   type F[_]
-  def intoFuture(exitCode: F[Int], cancelToken: Promise[Boolean]): Future[Int]
-  def run(app: Environment): F[Int]
+  def intoFuture(exitCode: F[Int], token: CancelToken): Future[Int]
+  def run(app: Application): F[Int]
 }
 
 abstract class Command(subcommandName: String)
     extends BaseCommand(subcommandName) {
-  type F[A] = A
-  override def intoFuture(
+  final type F[A] = A
+  final override def intoFuture(
       exitCode: Int,
-      cancelToken: Promise[Boolean]
+      cancelToken: CancelToken
   ): Future[Int] = Future.successful(exitCode)
-  def run(app: Environment): Int
+  def run(app: Application): Int
 }

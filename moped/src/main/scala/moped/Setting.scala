@@ -9,11 +9,11 @@ final class Setting(val field: Field) {
   def withName(name: String): Setting = new Setting(field.withName(name))
   def tpe: String = field.tpe
   def annotations: List[StaticAnnotation] = field.annotations
-  def underlying: Option[Settings[Nothing]] =
+  def underlying: Option[Structure[Nothing]] =
     if (field.underlying.isEmpty) None
     else {
       Some(
-        new Settings(field.underlying.flatten.map(new Setting(_)))
+        new Structure(field.underlying.flatten.map(new Setting(_)))
       )
     }
   def flat: List[Setting] =
@@ -26,7 +26,8 @@ final class Setting(val field: Field) {
     }
   def extraNames: List[String] =
     field.annotations.collect {
-      case ExtraName(value) => value
+      case PositionalArguments() => CommandLineParser.PositionalArgument
+      case ExtraName(value)      => value
     }
   def deprecatedNames: List[DeprecatedName] =
     field.annotations.collect {
@@ -44,6 +45,8 @@ final class Setting(val field: Field) {
     field.annotations.collectFirst {
       case value: Deprecated => value
     }
+  def isPositionalArguments: Boolean =
+    field.annotations.exists(_.isInstanceOf[PositionalArguments])
   def isRepeated: Boolean =
     field.annotations.exists(_.isInstanceOf[Repeated])
   def isDynamic: Boolean =

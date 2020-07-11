@@ -4,14 +4,14 @@ import moped._
 import moped.annotation.Inline
 import moped.internal.diagnostics.TypeMismatchDiagnostic
 import moped.generic.Setting
-import moped.generic.Settings
+import moped.generic.Structure
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
 
 object HelpMessage {
   def generate[T: JsonEncoder](
       default: T
-  )(implicit settings: Settings[T]): Doc = {
+  )(implicit settings: Structure[T]): Doc = {
     def toHelp(setting: Setting, value: JsonElement) = {
       val name = Cases.camelToKebab(setting.name)
       val key = s"--$name: ${setting.tpe} = $value "

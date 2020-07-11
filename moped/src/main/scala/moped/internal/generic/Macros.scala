@@ -195,7 +195,7 @@ class Macros(val c: blackbox.Context) {
         )
         val tpeString = c.inferImplicitValue(tprint)
 
-        val field = q"""new ${weakTypeOf[ClassParameter]}(
+        val field = q"""new ${weakTypeOf[ParameterDefinition]}(
            ${param.name.decodedName.toString},
            $tpeString.render,
            _root_.scala.List.apply(..$finalAnnots),

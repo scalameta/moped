@@ -3,7 +3,7 @@ package moped.internal.console
 import moped._
 import moped.json._
 import moped.reporters._
-import moped.generic.ClassParameter
+import moped.generic.ParameterDefinition
 import moped.generic.ClassDefinition
 import moped.annotations.Inline
 import moped.internal.reporters.Levenshtein
@@ -12,7 +12,7 @@ import moped.internal.console.CommandLineParser._
 class CommandLineParser[T](
     args: List[String],
     settings: ClassDefinition[T],
-    toInline: Map[String, ClassParameter]
+    toInline: Map[String, ParameterDefinition]
 ) {
   def loop(
       curr: JsonObject,
@@ -172,11 +172,11 @@ object CommandLineParser {
 
   def inlinedSettings(
       settings: ClassDefinition[_]
-  ): Map[String, ClassParameter] =
+  ): Map[String, ParameterDefinition] =
     settings.settings.iterator.flatMap { setting =>
       if (setting.annotations.exists(_.isInstanceOf[Inline])) {
         for {
-          underlying <- setting.underlying.flatten
+          underlying <- setting.underlying.toList
           name <- underlying.names
         } yield name -> setting
       } else {
@@ -184,11 +184,14 @@ object CommandLineParser {
       }
     }.toMap
 
-  def allSettings(settings: ClassDefinition[_]): Map[String, ClassParameter] =
+  def allSettings(
+      settings: ClassDefinition[_]
+  ): Map[String, ParameterDefinition] =
     inlinedSettings(settings) ++ settings.settings.map(s => s.name -> s)
 
   private sealed trait State
-  private case class Flag(flag: String, setting: ClassParameter) extends State
+  private case class Flag(flag: String, setting: ParameterDefinition)
+      extends State
   private case object NoFlag extends State
   private val dash = "--?".r
 

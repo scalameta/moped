@@ -11,28 +11,28 @@ import moped.internal.console.CommandLineParser
  * @param tpe the pretty-printed type of this parameter
  * @param annotations static annotations attached to this field.
  */
-final class ClassParameter(
+final class ParameterDefinition(
     val name: String,
     val tpe: String,
     val annotations: List[StaticAnnotation],
-    val underlying: List[List[ClassDefinition[_]]]
+    val underlying: Option[ClassDefinition[_]]
 ) {
   def withName(newName: String) =
-    new ClassParameter(newName, tpe, annotations, underlying)
+    new ParameterDefinition(newName, tpe, annotations, underlying)
 
   /**
    * Returns this field with all underlying fields expaneded.
    *
    * Underlying field names become prefixed by their enclosing fields.
    */
-  def flat: List[ClassParameter] = {
+  def flat: List[ParameterDefinition] = {
     if (underlying.isEmpty) this :: Nil
     else {
-      for {
-        cls <- underlying.flatten
+      this :: (for {
+        cls <- underlying.toList
         param <- cls.fields
         flattened <- field.withName(s"$name.${field.name}").flat
-      } yield flattened
+      } yield flattened)
     }
   }
   override def toString: String = {

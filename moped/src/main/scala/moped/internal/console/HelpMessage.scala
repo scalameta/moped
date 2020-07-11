@@ -12,7 +12,7 @@ object HelpMessage {
   def generate[T: JsonEncoder](
       default: T
   )(implicit settings: ClassDefinition[T]): Doc = {
-    def toHelp(setting: ClassParameter, value: JsonElement) = {
+    def toHelp(setting: ParameterDefinition, value: JsonElement) = {
       val name = Cases.camelToKebab(setting.name)
       val key = s"--$name: ${setting.tpe} = $value "
       key -> paragraph(setting.description.getOrElse(""))
@@ -36,7 +36,7 @@ object HelpMessage {
           Nil
         } else if (setting.annotations.exists(_.isInstanceOf[Inline])) {
           for {
-            underlying <- setting.underlying.flatten
+            underlying <- setting.underlying.toList
             (field, JsonMember(_, fieldDefault)) <-
               underlying.settings.zip(value.members)
           } yield toHelp(field, fieldDefault)

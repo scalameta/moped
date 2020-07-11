@@ -11,7 +11,7 @@ import moped.annotations.ExampleUsage
 import moped.internal.console.HelpMessage
 
 final class ClassDefinition[T](
-    val fields: List[List[ClassParameter]],
+    val fields: List[List[ParameterDefinition]],
     val annotations: List[StaticAnnotation]
 ) {
   def settings = fields.flatten
@@ -31,10 +31,10 @@ final class ClassDefinition[T](
       name <- setting.allNames
     } yield name
 
-  def get(name: String): Option[ClassParameter] =
+  def get(name: String): Option[ParameterDefinition] =
     settings.find(_.matchesLowercase(name))
 
-  def get(name: String, rest: List[String]): Option[ClassParameter] =
+  def get(name: String, rest: List[String]): Option[ParameterDefinition] =
     get(name).flatMap { setting =>
       if (setting.isDynamic) {
         Some(setting)
@@ -42,11 +42,10 @@ final class ClassDefinition[T](
         rest match {
           case Nil => Some(setting)
           case head :: tail =>
-            setting.underlying.iterator.flatten
-              .map(_.get(head, tail))
-              .collectFirst {
-                case Some(value) => value
-              }
+            for {
+              underlying <- setting.underlying
+              next <- underlying.get(head, tail)
+            } yield next
         }
       }
     }

@@ -22,6 +22,8 @@ object JsonDecoder {
 
   def apply[A](implicit ev: JsonDecoder[A]): JsonDecoder[A] =
     ev
+  def constant[A](value: A): JsonDecoder[A] =
+    _ => ValueResult(value)
 
   def fromJson[A](expected: String)(
       fn: PartialFunction[JsonElement, DecodingResult[A]]
@@ -50,7 +52,7 @@ object JsonDecoder {
       case JsonBoolean(value) => ValueResult(value)
     }
   implicit val unitJsonDecoder: JsonDecoder[Unit] =
-    _ => ValueResult(())
+    constant(())
   implicit lazy val pathJsonDecoder: JsonDecoder[Path] =
     stringJsonDecoder.flatMap(path =>
       DecodingResult.fromUnsafe(() => Paths.get(path))

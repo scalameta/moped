@@ -8,8 +8,10 @@ import moped.generic.Settings
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
 
-object Cli {
-  def help[T: JsonEncoder](default: T)(implicit settings: Settings[T]): Doc = {
+object HelpMessage {
+  def generate[T: JsonEncoder](
+      default: T
+  )(implicit settings: Settings[T]): Doc = {
     def toHelp(setting: Setting, value: JsonElement) = {
       val name = Cases.camelToKebab(setting.name)
       val key = s"--$name: ${setting.tpe} = $value "

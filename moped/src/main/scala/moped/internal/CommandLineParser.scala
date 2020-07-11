@@ -1,11 +1,10 @@
 package moped.internal
 
 import moped._
-import moped.internal.Cases
 import moped.generic.Setting
 import moped.generic.Settings
 import moped.annotation.Inline
-import CommandLineParser._
+import moped.internal.CommandLineParser._
 
 class CommandLineParser[T](
     args: List[String],

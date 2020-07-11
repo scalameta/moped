@@ -5,13 +5,13 @@ import moped.JsonObject
 import moped.JsonElement
 import moped.JsonEncoder
 import moped.annotation.DeprecatedName
-import moped.internal.Cli
 import scala.annotation.StaticAnnotation
 import moped.annotation.DescriptionDoc
 import org.typelevel.paiges.Doc
 import moped.annotation.Description
 import moped.annotation.Usage
 import moped.annotation.ExampleUsage
+import moped.internal.HelpMessage
 
 final class Settings[T](
     val settings: List[Setting],
@@ -19,18 +19,6 @@ final class Settings[T](
 ) {
   def this(settings: List[Setting]) = this(settings, Nil)
   def fields: List[Field] = settings.map(_.field)
-
-  @deprecated("Use flat(JsonElement) instead", "0.8.0")
-  def flat(default: T)(implicit ev: T <:< Product): List[(Setting, Any)] = {
-    settings
-      .zip(default.productIterator.toIterable)
-      .flatMap {
-        case (deepSetting, defaultSetting: Product) =>
-          deepSetting.flat.zip(defaultSetting.productIterator.toIterable)
-        case (s, defaultValue) =>
-          (s, defaultValue) :: Nil
-      }
-  }
 
   def flat(default: JsonObject): List[(Setting, JsonElement)] = {
     settings.zip(default.members).flatMap {
@@ -78,28 +66,27 @@ final class Settings[T](
         }
       }
     }
-  def unsafeGet(name: String): Setting = get(name).get
-  @deprecated("Use JsonEncoder[T].write instead", "0.8.1")
-  def withDefault(
+
+  def commandLineHelp(
       default: T
-  )(implicit ev: T <:< Product): List[(Setting, Any)] =
-    settings.zip(default.productIterator.toList)
+  )(implicit ev: JsonEncoder[T]): String =
+    commandLineHelp(default, 80)
+  def commandLineHelp(
+      default: T,
+      width: Int
+  )(implicit ev: JsonEncoder[T]): String =
+    HelpMessage.generate[T](default)(ev, this).renderTrim(width)
 
-  def toCliHelp(default: T)(implicit ev: JsonEncoder[T]): String =
-    toCliHelp(default, 80)
-  def toCliHelp(default: T, width: Int)(implicit ev: JsonEncoder[T]): String =
-    Cli.help[T](default)(ev, this).renderTrim(width)
-
-  def cliDescription: Option[Doc] =
+  def commandLineDescription: Option[Doc] =
     annotations.collectFirst {
       case DescriptionDoc(doc) => doc
       case Description(doc)    => Doc.text(doc)
     }
-  def cliUsage: Option[Doc] =
+  def commandLineUsage: Option[Doc] =
     annotations.collectFirst {
       case Usage(doc) => Doc.text(doc)
     }
-  def cliExamples: List[Doc] =
+  def commandLineExamples: List[Doc] =
     annotations.collect {
       case ExampleUsage(example) => Doc.text(example)
     }

@@ -65,10 +65,6 @@ final class Setting(val field: Field) {
     annotations.collectFirst {
       case oneof: TabCompleteAsOneOf => oneof.options.toList
     }
-  @deprecated("Use isDynamic instead", "0.8.2")
-  def isMap: Boolean = field.tpe.startsWith("Map")
-  @deprecated("Use isDynamic instead", "0.8.2")
-  def isJsonElement: Boolean = field.tpe.contains("JsonElement")
   def alternativeNames: List[String] =
     extraNames ::: deprecatedNames.map(_.name)
   def allNames: List[String] = name :: alternativeNames

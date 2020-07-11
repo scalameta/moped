@@ -1,4 +1,4 @@
 package moped.internal.diagnostics
 
 class MessageOnlyDiagnostic(val message: String)
-    extends moped.Diagnostic(moped.ErrorSeverity)
+    extends moped.reporters.Diagnostic(moped.reporters.ErrorSeverity)

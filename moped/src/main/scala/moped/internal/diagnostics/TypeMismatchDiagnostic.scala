@@ -1,11 +1,7 @@
 package moped.internal.diagnostics
 
-import moped.Position
-import moped.Diagnostic
-import moped.ErrorSeverity
-import moped.Cursor
-import moped.JsonElement
-import moped.DecodingContext
+import moped.reporters._
+import moped.json._
 
 class TypeMismatchDiagnostic(
     expected: String,

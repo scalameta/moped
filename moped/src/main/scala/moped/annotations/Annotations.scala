@@ -1,4 +1,4 @@
-package moped.annotation
+package moped.annotations
 
 import scala.annotation.StaticAnnotation
 import org.typelevel.paiges.Doc

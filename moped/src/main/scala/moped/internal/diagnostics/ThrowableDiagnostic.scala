@@ -1,9 +1,6 @@
 package moped.internal.diagnostics
 
-import moped.Diagnostic
-import moped.Position
-import moped.ErrorSeverity
-import moped.NoPosition
+import moped.reporters._
 
 class ThrowableDiagnostic(error: Throwable, pos: Position)
     extends Diagnostic(

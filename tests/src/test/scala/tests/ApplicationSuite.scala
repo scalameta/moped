@@ -1,12 +1,10 @@
 package tests
 
-import moped.JsonDecoder
-import moped.DecodingResult
-import moped.ValueResult
-import moped.Application
-import moped.CommandParser
-import moped.Command
-import moped.annotation.PositionalArguments
+import moped.json.ValueResult
+import moped.console.Application
+import moped.console.CommandParser
+import moped.console.Command
+import moped.annotations.PositionalArguments
 
 case class EchoCommand(
     verbose: Boolean,

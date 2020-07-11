@@ -1,8 +1,6 @@
 package moped.internal.diagnostics
 
-import moped.Diagnostic
-import moped.ErrorSeverity
-import moped.NoPosition
+import moped.reporters._
 
 class WithFilterDiagnostic[A](value: A, filter: A => Boolean)
     extends Diagnostic(

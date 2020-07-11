@@ -20,14 +20,7 @@ object HelpMessage {
 
     val defaultConf = JsonEncoder[T].encode(default) match {
       case JsonObject(members) => members.map(_.value)
-      case els =>
-        ???
-      // new TypeMismatchDiagnostic(
-      //   "JsonObject",
-      //   els.productPrefix,
-      //   els.position,
-      //   NoCursor
-      // )
+      case els                 => Nil
     }
 
     val keyValues = settings.settings.zip(defaultConf).flatMap {

@@ -7,6 +7,8 @@ import java.lang.instrument.ClassDefinition
 package object generic {
   def deriveSurface[T]: ClassDefinition[T] =
     macro moped.internal.generic.Macros.deriveSurfaceImpl[T]
+  def deriveClassDefinition[T]: ClassDefinition[T] =
+    macro moped.internal.generic.Macros.deriveSurfaceImpl[T]
   def deriveDecoder[T](default: T): JsonDecoder[T] =
     macro moped.internal.generic.Macros.deriveJsonDecoderImpl[T]
   def deriveEncoder[T]: JsonEncoder[T] =

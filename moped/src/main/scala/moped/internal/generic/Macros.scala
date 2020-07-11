@@ -33,10 +33,14 @@ class Macros(val c: blackbox.Context) {
   def deriveJsonCodecImpl[T: c.WeakTypeTag](default: Tree): Tree = {
     val T = assumeClass[T]
     q"""
-        _root_.moped.json.JsonCodec.EncoderDecoderToCodec[$T](
-          _root_.moped.generic.deriveEncoder[$T],
-          _root_.moped.generic.deriveDecoder[$T]($default)
-        )
+        {
+          implicit lazy val classDefinition = _root_.moped.generic.deriveClassDefinition[$T]
+          _root_.moped.json.JsonCodec.encoderDecoderJsonCodec[$T](
+            classDefinition,
+            _root_.moped.generic.deriveEncoder[$T],
+            _root_.moped.generic.deriveDecoder[$T]($default)
+          )
+        }
      """
   }
 
@@ -48,11 +52,11 @@ class Macros(val c: blackbox.Context) {
       val select = Select(q"value", param.name)
       val encoder =
         q"_root_.scala.Predef.implicitly[_root_.moped.json.JsonEncoder[${param.info}]]"
-      q"_root_.moped.json.JsonMember(_root_.moped.json.JsonString($name), $encoder.write($select))"
+      q"_root_.moped.json.JsonMember(_root_.moped.json.JsonString($name), $encoder.encode($select))"
     }
     val result = q"""
        new ${weakTypeOf[JsonEncoder[T]]} {
-         override def write(value: ${weakTypeOf[T]}): _root_.moped.Conf = {
+         override def encode(value: ${weakTypeOf[T]}): _root_.moped.json.JsonObject = {
            new _root_.moped.json.JsonObject(
              _root_.scala.List.apply(..$writes)
            )
@@ -118,9 +122,9 @@ class Macros(val c: blackbox.Context) {
     val result = q"""
        new ${weakTypeOf[JsonDecoder[T]]} {
          def read(
-             context: _root_.moped.json.DecoderContext
+             context: ${weakTypeOf[DecodingContext]}
          ): ${weakTypeOf[DecodingResult[T]]} = {
-           val conf = context.conf
+           val conf = context.json
            val settings = $settings
            val tmp = $default
            $product.map { t =>
@@ -184,9 +188,9 @@ class Macros(val c: blackbox.Context) {
         val underlyingInferred = c.inferImplicitValue(fieldsParamTpe)
         val underlying =
           if (underlyingInferred == null || underlyingInferred.isEmpty) {
-            q"_root_.scala.Nil"
+            q"_root_.scala.None"
           } else {
-            q"$underlyingInferred.fields"
+            q"_root_.scala.Some.apply($underlyingInferred)"
           }
         val tprint = c.internal.typeRef(
           NoPrefix,
@@ -212,7 +216,7 @@ class Macros(val c: blackbox.Context) {
         annot.tree
     }
     val result =
-      q"new ${weakTypeOf[ClassDefinition[T]]}($args, _root_.scala.List.apply(..$classAnnotations))"
+      q"_root_.moped.generic.ClassDefinition.apply[${weakTypeOf[T]}]($args, _root_.scala.List.apply(..$classAnnotations))"
     c.untypecheck(result)
   }
 

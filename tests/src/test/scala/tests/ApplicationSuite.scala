@@ -5,11 +5,12 @@ import moped.console.Application
 import moped.console.CommandParser
 import moped.console.Command
 import moped.annotations.PositionalArguments
+import moped.json.JsonCodec
 
 case class EchoCommand(
-    verbose: Boolean,
+    verbose: Boolean = false,
     @PositionalArguments()
-    args: List[String]
+    args: List[String] = Nil
 ) extends Command("echo") {
   def run(app: Application): Int = {
     val toPrint =
@@ -18,6 +19,10 @@ case class EchoCommand(
     app.env.standardOutput.println(toPrint.mkString(" "))
     0
   }
+}
+
+object EchoCommand {
+  implicit val codec = JsonCodec.derive(EchoCommand())
 }
 
 class ApplicationSuite extends munit.FunSuite {

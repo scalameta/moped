@@ -10,10 +10,20 @@ import moped.annotations.Usage
 import moped.annotations.ExampleUsage
 import moped.internal.console.HelpMessage
 
-final class ClassDefinition[T](
-    val fields: List[List[ParameterDefinition]],
-    val annotations: List[StaticAnnotation]
-) {
+object ClassDefinition {
+  def apply[T](
+      f: List[List[ParameterDefinition]],
+      a: List[StaticAnnotation]
+  ): ClassDefinition[T] =
+    new ClassDefinition[T] {
+      def fields: List[List[ParameterDefinition]] = f
+      def annotations: List[StaticAnnotation] = a
+    }
+}
+
+trait ClassDefinition[T] {
+  def fields: List[List[ParameterDefinition]]
+  def annotations: List[StaticAnnotation]
   def settings = fields.flatten
 
   override def toString: String = s"Surface(settings=$settings)"

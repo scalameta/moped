@@ -11,7 +11,7 @@ import org.typelevel.paiges.Doc._
 object Cli {
   def help[T: JsonEncoder](default: T)(implicit settings: Settings[T]): Doc = {
     def toHelp(setting: Setting, value: JsonElement) = {
-      val name = Case.camelToKebab(setting.name)
+      val name = Cases.camelToKebab(setting.name)
       val key = s"--$name: ${setting.tpe} = $value "
       key -> paragraph(setting.description.getOrElse(""))
     }

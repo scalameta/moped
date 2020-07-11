@@ -1,6 +1,6 @@
 package moped.internal
 
-object Case {
+object Cases {
   private val Kebab = "-([a-z])".r
   private val Camel = "([A-Z])".r
   def kebabToCamel(kebab: String): String = {

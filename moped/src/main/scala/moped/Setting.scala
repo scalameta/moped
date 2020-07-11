@@ -2,7 +2,7 @@ package moped.generic
 
 import scala.annotation.StaticAnnotation
 import moped.annotation._
-import moped.internal.CliParser
+import moped.internal.CommandLineParser
 
 final class Setting(val field: Field) {
   def name: String = field.name
@@ -58,8 +58,8 @@ final class Setting(val field: Field) {
     annotations.exists(_.isInstanceOf[CatchInvalidFlags])
   def isPositionalArgument: Boolean =
     annotations.exists {
-      case ExampleValue(CliParser.PositionalArgument) => true
-      case _                                          => false
+      case ExampleValue(CommandLineParser.PositionalArgument) => true
+      case _                                                  => false
     }
   def tabCompleteOneOf: Option[List[String]] =
     annotations.collectFirst {

@@ -1,16 +1,17 @@
 package moped.internal
 
 import moped._
+import moped.internal.Cases
 import moped.generic.Setting
 import moped.generic.Settings
 import moped.annotation.Inline
+import CommandLineParser._
 
-class CliParser[T](
+class CommandLineParser[T](
     args: List[String],
     settings: Settings[T],
     toInline: Map[String, Setting]
 ) {
-  import CliParser._
   def loop(
       curr: JsonObject,
       xs: List[String],
@@ -23,7 +24,7 @@ class CliParser[T](
         else {
           ErrorResult(
             Diagnostic.message(
-              s"the argument '--${Case.camelToKebab(flag)}' requires a value but none was supplied"
+              s"the argument '--${Cases.camelToKebab(flag)}' requires a value but none was supplied"
             )
           )
         }
@@ -81,7 +82,7 @@ class CliParser[T](
       s: State,
       defaultBooleanValue: Boolean
   ): DecodingResult[JsonObject] = {
-    val camel = Case.kebabToCamel(dash.replaceFirstIn(head, ""))
+    val camel = Cases.kebabToCamel(dash.replaceFirstIn(head, ""))
     camel.split("\\.").toList match {
       case Nil =>
         ErrorResult(Diagnostic.message(s"Flag '$head' must not be empty"))
@@ -100,7 +101,7 @@ class CliParser[T](
                   case None =>
                     ""
                   case Some(candidate) =>
-                    val kebab = Case.camelToKebab(candidate)
+                    val kebab = Cases.camelToKebab(candidate)
                     s"\n\tDid you mean '--$kebab'?"
                 }
                 ErrorResult(
@@ -131,14 +132,14 @@ class CliParser[T](
   }
 }
 
-object CliParser {
+object CommandLineParser {
   val PositionalArgument = "remainingArgs"
 
   def parseArgs[T](
       args: List[String]
   )(implicit settings: Settings[T]): DecodingResult[JsonElement] = {
     val toInline = inlinedSettings(settings)
-    val parser = new CliParser[T](args, settings, toInline)
+    val parser = new CommandLineParser[T](args, settings, toInline)
     parser.loop(JsonObject(Nil), args, NoFlag).map(_.normalize)
   }
 

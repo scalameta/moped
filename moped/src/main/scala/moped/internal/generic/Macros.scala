@@ -7,6 +7,7 @@ import moped.json._
 import moped.generic._
 import java.nio.file.Path
 import java.io.File
+import moped.generic.ClassDefinition
 
 object Macros
 class Macros(val c: blackbox.Context) {
@@ -64,12 +65,12 @@ class Macros(val c: blackbox.Context) {
   def deriveJsonDecoderImpl[T: c.WeakTypeTag](default: Tree): Tree = {
     val T = assumeClass[T]
     val Tclass = T.typeSymbol.asClass
-    val settings = c.inferImplicitValue(weakTypeOf[Structure[T]])
+    val settings = c.inferImplicitValue(weakTypeOf[ClassDefinition[T]])
     if (settings == null || settings.isEmpty) {
       c.abort(
         c.enclosingPosition,
-        s"Missing implicit for ${weakTypeOf[Structure[T]]}]. " +
-          s"Hint, add `implicit val surface: ${weakTypeOf[Surface[T]]}` " +
+        s"Missing implicit for ${weakTypeOf[ClassDefinition[T]]}]. " +
+          s"Hint, add `implicit val surface: ${weakTypeOf[ClassDefinition[T]]}` " +
           s"to the companion ${T.companion.typeSymbol}"
       )
     }
@@ -177,7 +178,7 @@ class Macros(val c: blackbox.Context) {
           repeated ::: dynamic ::: flag ::: tabCompletePath ::: baseAnnots
         val fieldsParamTpe = c.internal.typeRef(
           NoPrefix,
-          weakTypeOf[Surface[_]].typeSymbol,
+          weakTypeOf[ClassDefinition[_]].typeSymbol,
           paramTpe :: Nil
         )
         val underlyingInferred = c.inferImplicitValue(fieldsParamTpe)
@@ -194,7 +195,7 @@ class Macros(val c: blackbox.Context) {
         )
         val tpeString = c.inferImplicitValue(tprint)
 
-        val field = q"""new ${weakTypeOf[Field]}(
+        val field = q"""new ${weakTypeOf[ClassParameter]}(
            ${param.name.decodedName.toString},
            $tpeString.render,
            _root_.scala.List.apply(..$finalAnnots),
@@ -211,7 +212,7 @@ class Macros(val c: blackbox.Context) {
         annot.tree
     }
     val result =
-      q"new ${weakTypeOf[Surface[T]]}($args, _root_.scala.List.apply(..$classAnnotations))"
+      q"new ${weakTypeOf[ClassDefinition[T]]}($args, _root_.scala.List.apply(..$classAnnotations))"
     c.untypecheck(result)
   }
 

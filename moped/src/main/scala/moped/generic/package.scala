@@ -2,9 +2,10 @@ package moped
 
 import scala.language.experimental.macros
 import moped.json._
+import java.lang.instrument.ClassDefinition
 
 package object generic {
-  def deriveSurface[T]: Surface[T] =
+  def deriveSurface[T]: ClassDefinition[T] =
     macro moped.internal.generic.Macros.deriveSurfaceImpl[T]
   def deriveDecoder[T](default: T): JsonDecoder[T] =
     macro moped.internal.generic.Macros.deriveJsonDecoderImpl[T]

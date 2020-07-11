@@ -10,12 +10,11 @@ import moped.annotations.Usage
 import moped.annotations.ExampleUsage
 import moped.internal.console.HelpMessage
 
-final class Structure[T](
-    val settings: List[Setting],
+final class ClassDefinition[T](
+    val fields: List[List[ClassParameter]],
     val annotations: List[StaticAnnotation]
 ) {
-  def this(settings: List[Setting]) = this(settings, Nil)
-  def fields: List[Field] = settings.map(_.field)
+  def settings = fields.flatten
 
   override def toString: String = s"Surface(settings=$settings)"
   object Deprecated {
@@ -32,10 +31,10 @@ final class Structure[T](
       name <- setting.allNames
     } yield name
 
-  def get(name: String): Option[Setting] =
+  def get(name: String): Option[ClassParameter] =
     settings.find(_.matchesLowercase(name))
 
-  def get(name: String, rest: List[String]): Option[Setting] =
+  def get(name: String, rest: List[String]): Option[ClassParameter] =
     get(name).flatMap { setting =>
       if (setting.isDynamic) {
         Some(setting)
@@ -43,10 +42,11 @@ final class Structure[T](
         rest match {
           case Nil => Some(setting)
           case head :: tail =>
-            for {
-              underlying <- setting.underlying
-              next <- underlying.get(head, tail)
-            } yield next
+            setting.underlying.iterator.flatten
+              .map(_.get(head, tail))
+              .collectFirst {
+                case Some(value) => value
+              }
         }
       }
     }
@@ -75,11 +75,4 @@ final class Structure[T](
       case ExampleUsage(example) => Doc.text(example)
     }
 
-}
-
-object Structure {
-  implicit def FieldsToSettings[T](implicit ev: Surface[T]): Structure[T] =
-    apply(ev)
-  def apply[T](implicit ev: Surface[T]): Structure[T] =
-    new Structure[T](ev.fields.flatten.map(new Setting(_)), ev.annotations)
 }

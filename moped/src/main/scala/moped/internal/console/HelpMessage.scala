@@ -11,8 +11,8 @@ import org.typelevel.paiges.Doc._
 object HelpMessage {
   def generate[T: JsonEncoder](
       default: T
-  )(implicit settings: Structure[T]): Doc = {
-    def toHelp(setting: Setting, value: JsonElement) = {
+  )(implicit settings: ClassDefinition[T]): Doc = {
+    def toHelp(setting: ClassParameter, value: JsonElement) = {
       val name = Cases.camelToKebab(setting.name)
       val key = s"--$name: ${setting.tpe} = $value "
       key -> paragraph(setting.description.getOrElse(""))
@@ -31,19 +31,19 @@ object HelpMessage {
     }
 
     val keyValues = settings.settings.zip(defaultConf).flatMap {
-      case (setting, value) =>
+      case (setting, value: JsonObject) =>
         if (setting.isHidden) {
           Nil
         } else if (setting.annotations.exists(_.isInstanceOf[Inline])) {
           for {
-            underlying <- setting.underlying.toList
+            underlying <- setting.underlying.flatten
             (field, JsonMember(_, fieldDefault)) <-
-              underlying.settings
-                .zip(value.asInstanceOf[JsonObject].members)
+              underlying.settings.zip(value.members)
           } yield toHelp(field, fieldDefault)
         } else {
           toHelp(setting, value) :: Nil
         }
+      case _ => Nil
     }
     tabulate(keyValues)
   }

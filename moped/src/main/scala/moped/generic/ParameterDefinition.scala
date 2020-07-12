@@ -15,7 +15,7 @@ final class ParameterShape(
     val name: String,
     val tpe: String,
     val annotations: List[StaticAnnotation],
-    val underlying: Option[ClassShape[_]]
+    val underlying: Option[ClassShaper[_]]
 ) {
   def withName(newName: String) =
     new ParameterShape(newName, tpe, annotations, underlying)

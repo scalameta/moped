@@ -4,14 +4,14 @@ import moped._
 import moped.json._
 import moped.reporters._
 import moped.generic.ParameterShape
-import moped.generic.ClassShape
+import moped.generic.ClassShaper
 import moped.annotations.Inline
 import moped.internal.reporters.Levenshtein
 import moped.internal.console.CommandLineParser._
 
 class CommandLineParser[T](
     args: List[String],
-    settings: ClassShape[T],
+    settings: ClassShaper[T],
     toInline: Map[String, ParameterShape]
 ) {
   def loop(
@@ -139,7 +139,7 @@ object CommandLineParser {
 
   def parseArgs[T](
       args: List[String]
-  )(implicit settings: ClassShape[T]): DecodingResult[JsonElement] = {
+  )(implicit settings: ClassShaper[T]): DecodingResult[JsonElement] = {
     val toInline = inlinedSettings(settings)
     val parser = new CommandLineParser[T](args, settings, toInline)
     parser.loop(JsonObject(Nil), args, NoFlag)
@@ -171,7 +171,7 @@ object CommandLineParser {
   }
 
   def inlinedSettings(
-      settings: ClassShape[_]
+      settings: ClassShaper[_]
   ): Map[String, ParameterShape] =
     settings.settings.iterator.flatMap { setting =>
       if (setting.annotations.exists(_.isInstanceOf[Inline])) {
@@ -185,7 +185,7 @@ object CommandLineParser {
     }.toMap
 
   def allSettings(
-      settings: ClassShape[_]
+      settings: ClassShaper[_]
   ): Map[String, ParameterShape] =
     inlinedSettings(settings) ++ settings.settings.map(s => s.name -> s)
 

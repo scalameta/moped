@@ -16,7 +16,7 @@ import moped.annotations.TabComplete
 
 trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A
-  def asClassDefinition: ClassShape[Value] = this
+  def asClassDefinition: ClassShaper[Value] = this
   def asDecoder: JsonDecoder[Value] = this
   def description: Doc = this.commandLineDescription.getOrElse(Doc.empty)
   def usage: Doc = this.commandLineUsage.getOrElse(Doc.empty)

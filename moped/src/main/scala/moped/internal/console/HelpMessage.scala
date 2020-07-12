@@ -11,7 +11,7 @@ import org.typelevel.paiges.Doc._
 object HelpMessage {
   def generate[T: JsonEncoder](
       default: T
-  )(implicit settings: ClassShape[T]): Doc = {
+  )(implicit settings: ClassShaper[T]): Doc = {
     def toHelp(setting: ParameterShape, value: JsonElement) = {
       val name = Cases.camelToKebab(setting.name)
       val key = s"--$name: ${setting.tpe} = $value "

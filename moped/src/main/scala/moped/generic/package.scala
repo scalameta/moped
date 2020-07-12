@@ -5,9 +5,9 @@ import moped.json._
 import java.lang.instrument.ClassDefinition
 
 package object generic {
-  def deriveSurface[T]: ClassShape[T] =
+  def deriveSurface[T]: ClassShaper[T] =
     macro moped.internal.generic.Macros.deriveSurfaceImpl[T]
-  def deriveClassShape[T]: ClassShape[T] =
+  def deriveClassShaper[T]: ClassShaper[T] =
     macro moped.internal.generic.Macros.deriveSurfaceImpl[T]
   def deriveDecoder[T](default: T): JsonDecoder[T] =
     macro moped.internal.generic.Macros.deriveJsonDecoderImpl[T]

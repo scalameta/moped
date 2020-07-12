@@ -7,7 +7,7 @@ import moped.json._
 import moped.generic._
 import java.nio.file.Path
 import java.io.File
-import moped.generic.ClassShape
+import moped.generic.ClassShaper
 
 object Macros
 class Macros(val c: blackbox.Context) {
@@ -34,7 +34,7 @@ class Macros(val c: blackbox.Context) {
     val T = assumeClass[T]
     q"""
         {
-          implicit lazy val classDefinition = _root_.moped.generic.deriveClassShape[$T]
+          implicit lazy val classDefinition = _root_.moped.generic.deriveClassShaper[$T]
           _root_.moped.json.JsonCodec.encoderDecoderJsonCodec[$T](
             classDefinition,
             _root_.moped.generic.deriveEncoder[$T],
@@ -74,12 +74,12 @@ class Macros(val c: blackbox.Context) {
   def deriveJsonDecoderImpl[T: c.WeakTypeTag](default: Tree): Tree = {
     val T = assumeClass[T]
     val Tclass = T.typeSymbol.asClass
-    val settings = c.inferImplicitValue(weakTypeOf[ClassShape[T]])
+    val settings = c.inferImplicitValue(weakTypeOf[ClassShaper[T]])
     if (settings == null || settings.isEmpty) {
       c.abort(
         c.enclosingPosition,
-        s"Missing implicit for ${weakTypeOf[ClassShape[T]]}]. " +
-          s"Hint, add `implicit val surface: ${weakTypeOf[ClassShape[T]]}` " +
+        s"Missing implicit for ${weakTypeOf[ClassShaper[T]]}]. " +
+          s"Hint, add `implicit val surface: ${weakTypeOf[ClassShaper[T]]}` " +
           s"to the companion ${T.companion.typeSymbol}"
       )
     }
@@ -187,7 +187,7 @@ class Macros(val c: blackbox.Context) {
           repeated ::: dynamic ::: flag ::: tabCompletePath ::: baseAnnots
         val fieldsParamTpe = c.internal.typeRef(
           NoPrefix,
-          weakTypeOf[ClassShape[_]].typeSymbol,
+          weakTypeOf[ClassShaper[_]].typeSymbol,
           paramTpe :: Nil
         )
         val underlyingInferred = c.inferImplicitValue(fieldsParamTpe)
@@ -221,7 +221,7 @@ class Macros(val c: blackbox.Context) {
         annot.tree
     }
     val result =
-      q"_root_.moped.generic.ClassShape.apply[${weakTypeOf[T]}]($args, _root_.scala.List.apply(..$classAnnotations))"
+      q"_root_.moped.generic.ClassShaper.apply[${weakTypeOf[T]}]($args, _root_.scala.List.apply(..$classAnnotations))"
     c.untypecheck(result)
   }
 

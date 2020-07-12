@@ -3,6 +3,7 @@ package moped.macros
 import scala.annotation.StaticAnnotation
 import moped.annotations._
 import moped.internal.console.CommandLineParser
+import moped.console.Completer
 
 /**
  * Metadata about one parameter of a class.
@@ -57,6 +58,10 @@ final class ParameterShape(
     annotations.collectFirst {
       case oneof: TabCompleteAsOneOf => oneof.options.toList
     }
+  def tabCompleter: Option[Completer[_]] =
+    annotations.collectFirst {
+      case TabComplete(completer) => completer
+    }
 
   def isPositionalArguments: Boolean =
     annotations.exists(_.isInstanceOf[PositionalArguments])
@@ -68,8 +73,10 @@ final class ParameterShape(
     annotations.exists(_.isInstanceOf[Hidden])
   def isBoolean: Boolean =
     annotations.exists(_.isInstanceOf[Flag])
-  def isTabCompleteAsPath: Boolean =
-    annotations.exists(_.isInstanceOf[TabCompleteAsPath])
+  def isTabCompleteOneOf: Boolean =
+    annotations.exists(_.isInstanceOf[TabCompleteAsOneOf])
+  def isTabComplete: Boolean =
+    annotations.exists(_.isInstanceOf[TabComplete])
   def isCatchInvalidFlags: Boolean =
     annotations.exists(_.isInstanceOf[CatchInvalidFlags])
   def isPositionalArgument: Boolean =

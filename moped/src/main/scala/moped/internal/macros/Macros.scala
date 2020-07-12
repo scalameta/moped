@@ -176,11 +176,18 @@ class Macros(val c: blackbox.Context) {
             Nil
           }
 
+        val completerType = c.internal.typeRef(
+          NoPrefix,
+          weakTypeOf[Completer[_]].typeSymbol,
+          paramTpe :: Nil
+        )
+        val completerInferred = c.inferImplicitValue(completerType)
+
         val tabCompletePath =
-          if (paramTpe <:< typeOf[Path] || paramTpe <:< typeOf[File]) {
-            q"new _root_.moped.annotations.TabCompleteAsPath" :: Nil
-          } else {
+          if (completerInferred == null || completerInferred.isEmpty) {
             Nil
+          } else {
+            q"new _root_.moped.annotations.TabCompleter($completerInferred)" :: Nil
           }
 
         val finalAnnots =

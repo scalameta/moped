@@ -84,21 +84,32 @@ case class CompleteCommand(
     if (context.last.startsWith("-")) {
       tabCompleteFlags(context)
     } else {
-      if (context.setting.exists(_.isTabCompleteAsPath)) {
-        tabCompletePath(context)
-      } else {
-        context.setting.flatMap(_.tabCompleteOneOf) match {
-          case Some(oneof) =>
-            oneof.map(TabCompletionItem(_))
-          case None =>
-            val fromCommand = command.complete(context)
-            if (fromCommand.isEmpty && context.last == "") {
-              tabCompleteFlags(context)
-            } else {
-              fromCommand
-            }
-        }
+      context.setting match {
+        case Some(setting) =>
+          if (setting.isTabCompleteOneOf) {
+            setting.tabCompleteOneOf.toList.flatten.map(oneof =>
+              TabCompletionItem(oneof)
+            )
+          } else if (setting.isTabComplete) {
+            setting.tabCompleter.toList.flatMap(_.complete(context))
+          } else {
+            tabCompleteFallback(command, context)
+          }
+        case None =>
+          tabCompleteFallback(command, context)
       }
+    }
+  }
+
+  private def tabCompleteFallback(
+      command: CommandParser[_],
+      context: TabCompletionContext
+  ): List[TabCompletionItem] = {
+    val fromCommand = command.complete(context)
+    if (fromCommand.isEmpty && context.last == "") {
+      tabCompleteFlags(context)
+    } else {
+      fromCommand
     }
   }
 
@@ -115,43 +126,4 @@ case class CompleteCommand(
       .map(camel => TabCompletionItem("--" + Cases.camelToKebab(camel)))
   }
 
-  private def tabCompletePath(
-      context: TabCompletionContext
-  ): List[TabCompletionItem] = {
-    val pathOrDirectory = Paths.get(context.last)
-    val absolutePathOrDirectory =
-      if (pathOrDirectory.isAbsolute()) pathOrDirectory
-      else context.app.env.workingDirectory.resolve(pathOrDirectory)
-    val path: Path =
-      if (context.last.endsWith(File.separator)) {
-        absolutePathOrDirectory
-      } else if (context.last.isEmpty()) {
-        absolutePathOrDirectory
-      } else {
-        Option(absolutePathOrDirectory.getParent())
-          .getOrElse(absolutePathOrDirectory)
-      }
-    if (Files.isDirectory(path)) {
-      path
-        .toFile()
-        .listFiles()
-        .iterator
-        .map(_.toPath())
-        .map { p =>
-          val slash = if (Files.isDirectory(p)) File.separator else ""
-          val prefix =
-            if (pathOrDirectory.isAbsolute()) {
-              p.toString()
-            } else {
-              context.app.env.workingDirectory.relativize(p).toString()
-            }
-          prefix + slash
-        }
-        .map(TabCompletionItem(_))
-        .toList
-        .sortBy(_.name)
-    } else {
-      Nil
-    }
-  }
 }

@@ -43,6 +43,7 @@ class ApplicationSuite extends munit.FunSuite {
   )
 
   test("foo") {
+    pprint.log(EchoCommand.parser.parameters)
     "my-cli --verbose echo foo"
     // app.run(List("echo", "--verbose", "Hello world!"))
   }

@@ -1,6 +1,9 @@
 inThisBuild(
   List(
-    useSuperShell := false
+    useSuperShell := false,
+    scalacOptions ++= List(
+      "-Yrangepos"
+    )
   )
 )
 lazy val moped = project

@@ -8,6 +8,7 @@ import moped.macros.ClassShaper
 import moped.annotations.Inline
 import moped.internal.reporters.Levenshtein
 import moped.internal.console.CommandLineParser._
+import scala.util.Try
 
 class CommandLineParser[T](
     args: List[String],
@@ -19,6 +20,7 @@ class CommandLineParser[T](
       xs: List[String],
       s: State
   ): DecodingResult[JsonObject] = {
+    pprint.log(xs)
     (xs, s) match {
       case (Nil, NoFlag) => ValueResult(curr)
       case (Nil, Flag(flag, setting)) =>
@@ -66,7 +68,10 @@ class CommandLineParser[T](
           loop(add(curr, PositionalArgument, positionalArgs), tail, NoFlag)
         }
       case (head :: tail, Flag(flag, setting)) =>
-        val value = JsonString(head)
+        val value =
+          if (setting.isNumber)
+            Try(JsonNumber(head.toDouble)).getOrElse(JsonString(head))
+          else JsonString(head)
         val newCurr =
           if (setting.isRepeated) {
             appendValues(curr, flag, List(value))

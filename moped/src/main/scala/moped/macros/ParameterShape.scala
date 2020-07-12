@@ -69,6 +69,8 @@ final case class ParameterShape(
     annotations.exists(_.isInstanceOf[Hidden])
   def isBoolean: Boolean =
     annotations.exists(_.isInstanceOf[Flag])
+  def isNumber: Boolean =
+    annotations.exists(_.isInstanceOf[ParseAsNumber])
   def isTabCompleteOneOf: Boolean =
     annotations.exists(_.isInstanceOf[TabCompleteAsOneOf])
   def isTabComplete: Boolean =

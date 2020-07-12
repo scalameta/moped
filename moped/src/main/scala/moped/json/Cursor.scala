@@ -3,8 +3,8 @@ package moped.json
 import scala.collection.mutable
 
 sealed abstract class Cursor {
-  private var myParent: Cursor = NoCursor()
-  def parent: Cursor = myParent
+  private var myParent: Option[Cursor] = None
+  def parent: Cursor = myParent.getOrElse(NoCursor())
   def isEmpty: Boolean = this.isInstanceOf[NoCursor]
   def parents: List[Cursor] = {
     val buf = mutable.ListBuffer.empty[Cursor]
@@ -19,7 +19,7 @@ sealed abstract class Cursor {
     buf.toList
   }
   def path: String = {
-    parents.iterator.map(_.syntax).mkString(".")
+    (this :: parents).iterator.map(_.syntax).mkString(".")
   }
   def syntax: String =
     this match {
@@ -29,7 +29,7 @@ sealed abstract class Cursor {
     }
   def withParent(newParent: Cursor): Cursor = {
     val result = copyThis()
-    result.myParent = newParent
+    result.myParent = Some(newParent)
     result
   }
   def copyThis(): Cursor =

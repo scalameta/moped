@@ -23,7 +23,8 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   def options: Doc = Doc.empty
   def examples: Doc = Doc.intercalate(Doc.line, this.commandLineExamples)
   def isHidden: Boolean = annotations.contains(Hidden())
-  def matchesName(name: String): Boolean = allNames.contains(name)
+  def matchesName(name: String): Boolean =
+    subcommandNames.exists(_.equalsIgnoreCase(name))
   def helpMessage: Doc = {
     val docs = List[(String, Doc)](
       "USAGE:" -> usage,
@@ -41,11 +42,16 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
     out.println(helpMessage.renderTrim(width))
   }
   def subcommandName: String =
-    annotations
-      .collectFirst {
-        case CommandName(name) => name
-      }
-      .getOrElse(throw new NoSuchElementException("@CommandName annotation"))
+    subcommandNames.headOption.getOrElse(fallbackSubcommandName)
+  def subcommandNames: List[String] = {
+    val fromAnnotations = annotations.collect {
+      case CommandName(name) => name
+    }
+    if (fromAnnotations.isEmpty) List(fallbackSubcommandName)
+    else fromAnnotations
+  }
+  private def fallbackSubcommandName =
+    shape.name.stripSuffix("Command").toLowerCase()
   def decodeCommand(context: DecodingContext): DecodingResult[BaseCommand] =
     this.decode(context)
   def parseCommand(arguments: List[String]): DecodingResult[BaseCommand] =

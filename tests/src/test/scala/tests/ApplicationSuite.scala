@@ -12,37 +12,7 @@ import moped.console.HelpCommand
 import java.nio.file.Path
 import moped.console.Completer
 
-@CommandName("echo")
-case class EchoCommand(
-    @Description("If true, blah")
-    verbose: Boolean = false,
-    path: List[Path] = Nil,
-    @PositionalArguments()
-    args: List[String] = Nil
-) extends Command {
-  def run(app: Application): Int = {
-    val toPrint =
-      if (verbose) args.map(_.toUpperCase())
-      else args
-    app.env.standardOutput.println(toPrint.mkString(" "))
-    0
-  }
-}
-
-object EchoCommand {
-  implicit val parser = CommandParser.derive(EchoCommand())
-}
-
 class ApplicationSuite extends munit.FunSuite {
-
-  val app = Application(
-    "app",
-    "1.0.0",
-    commands = List(
-      CommandParser[HelpCommand],
-      CommandParser[EchoCommand]
-    )
-  )
 
   test("foo") {
     pprint.log(EchoCommand.parser.parameters)

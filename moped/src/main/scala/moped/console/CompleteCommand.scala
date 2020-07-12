@@ -7,17 +7,74 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.Path
 import moped.internal.console.Cases
+import moped.json.JsonCodec
+import moped.json.JsonDecoder
+import moped.json.JsonEncoder
+import moped.macros.ClassShaper
+import moped.macros.ClassShape
+import moped.macros.ParameterShape
+import moped.annotations.PositionalArguments
+import moped.json.JsonObject
+import moped.internal.json.DrillIntoJson
+import moped.annotations.ParseAsNumber
+
+object CompleteCommand {
+
+  implicit lazy val parser: CommandParser[CompleteCommand] =
+    new CodecCommandParser[CompleteCommand](
+      JsonCodec.encoderDecoderJsonCodec(
+        ClassShaper(
+          new ClassShape(
+            "CompleteCommand",
+            "moped.console.CompleteCommand",
+            List(
+              List(
+                new ParameterShape(
+                  "current",
+                  "Option[Int]",
+                  List(new ParseAsNumber()),
+                  None
+                ),
+                new ParameterShape("format", "Option[String]", Nil, None),
+                new ParameterShape(
+                  "arguments",
+                  "List[String]",
+                  List(new PositionalArguments()),
+                  None
+                )
+              )
+            ),
+            Nil
+          )
+        ),
+        JsonEncoder.stringJsonEncoder.contramap[CompleteCommand](_ => ""),
+        JsonDecoder.fromJson("JsonObject") {
+          case obj: JsonObject =>
+            val current = DrillIntoJson.get[Int](obj, "current")
+            val format = DrillIntoJson.get[String](obj, "format")
+            val arguments = DrillIntoJson
+              .get[List[String]](obj, CommandLineParser.PositionalArgument)
+            current.product(format).product(arguments).map {
+              case ((a, b), c) =>
+                CompleteCommand(a, b, c)
+            }
+        }
+      )
+    )
+}
 
 case class CompleteCommand(
-    current: Option[Int] = None,
-    format: Option[String] = None,
-    arguments: List[String] = Nil
+    current: Int,
+    format: String,
+    arguments: List[String]
 ) extends Command {
 
   override def isHidden: Boolean = true
   def run(app: Application): Int = {
+    pprint.log(current)
+    pprint.log(format)
     val isMissingTrailingEmptyString =
-      current.contains(arguments.length + 1)
+      current == arguments.length + 1
     val argumentsWithTrailingEmptyString =
       if (isMissingTrailingEmptyString) arguments :+ ""
       else arguments

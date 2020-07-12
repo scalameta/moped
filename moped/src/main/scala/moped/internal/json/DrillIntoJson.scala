@@ -33,6 +33,12 @@ object DrillIntoJson {
     }
   }
 
+  def get[T](obj: JsonObject, path: String, extraNames: String*)(implicit
+      ev: JsonDecoder[T]
+  ): DecodingResult[T] = {
+    get[T](DecodingContext(obj, SelectMemberCursor(path)), path, extraNames: _*)
+  }
+
   def get[T](context: DecodingContext, path: String, extraNames: String*)(
       implicit ev: JsonDecoder[T]
   ): DecodingResult[T] = {

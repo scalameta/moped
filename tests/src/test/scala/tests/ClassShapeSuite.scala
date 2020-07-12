@@ -5,6 +5,13 @@ import munit.TestOptions
 import java.nio.file.Paths
 import java.nio.file.Path
 import moped.internal.console.PathCompleter
+import moped.console.Completer
+
+class CustomCompleter
+object CustomCompleter {
+  implicit val completer: Completer[CustomCompleter] =
+    context => List()
+}
 
 case class ExampleClass(
     boolean: Boolean = false,
@@ -13,7 +20,8 @@ case class ExampleClass(
     map: Map[String, Boolean] = Map.empty,
     path: Path,
     paths: List[Path],
-    workingDirectory: Option[Path]
+    workingDirectory: Option[Path],
+    custom: CustomCompleter
 )
 
 class ClassShapeSuite extends FunSuite {
@@ -28,18 +36,23 @@ class ClassShapeSuite extends FunSuite {
         "map" -> "Map[String, Boolean]",
         "path" -> "Path",
         "paths" -> "List[Path]",
-        "workingDirectory" -> "Option[Path]"
+        "workingDirectory" -> "Option[Path]",
+        "custom" -> "CustomCompleter"
       )
     )
   }
 
-  List("path", "paths", "workingDirectory").foreach { key =>
+  def checkCompleter(key: String, expected: Completer[_]): Unit =
     test(s"completer-$key") {
       assertEquals[Any, Any](
         shape.get(clue(key)).get.tabCompleter.get,
-        PathCompleter
+        expected
       )
     }
-  }
+
+  checkCompleter("path", PathCompleter)
+  checkCompleter("paths", PathCompleter)
+  checkCompleter("workingDirectory", PathCompleter)
+  checkCompleter("custom", CustomCompleter.completer)
 
 }

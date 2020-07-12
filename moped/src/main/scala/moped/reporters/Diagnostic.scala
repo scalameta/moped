@@ -25,6 +25,7 @@ abstract class Diagnostic(
       buf += d
       d.causes.foreach(loop)
     }
+    loop(this)
     buf.result()
   }
 

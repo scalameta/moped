@@ -21,7 +21,7 @@ class ConsoleReporter(
       .apply(diag.severity.name + ": ")
       .toString()
     counts(diag.severity).incrementAndGet()
-    ps.print(prefix + diag.message)
+    ps.println(prefix + diag.message)
   }
 
   override def errorCount(): Int = counts(ErrorSeverity).get()

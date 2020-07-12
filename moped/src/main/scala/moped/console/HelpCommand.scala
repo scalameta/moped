@@ -15,12 +15,20 @@ import moped.json.JsonString
 import moped.json.JsonArray
 import moped.json.ValueResult
 import moped.json.JsonCodec
+import moped.macros.ClassShape
 
 object HelpCommand {
   def parser(help: HelpCommand): CommandParser[HelpCommand] =
     new CodecCommandParser[HelpCommand](
       JsonCodec.encoderDecoderJsonCodec(
-        ClassShaper.empty,
+        ClassShaper(
+          new ClassShape(
+            "HelpCommand",
+            "moped.console.HelpCommand",
+            Nil,
+            Nil
+          )
+        ),
         JsonEncoder.stringJsonEncoder.contramap[HelpCommand](_ => ""),
         JsonDecoder.constant(help)
       )

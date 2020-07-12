@@ -55,7 +55,4 @@ object JsonEncoder {
     case None        => JsonNull()
   }
 
-  implicit def enumerationJsonEncoder[A <: Enumeration#Value]: JsonEncoder[A] =
-    value => JsonString(value.toString())
-
 }

@@ -122,9 +122,4 @@ object JsonDecoder {
     }
   }
 
-  implicit def enumerationJsonDecoder[A <: Enumeration#Value]: JsonDecoder[A] =
-    fromJson("JsonString") {
-      case JsonString(value) => ValueResult(None)
-    }
-
 }

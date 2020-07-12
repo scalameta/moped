@@ -185,17 +185,7 @@ class Macros(val c: blackbox.Context) {
 
         val tabCompletePath =
           if (completerInferred == null || completerInferred.isEmpty) {
-            if (paramTpe <:< typeOf[Enumeration#Value]) {
-              paramTpe match {
-                case TypeRef(SingleType(_, module), _, _)
-                    if module.info <:< typeOf[Enumeration] =>
-                  q"new _root_.moped.annotations.TabCompleter(_root_.moped.console.Completer.enumerationCompleter($module))" :: Nil
-                case _ =>
-                  Nil
-              }
-            } else {
-              Nil
-            }
+            Nil
           } else {
             q"new _root_.moped.annotations.TabCompleter($completerInferred)" :: Nil
           }

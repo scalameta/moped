@@ -17,31 +17,16 @@ import moped.json.ValueResult
 import moped.json.JsonCodec
 
 object HelpCommand {
-  implicit lazy val parser: CommandParser[HelpCommand] =
+  def parser(help: HelpCommand): CommandParser[HelpCommand] =
     new CodecCommandParser[HelpCommand](
       JsonCodec.encoderDecoderJsonCodec(
         ClassShaper.empty,
         JsonEncoder.stringJsonEncoder.contramap[HelpCommand](_ => ""),
-        JsonDecoder.constant(new HelpCommand())
+        JsonDecoder.constant(help)
       )
     )
-
-  def notRecognized(subcommand: String, app: Application): Int = {
-    val closestSubcommand =
-      Levenshtein.closestCandidate(
-        subcommand,
-        app.commands.map(_.subcommandName)
-      )
-    val didYouMean = closestSubcommand match {
-      case None => ""
-      case Some(candidate) =>
-        s"\n\tDid you mean '${app.binaryName} $candidate'?"
-    }
-    app.error(
-      s"no such subcommand '$subcommand'.$didYouMean\n\tTry '${app.binaryName} help' for more information."
-    )
-    1
-  }
+  implicit lazy val parser: CommandParser[HelpCommand] =
+    parser(new HelpCommand())
 }
 
 @CommandName("help", "--help", "-help")
@@ -97,7 +82,8 @@ class HelpCommand(
             command.helpMessage(app.out, screenWidth)
             0
           case None =>
-            HelpCommand.notRecognized(subcommand, app)
+            NotRecognizedCommand.notRecognized(subcommand, app)
+            1
         }
       case obtained =>
         app.error(

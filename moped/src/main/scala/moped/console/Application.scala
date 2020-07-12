@@ -16,6 +16,7 @@ import moped.json.DecodingContext
 import moped.internal.diagnostics.AggregateDiagnostic
 import moped.reporters.Reporter
 import moped.reporters.ConsoleReporter
+import moped.reporters.NoReporter
 
 case class Application(
     binaryName: String,
@@ -23,6 +24,7 @@ case class Application(
     commands: List[CommandParser[_]],
     arguments: List[String] = Nil,
     onEmptyArguments: BaseCommand = new HelpCommand(),
+    onNotRecognoziedCommand: BaseCommand = NotRecognizedCommand,
     env: Environment = Environment.default,
     reporter: Reporter = new ConsoleReporter(
       Environment.default.standardOutput
@@ -66,7 +68,7 @@ case class Application(
                 Future.successful(1)
             }
           case None =>
-            Future.successful(HelpCommand.notRecognized(subcommand, app))
+            onNotRecognoziedCommand.runAsFuture(app)
         }
     }
     Await.result(f, Duration.Inf)

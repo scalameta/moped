@@ -27,6 +27,7 @@ object ClassShape {
 trait ClassShape[T] {
   def fields: List[List[ParameterShape]]
   def annotations: List[StaticAnnotation]
+
   def settings = fields.flatten
 
   override def toString: String = s"Surface(settings=$settings)"

@@ -3,8 +3,8 @@ package moped.console
 import org.typelevel.paiges.Doc
 import moped.reporters.Terminals
 import moped.internal.reporters.Levenshtein
-import moped.generic.ClassShaper
-import moped.generic.ParameterShape
+import moped.macros.ClassShaper
+import moped.macros.ParameterShape
 import moped.annotations.CommandName
 import moped.annotations.ExtraName
 import moped.json.JsonEncoder

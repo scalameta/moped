@@ -1,4 +1,4 @@
-package moped.generic
+package moped.macros
 
 import moped.json._
 import scala.annotation.StaticAnnotation

@@ -2,7 +2,7 @@ package moped.console
 
 import scala.language.experimental.macros
 
-import moped.generic._
+import moped.macros._
 import moped.json._
 import moped.internal.console.CommandLineParser
 import scala.annotation.StaticAnnotation
@@ -63,7 +63,7 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
 
 object CommandParser {
   def derive[A](default: A): CommandParser[A] =
-    macro moped.internal.generic.Macros.deriveCommandParserImpl[A]
+    macro moped.internal.macros.Macros.deriveCommandParserImpl[A]
   def apply[A <: BaseCommand](implicit ev: CommandParser[A]): CommandParser[A] =
     ev
   def fromCodec[A <: BaseCommand](codec: JsonCodec[A]): CommandParser[A] =

@@ -3,7 +3,7 @@ package moped.json
 import scala.collection.mutable
 import moped.reporters._
 import moped.internal.json.NestedJsonKey
-import moped.generic.ParameterShape
+import moped.macros.ParameterShape
 
 sealed abstract class JsonElement extends Product with Serializable {
   private var myPosition: Position = NoPosition

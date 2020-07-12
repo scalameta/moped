@@ -4,7 +4,7 @@ import scala.collection.mutable
 import moped.json._
 import moped.internal.diagnostics.MissingFieldDiagnostic
 import moped.internal.diagnostics.TypeMismatchDiagnostic
-import moped.generic.ParameterShape
+import moped.macros.ParameterShape
 
 object DrillIntoJson {
   def getKey(obj: JsonElement, keys: Seq[String]): Option[JsonElement] =

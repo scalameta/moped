@@ -1,13 +1,13 @@
-package moped.internal.generic
+package moped.internal.macros
 
 import scala.annotation.StaticAnnotation
 import scala.reflect.macros.blackbox
 import moped.console._
 import moped.json._
-import moped.generic._
+import moped.macros._
 import java.nio.file.Path
 import java.io.File
-import moped.generic.ClassShaper
+import moped.macros.ClassShaper
 
 object Macros
 class Macros(val c: blackbox.Context) {
@@ -34,11 +34,11 @@ class Macros(val c: blackbox.Context) {
     val T = assumeClass[T]
     q"""
         {
-          implicit lazy val classDefinition = _root_.moped.generic.deriveShaper[$T]
+          implicit lazy val classDefinition = _root_.moped.macros.deriveShaper[$T]
           _root_.moped.json.JsonCodec.encoderDecoderJsonCodec[$T](
             classDefinition,
-            _root_.moped.generic.deriveEncoder[$T],
-            _root_.moped.generic.deriveDecoder[$T]($default)
+            _root_.moped.macros.deriveEncoder[$T],
+            _root_.moped.macros.deriveDecoder[$T]($default)
           )
         }
      """
@@ -46,7 +46,7 @@ class Macros(val c: blackbox.Context) {
 
   def deriveCommandParserImpl[T: c.WeakTypeTag](default: Tree): Tree = {
     val T = assumeClass[T]
-    q"_root_.moped.console.CommandParser.fromCodec(_root_.moped.generic.deriveCodec[$T]($default))"
+    q"_root_.moped.console.CommandParser.fromCodec(_root_.moped.macros.deriveCodec[$T]($default))"
   }
 
   def deriveJsonEncoderImpl[T: c.WeakTypeTag]: Tree = {
@@ -221,7 +221,7 @@ class Macros(val c: blackbox.Context) {
         annot.tree
     }
     val result =
-      q"""_root_.moped.generic.ClassShaper.apply[${weakTypeOf[T]}](
+      q"""_root_.moped.macros.ClassShaper.apply[${weakTypeOf[T]}](
             new ${weakTypeOf[ClassShape]}(
               ${T.typeSymbol.name.decodedName.toString()},
               ${T.typeSymbol.fullName},

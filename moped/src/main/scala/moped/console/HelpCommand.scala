@@ -20,7 +20,7 @@ object HelpCommand {
   implicit lazy val parser: CommandParser[HelpCommand] =
     new CodecCommandParser[HelpCommand](
       JsonCodec.encoderDecoderJsonCodec(
-        ClassShaper(Nil),
+        ClassShaper.empty,
         JsonEncoder.stringJsonEncoder.contramap[HelpCommand](_ => ""),
         JsonDecoder.constant(new HelpCommand())
       )

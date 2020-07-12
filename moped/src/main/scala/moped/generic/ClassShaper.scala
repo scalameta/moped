@@ -11,16 +11,10 @@ import moped.annotations.ExampleUsage
 import moped.internal.console.HelpMessage
 
 object ClassShaper {
-  def apply[T](
-      f: List[List[ParameterShape]]
-  ): ClassShaper[T] = apply[T](f, Nil)
-  def apply[T](
-      f: List[List[ParameterShape]],
-      a: List[StaticAnnotation]
-  ): ClassShaper[T] =
-    new ClassShaper[T] {
-      def shape: ClassShape = new ClassShape("", "", f, a)
-    }
+  def empty[T]: ClassShaper[T] =
+    ClassShaper[T](ClassShape.empty)
+  def apply[T](s: ClassShape): ClassShaper[T] =
+    new ClassShaper[T] { def shape: ClassShape = s }
 }
 
 trait ClassShaper[T] {

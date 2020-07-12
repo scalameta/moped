@@ -8,3 +8,7 @@ final class ClassShape(
     val fields: List[List[ParameterShape]],
     val annotations: List[StaticAnnotation]
 )
+
+object ClassShape {
+  val empty: ClassShape = new ClassShape("", "", Nil, Nil)
+}

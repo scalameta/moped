@@ -221,7 +221,14 @@ class Macros(val c: blackbox.Context) {
         annot.tree
     }
     val result =
-      q"_root_.moped.generic.ClassShaper.apply[${weakTypeOf[T]}]($args, _root_.scala.List.apply(..$classAnnotations))"
+      q"""_root_.moped.generic.ClassShaper.apply[${weakTypeOf[T]}](
+            new ${weakTypeOf[ClassShape]}(
+              ${T.typeSymbol.name.decodedName.toString()},
+              ${T.typeSymbol.fullName},
+              $args,
+              _root_.scala.List.apply(..$classAnnotations)
+            )
+          )"""
     c.untypecheck(result)
   }
 

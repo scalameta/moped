@@ -48,20 +48,17 @@ object Completer {
     }
   }
 
-  implicit def completerToIterableCompleter[A, C[x] <: Iterable[x]](implicit
+  implicit def iterableCompleter[A, C[x] <: Iterable[x]](implicit
       ev: Completer[A]
   ): Completer[C[A]] =
     context => ev.complete(context)
-  implicit def completerToOptionCompleter[A](implicit
+  implicit def optionCompleter[A](implicit
       ev: Completer[A]
   ): Completer[Option[A]] =
     context => ev.complete(context)
 
-  def enumerationToCompleter[A <: Enumeration](enumeration: A): Completer[A] = {
+  def enumerationCompleter[A <: Enumeration](enumeration: A): Completer[A] =
     context =>
-      0.until(enumeration.maxId)
-        .map(i => TabCompletionItem(enumeration(i).toString()))
-        .toList
-  }
+      enumeration.values.toList.map(v => TabCompletionItem(v.toString()))
 
 }

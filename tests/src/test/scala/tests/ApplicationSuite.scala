@@ -12,10 +12,15 @@ import moped.console.HelpCommand
 import java.nio.file.Path
 import moped.console.Completer
 
+object Kind extends Enumeration {
+  val A, B, C = Value
+}
+
 @CommandName("echo")
 case class EchoCommand(
     @Description("If true, blah")
     verbose: Boolean = false,
+    kind: Kind.Value = Kind.A,
     path: List[Path] = Nil,
     @PositionalArguments()
     args: List[String] = Nil

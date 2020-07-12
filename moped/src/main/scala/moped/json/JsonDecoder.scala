@@ -6,6 +6,7 @@ import scala.collection.compat._
 import scala.collection.mutable
 import java.nio.file.Path
 import java.nio.file.Paths
+import scala.reflect.ClassTag
 
 trait JsonDecoder[A] { self =>
 
@@ -120,5 +121,10 @@ object JsonDecoder {
       case other      => ev.decode(context).map(Some(_))
     }
   }
+
+  implicit def enumerationJsonDecoder[A <: Enumeration#Value]: JsonDecoder[A] =
+    fromJson("JsonString") {
+      case JsonString(value) => ValueResult(None)
+    }
 
 }

@@ -54,4 +54,8 @@ object JsonEncoder {
     case Some(value) => ev.encode(value)
     case None        => JsonNull()
   }
+
+  implicit def enumerationJsonEncoder[A <: Enumeration#Value]: JsonEncoder[A] =
+    value => JsonString(value.toString())
+
 }

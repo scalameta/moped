@@ -12,7 +12,7 @@ import org.typelevel.paiges.Doc
 import moped.annotations.Description
 import moped.annotations.DescriptionDoc
 import java.io.PrintStream
-import moped.annotations.TabComplete
+import moped.annotations.TabCompleter
 
 trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A
@@ -57,7 +57,7 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   ): CommandParser[A] = ???
   def complete(context: TabCompletionContext): List[TabCompletionItem] =
     annotations
-      .collectFirst { case TabComplete(fn) => fn.complete(context) }
+      .collectFirst { case TabCompleter(fn) => fn.complete(context) }
       .getOrElse(Nil)
 }
 

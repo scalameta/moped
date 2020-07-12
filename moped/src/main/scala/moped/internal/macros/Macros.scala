@@ -34,7 +34,7 @@ class Macros(val c: blackbox.Context) {
     val T = assumeClass[T]
     q"""
         {
-          implicit lazy val classDefinition = _root_.moped.macros.deriveShaper[$T]
+          implicit lazy val classDefinition: _root_.moped.macros.ClassShaper[$T] = _root_.moped.macros.deriveShaper[$T]
           _root_.moped.json.JsonCodec.encoderDecoderJsonCodec[$T](
             classDefinition,
             _root_.moped.macros.deriveEncoder[$T],

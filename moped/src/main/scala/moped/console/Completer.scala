@@ -10,16 +10,6 @@ trait Completer[A] {
 }
 
 object Completer {
-
-  implicit def completerToIterableCompleter[A, C[x] <: Iterable[x]](implicit
-      ev: Completer[A]
-  ): Completer[C[Completer[A]]] =
-    context => ev.complete(context)
-  implicit def completerToOptionCompleter[A](implicit
-      ev: Completer[A]
-  ): Completer[Option[Completer[A]]] =
-    context => ev.complete(context)
-
   implicit lazy val pathCompleter: Completer[Path] = { context =>
     val pathOrDirectory = Paths.get(context.last)
     val absolutePathOrDirectory =
@@ -57,4 +47,21 @@ object Completer {
       Nil
     }
   }
+
+  implicit def completerToIterableCompleter[A, C[x] <: Iterable[x]](implicit
+      ev: Completer[A]
+  ): Completer[C[A]] =
+    context => ev.complete(context)
+  implicit def completerToOptionCompleter[A](implicit
+      ev: Completer[A]
+  ): Completer[Option[A]] =
+    context => ev.complete(context)
+
+  def enumerationToCompleter[A <: Enumeration](enumeration: A): Completer[A] = {
+    context =>
+      0.until(enumeration.maxId)
+        .map(i => TabCompletionItem(enumeration(i).toString()))
+        .toList
+  }
+
 }

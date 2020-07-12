@@ -20,7 +20,7 @@ final class ParameterShape(
 ) {
   override def toString: String = {
     val prettyAnnotations = annotations.map(annot => s"@$annot").mkString(", ")
-    s"""ClassParameter(name="$name",tpe="$tpe",annotations=List($prettyAnnotations),underlying=$underlying)"""
+    s"""ParameterShape(name="$name",tpe="$tpe",annotations=List($prettyAnnotations),underlying=$underlying)"""
   }
 
   def alternativeNames: List[String] =
@@ -60,7 +60,7 @@ final class ParameterShape(
     }
   def tabCompleter: Option[Completer[_]] =
     annotations.collectFirst {
-      case TabComplete(completer) => completer
+      case TabCompleter(completer) => completer
     }
 
   def isPositionalArguments: Boolean =
@@ -76,7 +76,7 @@ final class ParameterShape(
   def isTabCompleteOneOf: Boolean =
     annotations.exists(_.isInstanceOf[TabCompleteAsOneOf])
   def isTabComplete: Boolean =
-    annotations.exists(_.isInstanceOf[TabComplete])
+    annotations.exists(_.isInstanceOf[TabCompleter])
   def isCatchInvalidFlags: Boolean =
     annotations.exists(_.isInstanceOf[CatchInvalidFlags])
   def isPositionalArgument: Boolean =

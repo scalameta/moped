@@ -10,6 +10,7 @@ import moped.annotations._
 import moped.console.TabCompletionItem
 import moped.console.HelpCommand
 import java.nio.file.Path
+import moped.console.Completer
 
 @CommandName("echo")
 case class EchoCommand(
@@ -33,6 +34,7 @@ object EchoCommand {
 }
 
 class ApplicationSuite extends munit.FunSuite {
+
   val app = Application(
     "app",
     "1.0.0",
@@ -44,6 +46,7 @@ class ApplicationSuite extends munit.FunSuite {
 
   test("foo") {
     pprint.log(EchoCommand.parser.parameters)
+    pprint.log(implicitly[Completer[Option[Path]]])
     "my-cli --verbose echo foo"
     // app.run(List("echo", "--verbose", "Hello world!"))
   }

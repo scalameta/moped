@@ -1,10 +1,9 @@
 package moped
 
-import scala.language.experimental.macros
 import moped.json._
-import java.lang.instrument.ClassDefinition
 
 package object macros {
+  import scala.language.experimental.macros
   def deriveShaper[T]: ClassShaper[T] =
     macro moped.internal.macros.Macros.deriveShaperImpl[T]
   def deriveDecoder[T](default: T): JsonDecoder[T] =

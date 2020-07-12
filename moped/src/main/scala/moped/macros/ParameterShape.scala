@@ -12,16 +12,12 @@ import moped.console.Completer
  * @param tpe the pretty-printed type of this parameter
  * @param annotations static annotations attached to this parameter.
  */
-final class ParameterShape(
+final case class ParameterShape(
     val name: String,
     val tpe: String,
     val annotations: List[StaticAnnotation],
     val underlying: Option[ClassShaper[_]]
 ) {
-  override def toString: String = {
-    val prettyAnnotations = annotations.map(annot => s"@$annot").mkString(", ")
-    s"""ParameterShape(name="$name",tpe="$tpe",annotations=List($prettyAnnotations),underlying=$underlying)"""
-  }
 
   def alternativeNames: List[String] =
     extraNames ::: deprecatedNames.map(_.name)

@@ -16,15 +16,20 @@ object ClassShaper {
     new ClassShaper[T] { def shape: ClassShape = s }
 }
 
-trait ClassShaper[T] {
+trait ClassShaper[T] extends Product {
   def shape: ClassShape
+  def productArity: Int = 1
+  def canEqual(that: Any): Boolean = that.isInstanceOf[ClassShaper[_]]
+  def productElement(n: Int): Any =
+    if (n == 0) shape else throw new NoSuchElementException(n.toString())
+  override def productPrefix: String = "ClassShaper"
 
   def parameters = shape.parameters
   def parametersFlat = parameters.flatten
 
   def annotations = shape.annotations
 
-  override def toString: String = s"ClassShaper($shape)"
+  override def toString: String = pprint.tokenize(this).mkString
   def names: List[String] = parametersFlat.map(_.name)
   def allNames: List[String] =
     for {

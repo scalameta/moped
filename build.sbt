@@ -1,3 +1,8 @@
+inThisBuild(
+  List(
+    useSuperShell := false
+  )
+)
 lazy val moped = project
   .settings(
     libraryDependencies ++= List(

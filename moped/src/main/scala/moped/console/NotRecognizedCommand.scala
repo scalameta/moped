@@ -3,6 +3,7 @@ import scala.collection.immutable.Nil
 import moped.internal.reporters.Levenshtein
 
 object NotRecognizedCommand extends Command {
+
   def run(app: Application): Int = {
     app.arguments match {
       case Nil =>

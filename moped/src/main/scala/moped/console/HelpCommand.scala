@@ -42,18 +42,16 @@ class HelpCommand(
       case Nil =>
         val usage = appUsage(app)
         if (usage.nonEmpty) {
-          app.env.standardOutput.println(s"USAGE:")
-          app.env.standardOutput.println(
+          app.out.println(s"USAGE:")
+          app.out.println(
             usage.indent(2).renderTrim(screenWidth)
           )
         }
         val description = appDescription(app)
         if (description.nonEmpty) {
-          if (usage.nonEmpty) app.env.standardOutput.println()
-          app.env.standardOutput.println(s"DESCRIPTION:")
-          app.env.standardOutput.println(
-            description.indent(2).renderTrim(screenWidth)
-          )
+          if (usage.nonEmpty) app.out.println()
+          app.out.println(s"DESCRIPTION:")
+          app.out.println(description.indent(2).renderTrim(screenWidth))
         }
         if (app.commands.nonEmpty) {
           val rows = app.commands.map { command =>

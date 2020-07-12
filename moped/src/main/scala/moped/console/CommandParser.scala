@@ -57,7 +57,7 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   ): CommandParser[A] = ???
   def complete(context: TabCompletionContext): List[TabCompletionItem] =
     annotations
-      .collectFirst { case TabComplete(fn) => fn(context) }
+      .collectFirst { case TabComplete(fn) => fn.complete(context) }
       .getOrElse(Nil)
 }
 

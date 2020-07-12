@@ -34,7 +34,7 @@ class Macros(val c: blackbox.Context) {
     val T = assumeClass[T]
     q"""
         {
-          implicit lazy val classDefinition = _root_.moped.generic.deriveClassShaper[$T]
+          implicit lazy val classDefinition = _root_.moped.generic.deriveShaper[$T]
           _root_.moped.json.JsonCodec.encoderDecoderJsonCodec[$T](
             classDefinition,
             _root_.moped.generic.deriveEncoder[$T],
@@ -141,7 +141,7 @@ class Macros(val c: blackbox.Context) {
     result
   }
 
-  def deriveSurfaceImpl[T: c.WeakTypeTag]: Tree = {
+  def deriveShaperImpl[T: c.WeakTypeTag]: Tree = {
     val T = weakTypeOf[T]
     if (!T.typeSymbol.isClass || !T.typeSymbol.asClass.isCaseClass)
       c.abort(c.enclosingPosition, s"$T must be a case class")

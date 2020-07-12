@@ -18,18 +18,12 @@ object ClassShaper {
 
 trait ClassShaper[T] extends Product {
   def shape: ClassShape
-  def productArity: Int = 1
-  def canEqual(that: Any): Boolean = that.isInstanceOf[ClassShaper[_]]
-  def productElement(n: Int): Any =
-    if (n == 0) shape else throw new NoSuchElementException(n.toString())
-  override def productPrefix: String = "ClassShaper"
 
   def parameters = shape.parameters
   def parametersFlat = parameters.flatten
 
   def annotations = shape.annotations
 
-  override def toString: String = pprint.tokenize(this).mkString
   def names: List[String] = parametersFlat.map(_.name)
   def allNames: List[String] =
     for {
@@ -82,5 +76,13 @@ trait ClassShaper[T] extends Product {
     annotations.collect {
       case ExampleUsage(example) => Doc.text(example)
     }
+
+  // Product methods, these exists to make `pprint.log()` print readable output.
+  override def productArity: Int = 1
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[ClassShaper[_]]
+  override def productElement(n: Int): Any =
+    if (n == 0) shape else throw new NoSuchElementException(n.toString())
+  override def productPrefix: String = "ClassShaper"
+  override def toString: String = pprint.tokenize(this).mkString
 
 }

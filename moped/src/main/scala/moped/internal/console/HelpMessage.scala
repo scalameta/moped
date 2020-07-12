@@ -23,7 +23,7 @@ object HelpMessage {
       case els                 => Nil
     }
 
-    val keyValues = settings.settings.zip(defaultConf).flatMap {
+    val keyValues = settings.parametersFlat.zip(defaultConf).flatMap {
       case (setting, value: JsonObject) =>
         if (setting.isHidden) {
           Nil
@@ -31,7 +31,7 @@ object HelpMessage {
           for {
             underlying <- setting.underlying.toList
             (field, JsonMember(_, fieldDefault)) <-
-              underlying.settings.zip(value.members)
+              underlying.parametersFlat.zip(value.members)
           } yield toHelp(field, fieldDefault)
         } else {
           toHelp(setting, value) :: Nil

@@ -1,7 +1,6 @@
 package moped.generic
 
 import moped.json._
-import moped.annotations.DeprecatedName
 import scala.annotation.StaticAnnotation
 import moped.annotations.DescriptionDoc
 import org.typelevel.paiges.Doc
@@ -20,28 +19,21 @@ object ClassShaper {
 trait ClassShaper[T] {
   def shape: ClassShape
 
-  def fields = shape.fields
+  def parameters = shape.parameters
+  def parametersFlat = parameters.flatten
+
   def annotations = shape.annotations
 
-  def settings = fields.flatten
-
-  override def toString: String = s"Surface(settings=$settings)"
-  object Deprecated {
-    def unapply(key: String): Option[DeprecatedName] =
-      (for {
-        setting <- settings
-        deprecation <- setting.deprecation(key).toList
-      } yield deprecation).headOption
-  }
-  def names: List[String] = settings.map(_.name)
+  override def toString: String = s"ClassShaper($shape)"
+  def names: List[String] = parametersFlat.map(_.name)
   def allNames: List[String] =
     for {
-      setting <- settings
+      setting <- parametersFlat
       name <- setting.allNames
     } yield name
 
   def get(name: String): Option[ParameterShape] =
-    settings.find(_.matchesLowercase(name))
+    parametersFlat.find(_.matchesLowercase(name))
 
   def get(name: String, rest: List[String]): Option[ParameterShape] =
     get(name).flatMap { setting =>
@@ -63,6 +55,7 @@ trait ClassShaper[T] {
       default: T
   )(implicit ev: JsonEncoder[T]): String =
     commandLineHelp(default, 80)
+
   def commandLineHelp(
       default: T,
       width: Int
@@ -74,10 +67,12 @@ trait ClassShaper[T] {
       case DescriptionDoc(doc) => doc
       case Description(doc)    => Doc.text(doc)
     }
+
   def commandLineUsage: Option[Doc] =
     annotations.collectFirst {
       case Usage(doc) => Doc.text(doc)
     }
+
   def commandLineExamples: List[Doc] =
     annotations.collect {
       case ExampleUsage(example) => Doc.text(example)

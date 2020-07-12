@@ -95,7 +95,7 @@ class CommandLineParser[T](
         }
         settings.get(key, keys) match {
           case None =>
-            settings.settings.find(_.isCatchInvalidFlags) match {
+            settings.parametersFlat.find(_.isCatchInvalidFlags) match {
               case None =>
                 val closestCandidate =
                   Levenshtein.closestCandidate(camel, settings.names)
@@ -173,7 +173,7 @@ object CommandLineParser {
   def inlinedSettings(
       settings: ClassShaper[_]
   ): Map[String, ParameterShape] =
-    settings.settings.iterator.flatMap { setting =>
+    settings.parametersFlat.iterator.flatMap { setting =>
       if (setting.annotations.exists(_.isInstanceOf[Inline])) {
         for {
           underlying <- setting.underlying.toList
@@ -187,7 +187,7 @@ object CommandLineParser {
   def allSettings(
       settings: ClassShaper[_]
   ): Map[String, ParameterShape] =
-    inlinedSettings(settings) ++ settings.settings.map(s => s.name -> s)
+    inlinedSettings(settings) ++ settings.parametersFlat.map(s => s.name -> s)
 
   private sealed trait State
   private case class Flag(flag: String, setting: ParameterShape) extends State

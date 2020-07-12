@@ -5,11 +5,11 @@ import moped.annotations._
 import moped.internal.console.CommandLineParser
 
 /**
- * Metadata about one field of a class.
+ * Metadata about one parameter of a class.
  *
- * @param name the parameter name of this field.
+ * @param name the parameter name of this parameter.
  * @param tpe the pretty-printed type of this parameter
- * @param annotations static annotations attached to this field.
+ * @param annotations static annotations attached to this parameter.
  */
 final class ParameterShape(
     val name: String,
@@ -17,60 +17,51 @@ final class ParameterShape(
     val annotations: List[StaticAnnotation],
     val underlying: Option[ClassShaper[_]]
 ) {
-  def withName(newName: String) =
-    new ParameterShape(newName, tpe, annotations, underlying)
-
-  /**
-   * Returns this field with all underlying fields expaneded.
-   *
-   * Underlying field names become prefixed by their enclosing fields.
-   */
-  def flat: List[ParameterShape] = {
-    if (underlying.isEmpty) this :: Nil
-    else {
-      this :: (for {
-        cls <- underlying.toList
-        param <- cls.fields
-        flattened <- field.withName(s"$name.${field.name}").flat
-      } yield flattened)
-    }
-  }
   override def toString: String = {
-    val annots = annotations.map(annot => s"@$annot").mkString(", ")
-    s"""ClassParameter(name="$name",tpe="$tpe",annotations=List($annots),underlying=$underlying)"""
+    val prettyAnnotations = annotations.map(annot => s"@$annot").mkString(", ")
+    s"""ClassParameter(name="$name",tpe="$tpe",annotations=List($prettyAnnotations),underlying=$underlying)"""
   }
 
-  def field = this
+  def alternativeNames: List[String] =
+    extraNames ::: deprecatedNames.map(_.name)
+  def allNames: List[String] = name :: alternativeNames
+  def matchesLowercase(name: String): Boolean =
+    allNames.exists(_.equalsIgnoreCase(name))
 
   def description: Option[String] =
     annotations.collectFirst {
       case Description(value) => value
     }
   def extraNames: List[String] =
-    field.annotations.collect {
+    annotations.collect {
       case PositionalArguments() => CommandLineParser.PositionalArgument
       case ExtraName(value)      => value
     }
   def deprecatedNames: List[DeprecatedName] =
-    field.annotations.collect {
+    annotations.collect {
       case d: DeprecatedName => d
     }
   def exampleValues: List[String] =
-    field.annotations.collect {
+    annotations.collect {
       case ExampleValue(value) => value
     }
   def sinceVersion: Option[String] =
-    field.annotations.collectFirst {
+    annotations.collectFirst {
       case SinceVersion(value) => value
     }
   def deprecated: Option[Deprecated] =
-    field.annotations.collectFirst {
+    annotations.collectFirst {
       case value: Deprecated => value
     }
+  def tabCompleteOneOf: Option[List[String]] =
+    annotations.collectFirst {
+      case oneof: TabCompleteAsOneOf => oneof.options.toList
+    }
+
   def isPositionalArguments: Boolean =
-    field.annotations.exists(_.isInstanceOf[PositionalArguments])
+    annotations.exists(_.isInstanceOf[PositionalArguments])
   def isRepeated: Boolean =
-    field.annotations.exists(_.isInstanceOf[Repeated])
+    annotations.exists(_.isInstanceOf[Repeated])
   def isDynamic: Boolean =
     annotations.exists(_.isInstanceOf[Dynamic])
   def isHidden: Boolean =
@@ -86,15 +77,5 @@ final class ParameterShape(
       case ExampleValue(CommandLineParser.PositionalArgument) => true
       case _                                                  => false
     }
-  def tabCompleteOneOf: Option[List[String]] =
-    annotations.collectFirst {
-      case oneof: TabCompleteAsOneOf => oneof.options.toList
-    }
-  def alternativeNames: List[String] =
-    extraNames ::: deprecatedNames.map(_.name)
-  def allNames: List[String] = name :: alternativeNames
-  def matchesLowercase(name: String): Boolean =
-    allNames.exists(_.equalsIgnoreCase(name))
-  def deprecation(name: String): Option[DeprecatedName] =
-    deprecatedNames.find(_.name == name)
+
 }

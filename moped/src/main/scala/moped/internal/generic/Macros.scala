@@ -7,7 +7,7 @@ import moped.json._
 import moped.generic._
 import java.nio.file.Path
 import java.io.File
-import moped.generic.ClassDefinition
+import moped.generic.ClassShape
 
 object Macros
 class Macros(val c: blackbox.Context) {
@@ -34,7 +34,7 @@ class Macros(val c: blackbox.Context) {
     val T = assumeClass[T]
     q"""
         {
-          implicit lazy val classDefinition = _root_.moped.generic.deriveClassDefinition[$T]
+          implicit lazy val classDefinition = _root_.moped.generic.deriveClassShape[$T]
           _root_.moped.json.JsonCodec.encoderDecoderJsonCodec[$T](
             classDefinition,
             _root_.moped.generic.deriveEncoder[$T],
@@ -74,12 +74,12 @@ class Macros(val c: blackbox.Context) {
   def deriveJsonDecoderImpl[T: c.WeakTypeTag](default: Tree): Tree = {
     val T = assumeClass[T]
     val Tclass = T.typeSymbol.asClass
-    val settings = c.inferImplicitValue(weakTypeOf[ClassDefinition[T]])
+    val settings = c.inferImplicitValue(weakTypeOf[ClassShape[T]])
     if (settings == null || settings.isEmpty) {
       c.abort(
         c.enclosingPosition,
-        s"Missing implicit for ${weakTypeOf[ClassDefinition[T]]}]. " +
-          s"Hint, add `implicit val surface: ${weakTypeOf[ClassDefinition[T]]}` " +
+        s"Missing implicit for ${weakTypeOf[ClassShape[T]]}]. " +
+          s"Hint, add `implicit val surface: ${weakTypeOf[ClassShape[T]]}` " +
           s"to the companion ${T.companion.typeSymbol}"
       )
     }
@@ -187,7 +187,7 @@ class Macros(val c: blackbox.Context) {
           repeated ::: dynamic ::: flag ::: tabCompletePath ::: baseAnnots
         val fieldsParamTpe = c.internal.typeRef(
           NoPrefix,
-          weakTypeOf[ClassDefinition[_]].typeSymbol,
+          weakTypeOf[ClassShape[_]].typeSymbol,
           paramTpe :: Nil
         )
         val underlyingInferred = c.inferImplicitValue(fieldsParamTpe)
@@ -204,7 +204,7 @@ class Macros(val c: blackbox.Context) {
         )
         val tpeString = c.inferImplicitValue(tprint)
 
-        val field = q"""new ${weakTypeOf[ParameterDefinition]}(
+        val field = q"""new ${weakTypeOf[ParameterShape]}(
            ${param.name.decodedName.toString},
            $tpeString.render,
            _root_.scala.List.apply(..$finalAnnots),
@@ -221,7 +221,7 @@ class Macros(val c: blackbox.Context) {
         annot.tree
     }
     val result =
-      q"_root_.moped.generic.ClassDefinition.apply[${weakTypeOf[T]}]($args, _root_.scala.List.apply(..$classAnnotations))"
+      q"_root_.moped.generic.ClassShape.apply[${weakTypeOf[T]}]($args, _root_.scala.List.apply(..$classAnnotations))"
     c.untypecheck(result)
   }
 

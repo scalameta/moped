@@ -3,16 +3,16 @@ package moped.internal.console
 import moped._
 import moped.json._
 import moped.reporters._
-import moped.generic.ParameterDefinition
-import moped.generic.ClassDefinition
+import moped.generic.ParameterShape
+import moped.generic.ClassShape
 import moped.annotations.Inline
 import moped.internal.reporters.Levenshtein
 import moped.internal.console.CommandLineParser._
 
 class CommandLineParser[T](
     args: List[String],
-    settings: ClassDefinition[T],
-    toInline: Map[String, ParameterDefinition]
+    settings: ClassShape[T],
+    toInline: Map[String, ParameterShape]
 ) {
   def loop(
       curr: JsonObject,
@@ -139,10 +139,10 @@ object CommandLineParser {
 
   def parseArgs[T](
       args: List[String]
-  )(implicit settings: ClassDefinition[T]): DecodingResult[JsonElement] = {
+  )(implicit settings: ClassShape[T]): DecodingResult[JsonElement] = {
     val toInline = inlinedSettings(settings)
     val parser = new CommandLineParser[T](args, settings, toInline)
-    parser.loop(JsonObject(Nil), args, NoFlag).map(_.normalize)
+    parser.loop(JsonObject(Nil), args, NoFlag)
   }
 
   private def add(
@@ -171,8 +171,8 @@ object CommandLineParser {
   }
 
   def inlinedSettings(
-      settings: ClassDefinition[_]
-  ): Map[String, ParameterDefinition] =
+      settings: ClassShape[_]
+  ): Map[String, ParameterShape] =
     settings.settings.iterator.flatMap { setting =>
       if (setting.annotations.exists(_.isInstanceOf[Inline])) {
         for {
@@ -185,13 +185,12 @@ object CommandLineParser {
     }.toMap
 
   def allSettings(
-      settings: ClassDefinition[_]
-  ): Map[String, ParameterDefinition] =
+      settings: ClassShape[_]
+  ): Map[String, ParameterShape] =
     inlinedSettings(settings) ++ settings.settings.map(s => s.name -> s)
 
   private sealed trait State
-  private case class Flag(flag: String, setting: ParameterDefinition)
-      extends State
+  private case class Flag(flag: String, setting: ParameterShape) extends State
   private case object NoFlag extends State
   private val dash = "--?".r
 

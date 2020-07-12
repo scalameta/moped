@@ -3,8 +3,8 @@ package moped.console
 import org.typelevel.paiges.Doc
 import moped.reporters.Terminals
 import moped.internal.reporters.Levenshtein
-import moped.generic.ClassDefinition
-import moped.generic.ParameterDefinition
+import moped.generic.ClassShape
+import moped.generic.ParameterShape
 import moped.annotations.CommandName
 import moped.annotations.ExtraName
 import moped.json.JsonEncoder
@@ -20,7 +20,7 @@ object HelpCommand {
   implicit lazy val parser: CommandParser[HelpCommand] =
     new CodecCommandParser[HelpCommand](
       JsonCodec.encoderDecoderJsonCodec(
-        ClassDefinition(Nil),
+        ClassShape(Nil),
         JsonEncoder.stringJsonEncoder.contramap[HelpCommand](_ => ""),
         JsonDecoder.constant(new HelpCommand())
       )

@@ -11,21 +11,21 @@ import moped.internal.console.CommandLineParser
  * @param tpe the pretty-printed type of this parameter
  * @param annotations static annotations attached to this field.
  */
-final class ParameterDefinition(
+final class ParameterShape(
     val name: String,
     val tpe: String,
     val annotations: List[StaticAnnotation],
-    val underlying: Option[ClassDefinition[_]]
+    val underlying: Option[ClassShape[_]]
 ) {
   def withName(newName: String) =
-    new ParameterDefinition(newName, tpe, annotations, underlying)
+    new ParameterShape(newName, tpe, annotations, underlying)
 
   /**
    * Returns this field with all underlying fields expaneded.
    *
    * Underlying field names become prefixed by their enclosing fields.
    */
-  def flat: List[ParameterDefinition] = {
+  def flat: List[ParameterShape] = {
     if (underlying.isEmpty) this :: Nil
     else {
       this :: (for {

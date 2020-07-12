@@ -6,15 +6,16 @@ import moped.console.CommandParser
 import moped.console.Command
 import moped.annotations.PositionalArguments
 import moped.json.JsonCodec
-import moped.annotations.CommandName
-import moped.annotations.TabComplete
+import moped.annotations._
 import moped.console.TabCompletionItem
 import moped.console.HelpCommand
+import java.nio.file.Path
 
 @CommandName("echo")
-@TabComplete(context => List(TabCompletionItem("hello world")))
 case class EchoCommand(
+    @Description("If true, blah")
     verbose: Boolean = false,
+    path: List[Path] = Nil,
     @PositionalArguments()
     args: List[String] = Nil
 ) extends Command {
@@ -42,6 +43,7 @@ class ApplicationSuite extends munit.FunSuite {
   )
 
   test("foo") {
+    "my-cli --verbose echo foo"
     // app.run(List("echo", "--verbose", "Hello world!"))
   }
 }

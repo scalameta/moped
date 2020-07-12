@@ -4,7 +4,7 @@ import scala.collection.mutable
 import moped.json._
 import moped.internal.diagnostics.MissingFieldDiagnostic
 import moped.internal.diagnostics.TypeMismatchDiagnostic
-import moped.generic.ParameterDefinition
+import moped.generic.ParameterShape
 
 object DrillIntoJson {
   def getKey(obj: JsonElement, keys: Seq[String]): Option[JsonElement] =
@@ -25,7 +25,7 @@ object DrillIntoJson {
   def getOrElse[T](
       conf: JsonElement,
       default: T,
-      param: ParameterDefinition
+      param: ParameterShape
   )(implicit ev: JsonDecoder[T]): DecodingResult[T] = {
     getKey(conf, param.allNames) match {
       case Some(value) => ev.decode(value)

@@ -3,7 +3,7 @@ package moped.json
 import scala.collection.mutable
 import moped.reporters._
 import moped.internal.json.NestedJsonKey
-import moped.generic.ParameterDefinition
+import moped.generic.ParameterShape
 
 sealed abstract class JsonElement extends Product with Serializable {
   private var myPosition: Position = NoPosition
@@ -22,26 +22,6 @@ sealed abstract class JsonElement extends Product with Serializable {
       case JsonArray(value)   => JsonArray(value)
       case JsonObject(value)  => JsonObject(value)
     }
-  // TODO(olafur) rename this method
-  final def normalize: JsonElement = {
-    def expandKeys(conf: JsonElement): JsonElement =
-      conf match {
-        case _: JsonPrimitive    => conf
-        case JsonArray(elements) => JsonArray(elements.map(_.normalize))
-        case JsonObject(members) =>
-          val expandedKeys: List[JsonMember] = members.map {
-            case JsonMember(NestedJsonKey(key, rest), value) =>
-              JsonMember(
-                JsonString(key),
-                JsonObject(List(JsonMember(JsonString(rest), value.normalize)))
-              )
-            case JsonMember(key, value) =>
-              JsonMember(key, value.normalize)
-          }
-          JsonObject(expandedKeys)
-      }
-    expandKeys(this)
-  }
 }
 sealed abstract class JsonPrimitive extends JsonElement
 final case class JsonNull() extends JsonPrimitive

@@ -10,22 +10,22 @@ import moped.annotations.Usage
 import moped.annotations.ExampleUsage
 import moped.internal.console.HelpMessage
 
-object ClassDefinition {
+object ClassShape {
   def apply[T](
-      f: List[List[ParameterDefinition]]
-  ): ClassDefinition[T] = apply[T](f, Nil)
+      f: List[List[ParameterShape]]
+  ): ClassShape[T] = apply[T](f, Nil)
   def apply[T](
-      f: List[List[ParameterDefinition]],
+      f: List[List[ParameterShape]],
       a: List[StaticAnnotation]
-  ): ClassDefinition[T] =
-    new ClassDefinition[T] {
-      def fields: List[List[ParameterDefinition]] = f
+  ): ClassShape[T] =
+    new ClassShape[T] {
+      def fields: List[List[ParameterShape]] = f
       def annotations: List[StaticAnnotation] = a
     }
 }
 
-trait ClassDefinition[T] {
-  def fields: List[List[ParameterDefinition]]
+trait ClassShape[T] {
+  def fields: List[List[ParameterShape]]
   def annotations: List[StaticAnnotation]
   def settings = fields.flatten
 
@@ -44,10 +44,10 @@ trait ClassDefinition[T] {
       name <- setting.allNames
     } yield name
 
-  def get(name: String): Option[ParameterDefinition] =
+  def get(name: String): Option[ParameterShape] =
     settings.find(_.matchesLowercase(name))
 
-  def get(name: String, rest: List[String]): Option[ParameterDefinition] =
+  def get(name: String, rest: List[String]): Option[ParameterShape] =
     get(name).flatMap { setting =>
       if (setting.isDynamic) {
         Some(setting)

@@ -1,6 +1,6 @@
 package moped.console
 
-import moped.generic.ParameterDefinition
+import moped.generic.ParameterShape
 
 final case class TabCompletionContext(
     format: Option[String],
@@ -8,7 +8,7 @@ final case class TabCompletionContext(
     arguments: List[String],
     last: String,
     secondLast: Option[String],
-    setting: Option[ParameterDefinition],
-    allSettings: Map[String, ParameterDefinition],
+    setting: Option[ParameterShape],
+    allSettings: Map[String, ParameterShape],
     app: Application
 )

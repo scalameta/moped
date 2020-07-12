@@ -16,7 +16,7 @@ import moped.annotations.TabComplete
 
 trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A
-  def asClassDefinition: ClassDefinition[Value] = this
+  def asClassDefinition: ClassShape[Value] = this
   def asDecoder: JsonDecoder[Value] = this
   def description: Doc = this.commandLineDescription.getOrElse(Doc.empty)
   def usage: Doc = this.commandLineUsage.getOrElse(Doc.empty)
@@ -52,11 +52,12 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
     CommandLineParser
       .parseArgs[A](arguments)(this)
       .flatMap(elem => decodeCommand(DecodingContext(elem)))
+  def withTabCompletion(
+      fn: TabCompletionContext => List[TabCompletionItem]
+  ): CommandParser[A] = ???
   def complete(context: TabCompletionContext): List[TabCompletionItem] =
     annotations
-      .collectFirst {
-        case TabComplete(fn) => fn(context)
-      }
+      .collectFirst { case TabComplete(fn) => fn(context) }
       .getOrElse(Nil)
 }
 

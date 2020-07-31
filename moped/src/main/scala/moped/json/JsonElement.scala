@@ -15,12 +15,12 @@ sealed abstract class JsonElement extends Product with Serializable {
   }
   private def copyThis(): JsonElement =
     this match {
-      case JsonNull()         => JsonNull()
-      case JsonNumber(value)  => JsonNumber(value)
+      case JsonNull() => JsonNull()
+      case JsonNumber(value) => JsonNumber(value)
       case JsonBoolean(value) => JsonBoolean(value)
-      case JsonString(value)  => JsonString(value)
-      case JsonArray(value)   => JsonArray(value)
-      case JsonObject(value)  => JsonObject(value)
+      case JsonString(value) => JsonString(value)
+      case JsonArray(value) => JsonArray(value)
+      case JsonObject(value) => JsonObject(value)
     }
 }
 sealed abstract class JsonPrimitive extends JsonElement

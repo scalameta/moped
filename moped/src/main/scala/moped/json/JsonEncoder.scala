@@ -52,7 +52,7 @@ object JsonEncoder {
       ev: JsonEncoder[A]
   ): JsonEncoder[Option[A]] = {
     case Some(value) => ev.encode(value)
-    case None        => JsonNull()
+    case None => JsonNull()
   }
 
 }

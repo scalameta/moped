@@ -104,7 +104,7 @@ case class CompleteCommand(
       CommandLineParser.allSettings(subcommand).filter(!_._2.isHidden)
     val secondLast = (head :: tail).takeRight(2) match {
       case flag :: last :: Nil => Some(flag)
-      case _                   => None
+      case _ => None
     }
     val setting = secondLast.flatMap(flag =>
       inlined.get(Cases.kebabToCamel(flag.stripPrefix("--")))

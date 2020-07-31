@@ -44,11 +44,11 @@ object Diagnostic {
   def fromDiagnostics(diagnostics: List[Diagnostic]): Option[Diagnostic] = {
     val flatDiagnostics = diagnostics.flatMap {
       case a: AggregateDiagnostic => a.causes
-      case d                      => List(d)
+      case d => List(d)
     }
     flatDiagnostics match {
-      case Nil          => None
-      case head :: Nil  => Some(head)
+      case Nil => None
+      case head :: Nil => Some(head)
       case head :: tail => Some(new AggregateDiagnostic(head, tail))
     }
   }

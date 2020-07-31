@@ -81,7 +81,7 @@ object JsonDecoder {
         }
         Diagnostic.fromDiagnostics(errors.result()) match {
           case Some(x) => ErrorResult(x)
-          case None    => ValueResult(successValues.result())
+          case None => ValueResult(successValues.result())
         }
       case _ =>
         ErrorResult(new TypeMismatchDiagnostic("JsonArray", context))
@@ -106,7 +106,7 @@ object JsonDecoder {
         }
         Diagnostic.fromDiagnostics(errors.result()) match {
           case Some(x) => ErrorResult(x)
-          case None    => ValueResult(successValues.result())
+          case None => ValueResult(successValues.result())
         }
       case _ =>
         ErrorResult(new TypeMismatchDiagnostic("JsonObject", context))
@@ -118,7 +118,7 @@ object JsonDecoder {
   ): JsonDecoder[Option[A]] = { context =>
     context.json match {
       case JsonNull() => ValueResult(None)
-      case other      => ev.decode(context).map(Some(_))
+      case other => ev.decode(context).map(Some(_))
     }
   }
 

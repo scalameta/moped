@@ -66,8 +66,8 @@ sealed abstract class DecodingResult[+A] extends Product with Serializable {
   def product[B](other: DecodingResult[B]): DecodingResult[(A, B)] =
     (this, other) match {
       case (ErrorResult(a), ErrorResult(b)) => ErrorResult(a.mergeWith(b))
-      case (ErrorResult(a), _)              => ErrorResult(a)
-      case (_, ErrorResult(b))              => ErrorResult(b)
+      case (ErrorResult(a), _) => ErrorResult(a)
+      case (_, ErrorResult(b)) => ErrorResult(b)
       case (ValueResult(a), ValueResult(b)) => ValueResult((a, b))
     }
 

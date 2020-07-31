@@ -96,7 +96,7 @@ class CommandLineParser[T](
       case flag :: flags =>
         val (key, keys) = toInline.get(flag) match {
           case Some(setting) => setting.name -> (flag :: flags)
-          case _             => flag -> flags
+          case _ => flag -> flags
         }
         settings.get(key, keys) match {
           case None =>
@@ -171,7 +171,7 @@ object CommandLineParser {
   ): JsonArray = {
     obj.getMember(key) match {
       case Some(JsonArray(oldValues)) => JsonArray(oldValues ++ values)
-      case _                          => JsonArray(values)
+      case _ => JsonArray(values)
     }
   }
 

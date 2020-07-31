@@ -64,7 +64,7 @@ trait ClassShaper[T] extends Product {
   def commandLineDescription: Option[Doc] =
     annotations.collectFirst {
       case DescriptionDoc(doc) => doc
-      case Description(doc)    => Doc.text(doc)
+      case Description(doc) => Doc.text(doc)
     }
 
   def commandLineUsage: Option[Doc] =

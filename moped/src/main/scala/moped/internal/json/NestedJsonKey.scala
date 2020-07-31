@@ -13,7 +13,7 @@ object NestedJsonKey {
     else {
       arg.splitAt(idx) match {
         case (_, "") => None
-        case (a, b)  => Some(a -> b.stripPrefix("."))
+        case (a, b) => Some(a -> b.stripPrefix("."))
       }
     }
   }

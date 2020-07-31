@@ -32,7 +32,7 @@ final case class ParameterShape(
   def extraNames: List[String] =
     annotations.collect {
       case PositionalArguments() => CommandLineParser.PositionalArgument
-      case ExtraName(value)      => value
+      case ExtraName(value) => value
     }
   def deprecatedNames: List[DeprecatedName] =
     annotations.collect {
@@ -80,7 +80,7 @@ final case class ParameterShape(
   def isPositionalArgument: Boolean =
     annotations.exists {
       case ExampleValue(CommandLineParser.PositionalArgument) => true
-      case _                                                  => false
+      case _ => false
     }
 
 }

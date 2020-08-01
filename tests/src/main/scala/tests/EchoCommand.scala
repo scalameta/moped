@@ -35,6 +35,7 @@ object EchoCommand {
       "1.0.0",
       commands = List(
         CommandParser[HelpCommand],
+        CommandParser[TerminalsCommand],
         CommandParser[EchoCommand],
         CommandParser[CompleteCommand]
       )

@@ -5,7 +5,6 @@ import scala.util.Try
 
 abstract class BaseCommand {
   def runAsFuture(app: Application): Future[Int]
-  def isHidden: Boolean = false
 }
 
 abstract class Command extends BaseCommand {

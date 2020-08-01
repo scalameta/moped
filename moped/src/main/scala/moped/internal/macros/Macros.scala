@@ -85,7 +85,7 @@ class Macros(val c: blackbox.Context) {
     val paramss = Tclass.primaryConstructor.asMethod.paramLists
     if (paramss.size > 1) {}
     if (paramss.head.isEmpty)
-      return q"_root_.moped.JsonDecoder.constant($default)"
+      return q"_root_.moped.json.JsonDecoder.constant($default)"
 
     val (head :: params) :: Nil = paramss
     def next(param: Symbol): Tree = {

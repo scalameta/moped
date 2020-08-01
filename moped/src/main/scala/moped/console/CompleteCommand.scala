@@ -14,6 +14,7 @@ import moped.json.JsonObject
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.macros.ParameterShape
+import moped.annotations.Hidden
 
 object CompleteCommand {
 
@@ -41,7 +42,7 @@ object CompleteCommand {
                 )
               )
             ),
-            Nil
+            List(Hidden())
           )
         ),
         JsonEncoder.stringJsonEncoder.contramap[CompleteCommand](_ => ""),
@@ -65,8 +66,6 @@ case class CompleteCommand(
     format: String,
     arguments: List[String]
 ) extends Command {
-
-  override def isHidden: Boolean = true
   def run(app: Application): Int = {
     val isMissingTrailingEmptyString =
       current == arguments.length + 1

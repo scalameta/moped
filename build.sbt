@@ -63,7 +63,6 @@ lazy val tests = project
       List(
         "-H:+ReportUnsupportedElementsAtRuntime",
         "--initialize-at-build-time",
-        "--initialize-at-run-time=moped",
         "--no-server",
         "--enable-http",
         "--enable-https",
@@ -83,3 +82,11 @@ addCommandAlias(
   "native-image",
   "; tests/graalvm-native-image:packageBin ; taskready"
 )
+
+commands += Command.command("taskready") { s =>
+  import scala.sys.process._
+  if (System.getenv("CI") == null) {
+    scala.util.Try("say 'native-image ready'".!)
+  }
+  s
+}

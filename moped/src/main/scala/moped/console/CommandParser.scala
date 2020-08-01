@@ -37,6 +37,7 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
     Doc.intercalate(blank, docs)
   }
   final def helpMessage(out: PrintStream, width: Int): Unit = {
+    pprint.log(usage.render(80))
     out.println(helpMessage.renderTrim(width))
   }
   def subcommandName: String =
@@ -71,7 +72,10 @@ object CommandParser {
     macro moped.internal.macros.Macros.deriveCommandParserImpl[A]
   def apply[A <: BaseCommand](implicit ev: CommandParser[A]): CommandParser[A] =
     ev
-  def fromCodec[A <: BaseCommand](codec: JsonCodec[A]): CommandParser[A] =
-    new CodecCommandParser(codec)
+  def fromCodec[A <: BaseCommand](
+      codec: JsonCodec[A],
+      default: A
+  ): CommandParser[A] =
+    new CodecCommandParser(codec, default)
 
 }

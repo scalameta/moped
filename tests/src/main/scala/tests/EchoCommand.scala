@@ -1,7 +1,5 @@
 package tests
 
-import java.nio.file.Path
-
 import moped.annotations.PositionalArguments
 import moped.annotations._
 import moped.console.Application
@@ -10,10 +8,10 @@ import moped.console.CommandParser
 import moped.console.CompleteCommand
 import moped.console.HelpCommand
 
+@Description("Write arguments to the standard output")
 case class EchoCommand(
     @Description("If true, the output will be all UPPERCASE")
     verbose: Boolean = false,
-    path: List[Path] = Nil,
     @PositionalArguments()
     args: List[String] = Nil
 ) extends Command {

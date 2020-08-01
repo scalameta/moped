@@ -7,29 +7,31 @@ import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
 
 object HelpMessage {
-  def generate[T: JsonEncoder](
+  def generate[T](
       default: T
-  )(implicit settings: ClassShaper[T]): Doc = {
-    def toHelp(setting: ParameterShape, value: JsonElement) = {
+  )(implicit encoder: JsonEncoder[T], settings: ClassShaper[T]): Doc = {
+    def toHelp(setting: ParameterShape, value: JsonElement): (String, Doc) = {
       val name = Cases.camelToKebab(setting.name)
-      val key = s"--$name: ${setting.tpe} = $value "
+      val key = s"--$name: ${setting.tpe} = ${value.toDoc.render(80)} "
       key -> paragraph(setting.description.getOrElse(""))
     }
 
-    val defaultConf = JsonEncoder[T].encode(default) match {
+    val defaultConf = encoder.encode(default) match {
       case JsonObject(members) => members.map(_.value)
       case _ => Nil
     }
 
     val keyValues = settings.parametersFlat.zip(defaultConf).flatMap {
-      case (setting, value: JsonObject) =>
+      case (setting, value) =>
         if (setting.isHidden) {
           Nil
         } else if (setting.annotations.exists(_.isInstanceOf[Inline])) {
           for {
             underlying <- setting.underlying.toList
-            (field, JsonMember(_, fieldDefault)) <-
-              underlying.parametersFlat.zip(value.members)
+            (field, fieldDefault) <- underlying.parametersFlat.zip(value match {
+              case obj: JsonObject => obj.members.map(_.value)
+              case _ => List(value)
+            })
           } yield toHelp(field, fieldDefault)
         } else {
           toHelp(setting, value) :: Nil

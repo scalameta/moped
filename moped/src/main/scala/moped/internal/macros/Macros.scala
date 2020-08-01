@@ -45,7 +45,7 @@ class Macros(val c: blackbox.Context) {
 
   def deriveCommandParserImpl[T: c.WeakTypeTag](default: Tree): Tree = {
     val T = assumeClass[T]
-    q"_root_.moped.console.CommandParser.fromCodec(_root_.moped.macros.deriveCodec[$T]($default))"
+    q"_root_.moped.console.CommandParser.fromCodec(_root_.moped.macros.deriveCodec[$T]($default), $default)"
   }
 
   def deriveJsonEncoderImpl[T: c.WeakTypeTag]: Tree = {

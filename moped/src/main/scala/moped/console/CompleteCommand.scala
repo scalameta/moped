@@ -15,8 +15,10 @@ import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.macros.ParameterShape
 import moped.annotations.Hidden
+import moped.annotations.Description
 
 object CompleteCommand {
+  val default = new CompleteCommand()
 
   implicit lazy val parser: CommandParser[CompleteCommand] =
     new CodecCommandParser[CompleteCommand](
@@ -42,7 +44,10 @@ object CompleteCommand {
                 )
               )
             ),
-            List(Hidden())
+            List(
+              Hidden(),
+              Description("Print tab completions for bash or zsh")
+            )
           )
         ),
         JsonEncoder.stringJsonEncoder.contramap[CompleteCommand](_ => ""),
@@ -57,14 +62,15 @@ object CompleteCommand {
                 CompleteCommand(a, b, c)
             }
         }
-      )
+      ),
+      default
     )
 }
 
 case class CompleteCommand(
-    current: Int,
-    format: String,
-    arguments: List[String]
+    current: Int = 0,
+    format: String = "zsh",
+    arguments: List[String] = Nil
 ) extends Command {
   def run(app: Application): Int = {
     val isMissingTrailingEmptyString =

@@ -8,6 +8,7 @@ import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.reporters.Terminals
 import org.typelevel.paiges.Doc
+import moped.annotations.Description
 
 object HelpCommand {
   def parser(help: HelpCommand): CommandParser[HelpCommand] =
@@ -18,12 +19,16 @@ object HelpCommand {
             "HelpCommand",
             "moped.console.HelpCommand",
             Nil,
-            List(CommandName("help", "--help", "-help"))
+            List(
+              CommandName("help", "--help", "-help"),
+              Description("Print this help message")
+            )
           )
         ),
         JsonEncoder.stringJsonEncoder.contramap[HelpCommand](_ => ""),
         JsonDecoder.constant(help)
-      )
+      ),
+      help
     )
   implicit lazy val parser: CommandParser[HelpCommand] =
     parser(new HelpCommand())
@@ -39,6 +44,11 @@ class HelpCommand(
   override def run(app: Application): Int = {
     app.arguments match {
       case Nil =>
+        app.err.println(
+          s"Missing argument, to fix this problem run '${app.binaryName} help SUBCOMMAND_NAME'"
+        )
+        1
+      case _ :: Nil =>
         val usage = appUsage(app)
         if (usage.nonEmpty) {
           app.out.println(s"USAGE:")
@@ -73,7 +83,7 @@ class HelpCommand(
           app.out.println(examples.indent(2).renderTrim(screenWidth))
         }
         0
-      case subcommand :: Nil =>
+      case _ :: subcommand :: Nil =>
         app.commands.find(_.matchesName(subcommand)) match {
           case Some(command) =>
             command.helpMessage(app.out, screenWidth)

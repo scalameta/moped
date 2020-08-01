@@ -7,7 +7,7 @@ inThisBuild(
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     scalacOptions ++= List(
-      "-Ywarn-unused",
+      "-Ywarn-unused:imports",
       "-Yrangepos"
     )
   )

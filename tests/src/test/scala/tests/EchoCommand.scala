@@ -9,7 +9,7 @@ import moped.console.Command
 import moped.console.CommandParser
 
 case class EchoCommand(
-    @Description("If true, blah")
+    @Description("If true, the output will be all UPPERCASE")
     verbose: Boolean = false,
     path: List[Path] = Nil,
     @PositionalArguments()
@@ -25,5 +25,6 @@ case class EchoCommand(
 }
 
 object EchoCommand {
-  implicit val parser: CommandParser[EchoCommand] = CommandParser.derive(EchoCommand())
+  implicit val parser: CommandParser[EchoCommand] =
+    CommandParser.derive(EchoCommand())
 }

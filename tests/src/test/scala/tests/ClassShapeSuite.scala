@@ -4,8 +4,8 @@ import java.nio.file.Path
 
 import moped.console.Completer
 import moped.internal.console.PathCompleter
-import munit.FunSuite
 import moped.macros.ClassShaper
+import munit.FunSuite
 
 class CustomCompleter
 object CustomCompleter {

@@ -60,8 +60,6 @@ final case class ParameterShape(
       case TabCompleter(completer) => completer
     }
 
-  def isPositionalArguments: Boolean =
-    annotations.exists(_.isInstanceOf[PositionalArguments])
   def isRepeated: Boolean =
     annotations.exists(_.isInstanceOf[Repeated])
   def isDynamic: Boolean =
@@ -81,6 +79,7 @@ final case class ParameterShape(
   def isPositionalArgument: Boolean =
     annotations.exists {
       case ExampleValue(CommandLineParser.PositionalArgument) => true
+      case _: PositionalArguments => true
       case _ => false
     }
 

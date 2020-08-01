@@ -15,6 +15,8 @@ import moped.json.JsonEncoder
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.macros.ParameterShape
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 
 sealed abstract class CompletionShell
 case object ZshShell extends CompletionShell
@@ -73,7 +75,9 @@ case class CompleteCommand() extends Command {
     argumentsWithTrailingEmptyString match {
       case _ :: _ :: Nil =>
         renderCompletions(
-          app.commands.filterNot(_.isHidden).map(_.subcommandName),
+          app.commands
+            .filterNot(_.isHidden)
+            .map(p => TabCompletionItem(p.subcommandName)),
           app
         )
       case _ :: subcommandName :: head :: tail =>
@@ -102,7 +106,11 @@ case class CompleteCommand() extends Command {
   ): Unit = {
     val last = tail.lastOption.getOrElse(head)
     val inlined =
-      CommandLineParser.allSettings(subcommand).filter(!_._2.isHidden)
+      CommandLineParser.allSettings(subcommand).filter {
+        case (_, param) =>
+          !param.isHidden ||
+            !param.isPositionalArgument
+      }
     val secondLast = (head :: tail).takeRight(2) match {
       case flag :: _ :: Nil => Some(flag)
       case _ => None
@@ -120,19 +128,24 @@ case class CompleteCommand() extends Command {
       inlined,
       app
     )
-    tabCompletions(subcommand, context).foreach { item =>
-      renderCompletion(item, app)
-    }
-  }
-  private def renderCompletions(items: List[String], app: Application): Unit = {
-    items.foreach { item => renderCompletion(TabCompletionItem(item), app) }
+    val completionItems = tabCompletions(subcommand, context)
+    renderCompletions(completionItems, app)
   }
 
-  private def renderCompletion(
-      item: TabCompletionItem,
+  private def renderCompletions(
+      items: List[TabCompletionItem],
       app: Application
   ): Unit = {
-    app.out.println(item.name)
+    import scala.collection.JavaConverters._
+    Files.write(
+      app.env.homeDirectory.resolve(".dump"),
+      List(items.mkString(" | ")).asJava,
+      StandardOpenOption.APPEND,
+      StandardOpenOption.CREATE
+    )
+    items.foreach { item =>
+      app.out.println(item.name)
+    }
   }
 
   private def tabCompletions(

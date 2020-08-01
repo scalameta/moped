@@ -43,16 +43,24 @@ class CompleteCommandSuite extends BaseSuite {
   checkCompletions(
     "echo-empty",
     List("echo", ""),
-    """|--args
-       |--uppercase
-       |""".stripMargin
+    "--uppercase"
   )
 
   checkCompletions(
     "echo-flag",
     List("echo", "-"),
-    """|--args
-       |--uppercase
-       |""".stripMargin
+    "--uppercase"
+  )
+
+  checkCompletions(
+    "echo-uppercase",
+    List("echo", "--uppercase"),
+    "--uppercase"
+  )
+
+  checkCompletions(
+    "echo-uppercase",
+    List("echo", "--uppercase", ""),
+    "--uppercase"
   )
 }

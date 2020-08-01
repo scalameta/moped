@@ -40,30 +40,27 @@ case class Application(
     env.standardError.println(Color.LightBlue("info: ") ++ message)
   }
 
+  def runAndExitIfNonZero(args: List[String]): Unit = {
+    val exit = run(args)
+    if (exit != 0) System.exit(exit)
+  }
   def run(args: List[String]): Int = {
     val app = this.copy(arguments = args)
     val f: Future[Int] = args match {
       case Nil => onEmptyArguments.runAsFuture(app)
       case subcommand :: tail =>
-        pprint.log(subcommand)
-        pprint.log(commands.map(_.subcommandNames))
-        pprint.log(commands.map(_.subcommandName))
         commands.find(_.matchesName(subcommand)) match {
           case Some(command) =>
             val conf =
               CommandLineParser.parseArgs[command.Value](tail)(
                 command.asClassDefinition
               )
-            pprint.log(command.subcommandName)
-            pprint.log(conf)
             val configured: DecodingResult[BaseCommand] =
               conf.flatMap(elem => command.decodeCommand(DecodingContext(elem)))
-            pprint.log(configured)
             configured match {
               case ValueResult(value) =>
                 value.runAsFuture(app)
               case ErrorResult(error) =>
-                pprint.log(error.all)
                 error.all.foreach {
                   case _: AggregateDiagnostic =>
                   case diagnostic =>
@@ -72,7 +69,6 @@ case class Application(
                 Future.successful(1)
             }
           case None =>
-            pprint.log(commands.map(_.subcommandName))
             onNotRecognoziedCommand.runAsFuture(app)
         }
     }

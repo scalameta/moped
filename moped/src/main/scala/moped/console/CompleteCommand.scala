@@ -68,8 +68,6 @@ case class CompleteCommand(
 
   override def isHidden: Boolean = true
   def run(app: Application): Int = {
-    pprint.log(current)
-    pprint.log(format)
     val isMissingTrailingEmptyString =
       current == arguments.length + 1
     val argumentsWithTrailingEmptyString =

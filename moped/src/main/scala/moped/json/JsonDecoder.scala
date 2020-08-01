@@ -119,7 +119,7 @@ object JsonDecoder {
   ): JsonDecoder[Option[A]] = { context =>
     context.json match {
       case JsonNull() => ValueResult(None)
-      case other => ev.decode(context).map(Some(_))
+      case _ => ev.decode(context).map(Some(_))
     }
   }
 

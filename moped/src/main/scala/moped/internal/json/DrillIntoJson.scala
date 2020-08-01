@@ -45,7 +45,7 @@ object DrillIntoJson {
       case Some(value) => ev.decode(value)
       case None =>
         context.json match {
-          case obj @ JsonObject(_) =>
+          case JsonObject(_) =>
             ErrorResult(new MissingFieldDiagnostic(context))
           case _ =>
             ErrorResult(

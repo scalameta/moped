@@ -15,18 +15,17 @@ class CompleteCommandSuite extends BaseSuite {
       val isEmpty = args.last == ""
       val completeArgs = if (isEmpty) args.init else args
       val current = if (isEmpty) args.length + 1 else args.length
-      pprint.log(completeArgs)
-      pprint.log(current)
       val exit = app().run(
         List(
           "complete",
           "--current",
           current.toString(),
           "--format",
-          "zsh"
+          format
         ) ++ completeArgs
       )
       assertEquals(exit, 0, clues(app.capturedOutput))
+      assertNoDiff(app.capturedOutput, expected)
     }
   }
 

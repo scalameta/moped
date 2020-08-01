@@ -63,7 +63,7 @@ lazy val tests = project
       List(
         "-H:+ReportUnsupportedElementsAtRuntime",
         "--initialize-at-build-time",
-        "--initialize-at-run-time=scala.meta.internal.fastpass,metaconfig",
+        "--initialize-at-run-time=moped",
         "--no-server",
         "--enable-http",
         "--enable-https",

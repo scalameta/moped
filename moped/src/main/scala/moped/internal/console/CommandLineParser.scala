@@ -19,7 +19,6 @@ class CommandLineParser[T](
       xs: List[String],
       s: State
   ): DecodingResult[JsonObject] = {
-    pprint.log(xs)
     (xs, s) match {
       case (Nil, NoFlag) => ValueResult(curr)
       case (Nil, Flag(flag, setting)) =>

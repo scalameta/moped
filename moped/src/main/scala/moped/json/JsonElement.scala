@@ -29,7 +29,7 @@ final case class JsonBoolean(value: Boolean) extends JsonPrimitive
 final case class JsonString(value: String) extends JsonPrimitive
 final case class JsonArray(elements: List[JsonElement]) extends JsonElement
 final case class JsonObject(members: List[JsonMember]) extends JsonElement {
-  val value: mutable.Map[String,JsonElement] =
+  val value: mutable.Map[String, JsonElement] =
     new mutable.LinkedHashMap() ++
       members.iterator.map(m => m.key.value -> m.value)
   def getMember(key: String): Option[JsonElement] = {

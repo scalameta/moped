@@ -42,8 +42,9 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   def subcommandName: String =
     subcommandNames.headOption.getOrElse(fallbackSubcommandName)
   def subcommandNames: List[String] = {
-    val fromAnnotations = annotations.collect {
-      case CommandName(name) => name
+    val fromAnnotations = annotations.flatMap {
+      case CommandName(names @ _*) => names.toList
+      case _ => Nil
     }
     if (fromAnnotations.isEmpty) List(fallbackSubcommandName)
     else fromAnnotations

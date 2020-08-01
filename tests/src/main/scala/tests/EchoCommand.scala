@@ -7,6 +7,8 @@ import moped.annotations._
 import moped.console.Application
 import moped.console.Command
 import moped.console.CommandParser
+import moped.console.CompleteCommand
+import moped.console.HelpCommand
 
 case class EchoCommand(
     @Description("If true, the output will be all UPPERCASE")
@@ -27,4 +29,16 @@ case class EchoCommand(
 object EchoCommand {
   implicit val parser: CommandParser[EchoCommand] =
     CommandParser.derive(EchoCommand())
+  def main(args: Array[String]): Unit = {
+    val app = Application(
+      "tests",
+      "1.0.0",
+      commands = List(
+        CommandParser[HelpCommand],
+        CommandParser[EchoCommand],
+        CommandParser[CompleteCommand]
+      )
+    )
+    app.runAndExitIfNonZero(args.toList)
+  }
 }

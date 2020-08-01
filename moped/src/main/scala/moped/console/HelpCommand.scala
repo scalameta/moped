@@ -18,7 +18,7 @@ object HelpCommand {
             "HelpCommand",
             "moped.console.HelpCommand",
             Nil,
-            Nil
+            List(CommandName("help", "--help", "-help"))
           )
         ),
         JsonEncoder.stringJsonEncoder.contramap[HelpCommand](_ => ""),
@@ -29,7 +29,6 @@ object HelpCommand {
     parser(new HelpCommand())
 }
 
-@CommandName("help", "--help", "-help")
 class HelpCommand(
     screenWidth: Int = Terminals.screenWidth(),
     appUsage: Application => Doc = app =>

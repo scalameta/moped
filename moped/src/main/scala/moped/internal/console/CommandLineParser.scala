@@ -11,7 +11,6 @@ import moped.macros.ParameterShape
 import moped.reporters._
 
 class CommandLineParser[T](
-    args: List[String],
     settings: ClassShaper[T],
     toInline: Map[String, ParameterShape]
 ) {
@@ -39,7 +38,7 @@ class CommandLineParser[T](
           val value = head.substring(equal + 1)
           loop(curr, key :: value :: tail, NoFlag)
         } else if (head.startsWith("-")) {
-          tryFlag(curr, head, tail, s, defaultBooleanValue = true) match {
+          tryFlag(curr, head, tail, defaultBooleanValue = true) match {
             case nok: ErrorResult if head.startsWith("--") =>
               val fallbackFlag =
                 if (head.startsWith(noPrefix)) {
@@ -52,7 +51,6 @@ class CommandLineParser[T](
                   curr,
                   fallbackFlag,
                   tail,
-                  s,
                   defaultBooleanValue = false
                 )
               fallback.orElse(nok)
@@ -86,7 +84,6 @@ class CommandLineParser[T](
       curr: JsonObject,
       head: String,
       tail: List[String],
-      s: State,
       defaultBooleanValue: Boolean
   ): DecodingResult[JsonObject] = {
     val camel = Cases.kebabToCamel(dash.replaceFirstIn(head, ""))
@@ -116,7 +113,7 @@ class CommandLineParser[T](
                     s"found argument '--$flag' which wasn't expected, or isn't valid in this context.$didYouMean"
                   )
                 )
-              case Some(fallback) =>
+              case Some(_) =>
                 val values = appendValues(
                   curr,
                   PositionalArgument,
@@ -146,7 +143,7 @@ object CommandLineParser {
       args: List[String]
   )(implicit settings: ClassShaper[T]): DecodingResult[JsonElement] = {
     val toInline = inlinedSettings(settings)
-    val parser = new CommandLineParser[T](args, settings, toInline)
+    val parser = new CommandLineParser[T](settings, toInline)
     parser.loop(JsonObject(Nil), args, NoFlag)
   }
 

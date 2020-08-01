@@ -12,6 +12,10 @@ inThisBuild(
     )
   )
 )
+
+crossScalaVersions := Nil
+skip.in(publish) := true
+
 lazy val moped = project
   .settings(
     libraryDependencies ++= List(
@@ -23,11 +27,59 @@ lazy val moped = project
     )
   )
 
-lazy val tests = project
+lazy val testkit = project
   .settings(
-    testFrameworks := List(new TestFramework("munit.Framework")),
     libraryDependencies ++= List(
-      "org.scalameta" %% "munit" % "0.7.9"
+      "org.scalameta" %% "munit" % "0.7.10"
     )
   )
   .dependsOn(moped)
+
+lazy val tests = project
+  .settings(
+    skip.in(publish) := true,
+    testFrameworks := List(new TestFramework("munit.Framework")),
+    mainClass.in(GraalVMNativeImage) := Some(
+      "tests.EchoCommand"
+    ),
+    graalVMNativeImageCommand ~= { old =>
+      import scala.util.Try
+      import java.nio.file.Paths
+      import scala.sys.process._
+      Try {
+        val jabba = Paths
+          .get(sys.props("user.home"))
+          .resolve(".jabba")
+          .resolve("bin")
+          .resolve("jabba")
+        val home = s"$jabba which --home graalvm@20.0.0".!!.trim()
+        Paths.get(home).resolve("bin").resolve("native-image").toString
+      }.getOrElse(old)
+    },
+    graalVMNativeImageOptions ++= {
+      val reflectionFile =
+        Keys.sourceDirectory.in(Compile).value./("graal")./("reflection.json")
+      assert(reflectionFile.exists, "no such file: " + reflectionFile)
+      List(
+        "-H:+ReportUnsupportedElementsAtRuntime",
+        "--initialize-at-build-time",
+        "--initialize-at-run-time=scala.meta.internal.fastpass,metaconfig",
+        "--no-server",
+        "--enable-http",
+        "--enable-https",
+        "-H:EnableURLProtocols=http,https",
+        "--enable-all-security-services",
+        "--no-fallback",
+        s"-H:ReflectionConfigurationFiles=$reflectionFile",
+        "--allow-incomplete-classpath",
+        "-H:+ReportExceptionStackTraces"
+      )
+    }
+  )
+  .enablePlugins(GraalVMNativeImagePlugin)
+  .dependsOn(testkit)
+
+addCommandAlias(
+  "native-image",
+  "; tests/graalvm-native-image:packageBin ; taskready"
+)

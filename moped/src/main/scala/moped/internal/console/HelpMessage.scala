@@ -18,7 +18,7 @@ object HelpMessage {
 
     val defaultConf = JsonEncoder[T].encode(default) match {
       case JsonObject(members) => members.map(_.value)
-      case els => Nil
+      case _ => Nil
     }
 
     val keyValues = settings.parametersFlat.zip(defaultConf).flatMap {

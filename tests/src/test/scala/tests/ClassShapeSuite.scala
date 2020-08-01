@@ -10,7 +10,7 @@ import munit.FunSuite
 class CustomCompleter
 object CustomCompleter {
   implicit val completer: Completer[CustomCompleter] =
-    context => List()
+    _ => List()
 }
 
 case class ExampleClass(

@@ -1,15 +1,9 @@
 package tests
 
-import java.nio.file.Path
-
-import moped.console.Completer
-
-class ApplicationSuite extends munit.FunSuite {
-
+class ApplicationSuite extends BaseSuite {
   test("foo") {
-    pprint.log(EchoCommand.parser.parameters)
-    pprint.log(implicitly[Completer[Option[Path]]])
-    "my-cli --verbose echo foo"
-    // app.run(List("echo", "--verbose", "Hello world!"))
+    val exit = app().run(List("echo", "--verbose", "Hello world!"))
+    assertEquals(exit, 0)
+    assertNoDiff(app.capturedOutput, "HELLO WORLD!")
   }
 }

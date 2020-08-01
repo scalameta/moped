@@ -29,7 +29,7 @@ abstract class BaseSuite extends FunSuite {
   class ApplicationFixture extends Fixture[Application]("Application") {
     private val out = new ByteArrayOutputStream
     private val ps = new PrintStream(out)
-    private var app = Application(
+    private val app = Application(
       "app",
       "1.0.0",
       env = Environment(

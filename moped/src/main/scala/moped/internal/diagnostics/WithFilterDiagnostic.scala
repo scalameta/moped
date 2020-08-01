@@ -2,7 +2,7 @@ package moped.internal.diagnostics
 
 import moped.reporters._
 
-class WithFilterDiagnostic[A](value: A, filter: A => Boolean)
+class WithFilterDiagnostic[A](val value: A, val filter: A => Boolean)
     extends Diagnostic(
       ErrorSeverity,
       "WithFilterDiagnostic",

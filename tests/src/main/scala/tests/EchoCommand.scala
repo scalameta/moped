@@ -9,15 +9,22 @@ import moped.console.CompleteCommand
 import moped.console.HelpCommand
 
 @Description("Write arguments to the standard output")
+@ExampleUsage(
+  """|$ echo hello world!
+     |hello world!
+     |$ echo --uppercase hello world!
+     |HELLO WORLD!
+     |""".stripMargin
+)
 case class EchoCommand(
     @Description("If true, the output will be all UPPERCASE")
-    verbose: Boolean = false,
+    uppercase: Boolean = false,
     @PositionalArguments()
     args: List[String] = Nil
 ) extends Command {
   def run(app: Application): Int = {
     val toPrint =
-      if (verbose) args.map(_.toUpperCase())
+      if (uppercase) args.map(_.toUpperCase())
       else args
     app.env.standardOutput.println(toPrint.mkString(" "))
     0

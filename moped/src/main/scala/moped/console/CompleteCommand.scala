@@ -6,16 +6,19 @@ import moped.annotations.ParseAsNumber
 import moped.annotations.PositionalArguments
 import moped.internal.console.Cases
 import moped.internal.console.CommandLineParser
-import moped.internal.json.DrillIntoJson
 import moped.json.JsonCodec
 import moped.json.JsonDecoder
 import moped.json.JsonEncoder
-import moped.json.JsonObject
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.macros.ParameterShape
 import moped.annotations.Hidden
 import moped.annotations.Description
+import moped.internal.json.NumberExtractor
+
+sealed abstract class CompletionShell
+case object ZshShell extends CompletionShell
+case object BashShell extends CompletionShell
 
 object CompleteCommand {
   val default = new CompleteCommand()
@@ -51,28 +54,24 @@ object CompleteCommand {
           )
         ),
         JsonEncoder.stringJsonEncoder.contramap[CompleteCommand](_ => ""),
-        JsonDecoder.fromJson("JsonObject") {
-          case obj: JsonObject =>
-            val current = DrillIntoJson.get[Int](obj, "current")
-            val format = DrillIntoJson.get[String](obj, "format")
-            val arguments = DrillIntoJson
-              .get[List[String]](obj, CommandLineParser.PositionalArgument)
-            current.product(format).product(arguments).map {
-              case ((a, b), c) =>
-                CompleteCommand(a, b, c)
-            }
-        }
+        JsonDecoder.constant(default)
       ),
       default
     )
 }
 
-case class CompleteCommand(
-    current: Int = 0,
-    format: String = "zsh",
-    arguments: List[String] = Nil
-) extends Command {
+case class CompleteCommand() extends Command {
   def run(app: Application): Int = {
+    val (format, current, arguments) = app.arguments match {
+      case _ :: "zsh" :: NumberExtractor(current) :: tail =>
+        (ZshShell, current.toInt, tail)
+      case els =>
+        app.error(
+          s"invalid arguments, to fix this problem pass in '${app.binaryName} complete zsh $$CURRENT $$ARGUMENTS'. " +
+            s"Other shells like bash are not supported at the moment."
+        )
+        return 1
+    }
     val isMissingTrailingEmptyString =
       current == arguments.length + 1
     val argumentsWithTrailingEmptyString =
@@ -86,7 +85,14 @@ case class CompleteCommand(
         )
       case _ :: subcommandName :: head :: tail =>
         app.commands.find(_.matchesName(subcommandName)).foreach { subcommand =>
-          renderSubcommandCompletions(subcommand, head, tail, app)
+          renderSubcommandCompletions(
+            current,
+            format,
+            subcommand,
+            head,
+            tail,
+            app
+          )
         }
       case _ =>
     }
@@ -94,6 +100,8 @@ case class CompleteCommand(
   }
 
   private def renderSubcommandCompletions(
+      current: Int,
+      shell: CompletionShell,
       subcommand: CommandParser[_],
       head: String,
       tail: List[String],
@@ -110,7 +118,7 @@ case class CompleteCommand(
       inlined.get(Cases.kebabToCamel(flag.stripPrefix("--")))
     )
     val context = TabCompletionContext(
-      format,
+      shell,
       current,
       head :: tail,
       last,

@@ -13,6 +13,8 @@ final case class Environment(
     standardError: PrintStream = System.err,
     standardInput: InputStream = System.in,
     workingDirectory: Path = Paths.get(System.getProperty("user.dir")),
+    homeDirectory: Path = Paths.get(System.getProperty("user.home")),
+    configDirectory: Path = Paths.get(System.getProperty("user.home")),
     systemProperties: ju.Properties = System.getProperties(),
     environmentVariables: collection.Map[String, String] =
       System.getenv().asScala

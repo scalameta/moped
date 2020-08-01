@@ -23,13 +23,15 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   def isHidden: Boolean = annotations.contains(Hidden())
   def matchesName(name: String): Boolean =
     subcommandNames.exists(_.equalsIgnoreCase(name))
-  def helpMessage: Doc = {
-    val docs = List[(String, Doc)](
+  def helpMessageSections: List[(String, Doc)] =
+    List(
       "USAGE:" -> usage,
       "DESCRIPTION:" -> description,
       "OPTIONS:" -> options,
       "EXAMPLES:" -> examples
-    ).collect {
+    )
+  def helpMessage: Doc = {
+    val docs = helpMessageSections.collect {
       case (key, doc) if doc.nonEmpty =>
         Doc.text(key) + Doc.line + doc.indent(2)
     }
@@ -37,7 +39,6 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
     Doc.intercalate(blank, docs)
   }
   final def helpMessage(out: PrintStream, width: Int): Unit = {
-    pprint.log(usage.render(80))
     out.println(helpMessage.renderTrim(width))
   }
   def subcommandName: String =

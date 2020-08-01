@@ -21,6 +21,7 @@ lazy val moped = project
     libraryDependencies ++= List(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
+      "dev.dirs" % "directories" % "20",
       "com.lihaoyi" %% "pprint" % "0.5.9",
       "com.lihaoyi" %% "fansi" % "0.2.7",
       "org.typelevel" %% "paiges-core" % "0.3.1"

@@ -1,6 +1,7 @@
 package moped.console
 
 import moped.annotations.CommandName
+import moped.annotations.Description
 import moped.json.JsonCodec
 import moped.json.JsonDecoder
 import moped.json.JsonEncoder
@@ -8,7 +9,6 @@ import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.reporters.Terminals
 import org.typelevel.paiges.Doc
-import moped.annotations.Description
 
 object HelpCommand {
   def parser(help: HelpCommand): CommandParser[HelpCommand] =

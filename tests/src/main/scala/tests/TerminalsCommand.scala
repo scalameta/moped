@@ -1,10 +1,10 @@
 package tests
 
-import moped.console.Command
-import moped.console.Application
-import moped.reporters.Terminals
-import moped.console.CommandParser
 import moped.annotations.Description
+import moped.console.Application
+import moped.console.Command
+import moped.console.CommandParser
+import moped.reporters.Terminals
 
 @Description("Print the console screen width")
 final case class TerminalsCommand() extends Command {
@@ -15,5 +15,5 @@ final case class TerminalsCommand() extends Command {
 }
 
 object TerminalsCommand {
-  implicit val parser = CommandParser.derive(TerminalsCommand())
+  implicit val parser: CommandParser[TerminalsCommand] = CommandParser.derive(TerminalsCommand())
 }

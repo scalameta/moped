@@ -8,20 +8,17 @@ class CompleteCommandSuite extends BaseSuite {
       args: List[String],
       expected: String,
       format: String = "zsh"
-  )(implicit
-      loc: munit.Location
-  ): Unit = {
+  )(implicit loc: munit.Location): Unit = {
     test(name) {
-      val isEmpty = args.last == ""
+      val isEmpty = args.nonEmpty && args.last == ""
       val completeArgs = if (isEmpty) args.init else args
       val current = if (isEmpty) args.length + 1 else args.length
       val exit = app().run(
         List(
           "complete",
-          "--current",
+          format,
           current.toString(),
-          "--format",
-          format
+          app().binaryName
         ) ++ completeArgs
       )
       assertEquals(exit, 0, clues(app.capturedOutput))
@@ -30,9 +27,32 @@ class CompleteCommandSuite extends BaseSuite {
   }
 
   checkCompletions(
-    "basic",
+    "empty",
+    List(),
+    ""
+  )
+
+  checkCompletions(
+    "subcommands",
     List(""),
-    """|
+    """|help
+       |echo
+       |""".stripMargin
+  )
+
+  checkCompletions(
+    "echo-empty",
+    List("echo", ""),
+    """|--args
+       |--uppercase
+       |""".stripMargin
+  )
+
+  checkCompletions(
+    "echo-flag",
+    List("echo", "-"),
+    """|--args
+       |--uppercase
        |""".stripMargin
   )
 }

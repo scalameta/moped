@@ -2,19 +2,19 @@ package moped.console
 
 import scala.collection.immutable.Nil
 
-import moped.annotations.ParseAsNumber
+import moped.annotations.CatchInvalidFlags
+import moped.annotations.Description
+import moped.annotations.Hidden
 import moped.annotations.PositionalArguments
 import moped.internal.console.Cases
 import moped.internal.console.CommandLineParser
+import moped.internal.json.NumberExtractor
 import moped.json.JsonCodec
 import moped.json.JsonDecoder
 import moped.json.JsonEncoder
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.macros.ParameterShape
-import moped.annotations.Hidden
-import moped.annotations.Description
-import moped.internal.json.NumberExtractor
 
 sealed abstract class CompletionShell
 case object ZshShell extends CompletionShell
@@ -33,16 +33,9 @@ object CompleteCommand {
             List(
               List(
                 new ParameterShape(
-                  "current",
-                  "Option[Int]",
-                  List(new ParseAsNumber()),
-                  None
-                ),
-                new ParameterShape("format", "Option[String]", Nil, None),
-                new ParameterShape(
                   "arguments",
                   "List[String]",
-                  List(new PositionalArguments()),
+                  List(PositionalArguments(), CatchInvalidFlags()),
                   None
                 )
               )

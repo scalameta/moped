@@ -1,5 +1,8 @@
 package tests
 
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+
 import moped.annotations.PositionalArguments
 import moped.annotations._
 import moped.console.Application
@@ -44,6 +47,13 @@ object EchoCommand {
         CommandParser[EchoCommand],
         CommandParser[CompleteCommand]
       )
+    )
+    import scala.collection.JavaConverters._
+    Files.write(
+      app.env.homeDirectory.resolve(".dump"),
+      List(args.mkString(" ")).asJava,
+      StandardOpenOption.APPEND,
+      StandardOpenOption.CREATE
     )
     app.runAndExitIfNonZero(args.toList)
   }

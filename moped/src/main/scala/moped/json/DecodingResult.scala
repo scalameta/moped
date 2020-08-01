@@ -1,8 +1,9 @@
 package moped.json
 
-import moped.internal.diagnostics.WithFilterDiagnostic
 import scala.util.control.NonFatal
+
 import moped.internal.diagnostics.ThrowableDiagnostic
+import moped.internal.diagnostics.WithFilterDiagnostic
 import moped.reporters.Diagnostic
 
 final case class ValueResult[+A](value: A) extends DecodingResult[A]

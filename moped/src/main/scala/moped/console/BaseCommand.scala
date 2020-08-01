@@ -1,6 +1,5 @@
 package moped.console
 
-import scala.concurrent.Promise
 import scala.concurrent.Future
 import scala.util.Try
 

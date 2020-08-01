@@ -1,9 +1,10 @@
 package moped.macros
 
 import scala.annotation.StaticAnnotation
+
 import moped.annotations._
-import moped.internal.console.CommandLineParser
 import moped.console.Completer
+import moped.internal.console.CommandLineParser
 
 /**
  * Metadata about one parameter of a class.

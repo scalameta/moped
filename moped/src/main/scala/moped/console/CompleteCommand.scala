@@ -1,22 +1,19 @@
 package moped.console
 
 import scala.collection.immutable.Nil
-import moped.internal.console.CommandLineParser
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.Path
+
+import moped.annotations.ParseAsNumber
+import moped.annotations.PositionalArguments
 import moped.internal.console.Cases
+import moped.internal.console.CommandLineParser
+import moped.internal.json.DrillIntoJson
 import moped.json.JsonCodec
 import moped.json.JsonDecoder
 import moped.json.JsonEncoder
-import moped.macros.ClassShaper
-import moped.macros.ClassShape
-import moped.macros.ParameterShape
-import moped.annotations.PositionalArguments
 import moped.json.JsonObject
-import moped.internal.json.DrillIntoJson
-import moped.annotations.ParseAsNumber
+import moped.macros.ClassShape
+import moped.macros.ClassShaper
+import moped.macros.ParameterShape
 
 object CompleteCommand {
 

@@ -1,9 +1,8 @@
 package moped.internal.json
 
-import scala.collection.mutable
-import moped.json._
 import moped.internal.diagnostics.MissingFieldDiagnostic
 import moped.internal.diagnostics.TypeMismatchDiagnostic
+import moped.json._
 import moped.macros.ParameterShape
 
 object DrillIntoJson {

@@ -1,9 +1,9 @@
 package moped.console
 
+import moped.json.DecodingContext
+import moped.json.DecodingResult
 import moped.json.JsonCodec
-import moped.json.{DecodingContext, DecodingResult}
 import moped.json.JsonElement
-import scala.annotation.StaticAnnotation
 import moped.macros.ClassShape
 
 class CodecCommandParser[A <: BaseCommand](val codec: JsonCodec[A])

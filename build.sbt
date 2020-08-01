@@ -1,7 +1,12 @@
 inThisBuild(
   List(
     useSuperShell := false,
+    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0",
+    scalaVersion := "2.12.12",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
     scalacOptions ++= List(
+      "-Ywarn-unused",
       "-Yrangepos"
     )
   )

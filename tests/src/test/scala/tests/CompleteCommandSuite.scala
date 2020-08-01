@@ -1,6 +1,5 @@
 package tests
 
-import munit.FunSuite
 import munit.TestOptions
 
 class CompleteCommandSuite extends BaseSuite {

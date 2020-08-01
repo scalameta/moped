@@ -1,22 +1,19 @@
 package moped.console
 
-import scala.concurrent.Promise
-import scala.runtime.EmptyMethodCache
-import fansi.Str
-import fansi.Color
-import moped.internal.console.HelpMessage
-import moped.internal.console.CommandLineParser
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 import scala.concurrent.Future
-import moped.json.DecodingResult
-import moped.json.ValueResult
-import moped.json.ErrorResult
-import moped.json.DecodingContext
+import scala.concurrent.duration.Duration
+
+import fansi.Color
+import fansi.Str
+import moped.internal.console.CommandLineParser
 import moped.internal.diagnostics.AggregateDiagnostic
-import moped.reporters.Reporter
+import moped.json.DecodingContext
+import moped.json.DecodingResult
+import moped.json.ErrorResult
+import moped.json.ValueResult
 import moped.reporters.ConsoleReporter
-import moped.reporters.NoReporter
+import moped.reporters.Reporter
 
 case class Application(
     binaryName: String,

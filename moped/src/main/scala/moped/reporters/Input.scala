@@ -1,11 +1,12 @@
 package moped.reporters
 
+import java.io.File
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
+
 import scala.collection.mutable
-import java.io.File
 import scala.util.hashing.MurmurHash3
 
 object Input {

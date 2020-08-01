@@ -1,10 +1,8 @@
 package moped.internal.console
 
-import moped._
+import moped.annotations.Inline
 import moped.json._
 import moped.macros._
-import moped.annotations.Inline
-import moped.internal.diagnostics.TypeMismatchDiagnostic
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
 

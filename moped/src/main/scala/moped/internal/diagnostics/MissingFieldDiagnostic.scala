@@ -1,10 +1,8 @@
 package moped.internal.diagnostics
 
-import moped.json.JsonElement
-import moped.json.Cursor
+import moped.json.DecodingContext
 import moped.reporters.Diagnostic
 import moped.reporters.ErrorSeverity
-import moped.json.DecodingContext
 
 class MissingFieldDiagnostic(context: DecodingContext)
     extends Diagnostic(ErrorSeverity, "MissingField", context.json.position) {

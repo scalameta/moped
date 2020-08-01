@@ -1,21 +1,13 @@
 package moped.console
 
-import org.typelevel.paiges.Doc
-import moped.reporters.Terminals
-import moped.internal.reporters.Levenshtein
-import moped.macros.ClassShaper
-import moped.macros.ParameterShape
 import moped.annotations.CommandName
-import moped.annotations.ExtraName
-import moped.json.JsonEncoder
-import moped.json.JsonDecoder
-import moped.json.JsonObject
-import moped.json.JsonMember
-import moped.json.JsonString
-import moped.json.JsonArray
-import moped.json.ValueResult
 import moped.json.JsonCodec
+import moped.json.JsonDecoder
+import moped.json.JsonEncoder
 import moped.macros.ClassShape
+import moped.macros.ClassShaper
+import moped.reporters.Terminals
+import org.typelevel.paiges.Doc
 
 object HelpCommand {
   def parser(help: HelpCommand): CommandParser[HelpCommand] =

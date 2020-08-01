@@ -1,7 +1,6 @@
 package moped.internal.json
 
 import moped.json.JsonString
-import scala.util.Try
 
 object NestedJsonKey {
   def unapply(arg: JsonString): Option[(String, String)] = {

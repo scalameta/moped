@@ -1,11 +1,7 @@
 package moped.json
 
-import scala.language.higherKinds
-import scala.language.experimental.macros
-import moped.macros.ClassShaper
-import moped.macros.ParameterShape
-import scala.annotation.StaticAnnotation
 import moped.macros.ClassShape
+import moped.macros.ClassShaper
 
 trait JsonCodec[A]
     extends JsonDecoder[A]

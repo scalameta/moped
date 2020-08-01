@@ -5,6 +5,7 @@ import java.io.PrintStream
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.{util => ju}
+
 import scala.collection.JavaConverters._
 
 final case class Environment(
@@ -18,5 +19,5 @@ final case class Environment(
 )
 
 object Environment {
-  val default = Environment()
+  val default: Environment = Environment()
 }

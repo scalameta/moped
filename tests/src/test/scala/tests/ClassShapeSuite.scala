@@ -1,11 +1,11 @@
 package tests
 
-import munit.FunSuite
-import munit.TestOptions
-import java.nio.file.Paths
 import java.nio.file.Path
-import moped.internal.console.PathCompleter
+
 import moped.console.Completer
+import moped.internal.console.PathCompleter
+import munit.FunSuite
+import moped.macros.ClassShaper
 
 class CustomCompleter
 object CustomCompleter {
@@ -25,7 +25,7 @@ case class ExampleClass(
 )
 
 class ClassShapeSuite extends FunSuite {
-  val shape = moped.macros.deriveShaper[ExampleClass]
+  val shape: ClassShaper[ExampleClass] = moped.macros.deriveShaper[ExampleClass]
   test("params") {
     assertEquals(
       shape.parametersFlat.map(p => p.name -> p.tpe),

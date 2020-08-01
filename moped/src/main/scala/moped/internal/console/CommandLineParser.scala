@@ -1,14 +1,14 @@
 package moped.internal.console
 
-import moped._
-import moped.json._
-import moped.reporters._
-import moped.macros.ParameterShape
-import moped.macros.ClassShaper
-import moped.annotations.Inline
-import moped.internal.reporters.Levenshtein
-import moped.internal.console.CommandLineParser._
 import scala.util.Try
+
+import moped.annotations.Inline
+import moped.internal.console.CommandLineParser._
+import moped.internal.reporters.Levenshtein
+import moped.json._
+import moped.macros.ClassShaper
+import moped.macros.ParameterShape
+import moped.reporters._
 
 class CommandLineParser[T](
     args: List[String],

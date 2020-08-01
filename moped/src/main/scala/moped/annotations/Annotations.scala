@@ -1,10 +1,9 @@
 package moped.annotations
 
 import scala.annotation.StaticAnnotation
-import org.typelevel.paiges.Doc
-import moped.console.TabCompletionContext
-import moped.console.TabCompletionItem
+
 import moped.console.Completer
+import org.typelevel.paiges.Doc
 
 final case class ShortName(value: Char) extends StaticAnnotation
 final case class ExtraName(value: String) extends StaticAnnotation

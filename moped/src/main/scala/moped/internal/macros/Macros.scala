@@ -2,12 +2,11 @@ package moped.internal.macros
 
 import scala.annotation.StaticAnnotation
 import scala.reflect.macros.blackbox
+
 import moped.console._
 import moped.json._
-import moped.macros._
-import java.nio.file.Path
-import java.io.File
 import moped.macros.ClassShaper
+import moped.macros._
 
 object Macros
 class Macros(val c: blackbox.Context) {

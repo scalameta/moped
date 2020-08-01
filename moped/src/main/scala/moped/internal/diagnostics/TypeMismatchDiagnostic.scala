@@ -1,7 +1,7 @@
 package moped.internal.diagnostics
 
-import moped.reporters._
 import moped.json._
+import moped.reporters._
 
 class TypeMismatchDiagnostic(
     expected: String,

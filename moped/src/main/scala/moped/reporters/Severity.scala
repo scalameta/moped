@@ -1,8 +1,7 @@
 package moped.reporters
 
-import fansi.Attr
-import fansi.Color
 import fansi.Attrs
+import fansi.Color
 
 sealed abstract class Severity(val name: String, val priority: Int)
     extends Ordered[Severity] {

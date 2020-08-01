@@ -1,12 +1,13 @@
 package moped.json
 
-import moped.internal.diagnostics.TypeMismatchDiagnostic
-import moped.reporters.Diagnostic
-import scala.collection.compat._
-import scala.collection.mutable
 import java.nio.file.Path
 import java.nio.file.Paths
-import scala.reflect.ClassTag
+
+import scala.collection.compat._
+import scala.collection.mutable
+
+import moped.internal.diagnostics.TypeMismatchDiagnostic
+import moped.reporters.Diagnostic
 
 trait JsonDecoder[A] { self =>
 

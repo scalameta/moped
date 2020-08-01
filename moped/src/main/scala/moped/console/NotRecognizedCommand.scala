@@ -1,5 +1,6 @@
 package moped.console
 import scala.collection.immutable.Nil
+
 import moped.internal.reporters.Levenshtein
 
 object NotRecognizedCommand extends Command {

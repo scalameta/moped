@@ -1,18 +1,16 @@
 package moped.console
 
+import java.io.PrintStream
+
 import scala.language.experimental.macros
 
-import moped.macros._
-import moped.json._
-import moped.internal.console.CommandLineParser
-import scala.annotation.StaticAnnotation
 import moped.annotations.CommandName
 import moped.annotations.Hidden
-import org.typelevel.paiges.Doc
-import moped.annotations.Description
-import moped.annotations.DescriptionDoc
-import java.io.PrintStream
 import moped.annotations.TabCompleter
+import moped.internal.console.CommandLineParser
+import moped.json._
+import moped.macros._
+import org.typelevel.paiges.Doc
 
 trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A

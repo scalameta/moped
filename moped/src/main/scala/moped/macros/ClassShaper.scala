@@ -1,13 +1,12 @@
 package moped.macros
 
-import moped.json._
-import scala.annotation.StaticAnnotation
-import moped.annotations.DescriptionDoc
-import org.typelevel.paiges.Doc
 import moped.annotations.Description
-import moped.annotations.Usage
+import moped.annotations.DescriptionDoc
 import moped.annotations.ExampleUsage
+import moped.annotations.Usage
 import moped.internal.console.HelpMessage
+import moped.json._
+import org.typelevel.paiges.Doc
 
 object ClassShaper {
   def empty[T]: ClassShaper[T] =

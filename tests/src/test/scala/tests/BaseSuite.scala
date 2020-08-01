@@ -1,16 +1,17 @@
 package tests
 
-import munit.FunSuite
-import moped.console.Application
-import moped.console.CommandParser
-import moped.console.HelpCommand
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
-import moped.console.Environment
 import java.nio.charset.StandardCharsets
-import java.nio.file.Path
 import java.nio.file.Files
+import java.nio.file.Path
+
+import moped.console.Application
+import moped.console.CommandParser
 import moped.console.CompleteCommand
+import moped.console.Environment
+import moped.console.HelpCommand
+import munit.FunSuite
 
 abstract class BaseSuite extends FunSuite {
 

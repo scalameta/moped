@@ -1,11 +1,13 @@
 package moped.internal.console
 
-import moped.console.Completer
-import java.nio.file.Path
-import moped.console.{TabCompletionContext, TabCompletionItem}
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import moped.console.Completer
+import moped.console.TabCompletionContext
+import moped.console.TabCompletionItem
 
 case object PathCompleter extends Completer[Path] {
 

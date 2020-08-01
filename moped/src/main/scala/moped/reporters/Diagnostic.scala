@@ -1,6 +1,7 @@
 package moped.reporters
 
 import scala.collection.mutable
+
 import moped.internal.diagnostics._
 import moped.json.DecodingContext
 

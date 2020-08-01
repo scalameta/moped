@@ -1,12 +1,9 @@
 package moped.reporters
 
 import java.io.PrintStream
-import fansi.Attrs
-import fansi.Color
-import fansi.Str
-import fansi.Attr
-import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.atomic.AtomicInteger
+
+import fansi.Attrs
 
 class ConsoleReporter(
     ps: PrintStream,

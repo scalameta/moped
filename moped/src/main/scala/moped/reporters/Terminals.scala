@@ -2,8 +2,9 @@ package moped.reporters
 
 import java.nio.file.Files
 import java.nio.file.Paths
-import scala.util.control.NonFatal
+
 import scala.sys.process.Process
+import scala.util.control.NonFatal
 
 object Terminals {
   def isColorEnabled: Boolean =

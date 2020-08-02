@@ -58,13 +58,15 @@ case class CompleteCommand() extends Command {
     val (format, argumentLength, arguments) = app.arguments match {
       case _ :: "zsh" :: NumberExtractor(argumentLength) :: tail =>
         (ZshCompletion, argumentLength.toInt, tail)
-      case "bash" :: NumberExtractor(argumentLength) :: tail =>
+      case _ :: "bash" :: NumberExtractor(argumentLength) :: tail =>
         (BashCompletion, argumentLength.toInt, tail)
       case _ :: "fish" :: tail =>
+        // Fish completions pass in an empty string "" as the last argument so we
+        // don't need the second argument to know `tail.length`
         (FishCompletion, tail.length, tail)
       case els =>
         app.error(
-          s"invalid arguments, to fix this problem pass in '${app.binaryName} complete $$SHELL $$ARGUMENTS_LENGTH $$ARGUMENTS'. "
+          s"invalid arguments $els, to fix this problem pass in '${app.binaryName} complete $$SHELL $$ARGUMENTS_LENGTH $$ARGUMENTS'. "
         )
         return 1
     }

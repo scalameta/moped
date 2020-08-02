@@ -3,7 +3,7 @@ package moped.console
 import moped.macros.ParameterShape
 
 final case class TabCompletionContext(
-    shell: CompletionShell,
+    shell: ShellCompletion,
     current: Int,
     arguments: List[String],
     last: String,

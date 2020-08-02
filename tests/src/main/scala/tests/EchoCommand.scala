@@ -10,6 +10,8 @@ import moped.console.Command
 import moped.console.CommandParser
 import moped.console.CompleteCommand
 import moped.console.HelpCommand
+import moped.json.JsonString
+import moped.json.JsonArray
 
 @Description("Write arguments to the standard output")
 @ExampleUsage(
@@ -49,9 +51,11 @@ object EchoCommand {
       )
     )
     import scala.collection.JavaConverters._
+    val prettyArguments =
+      JsonArray(args.map(JsonString(_)).toList).toDoc.render(80)
     Files.write(
       app.env.homeDirectory.resolve(".dump"),
-      List(args.mkString(" ")).asJava,
+      List(prettyArguments).asJava,
       StandardOpenOption.APPEND,
       StandardOpenOption.CREATE
     )

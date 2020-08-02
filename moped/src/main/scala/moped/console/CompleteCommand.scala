@@ -17,10 +17,8 @@ import moped.macros.ClassShaper
 import moped.macros.ParameterShape
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
-
-sealed abstract class CompletionShell
-case object ZshShell extends CompletionShell
-case object BashShell extends CompletionShell
+import moped.json.JsonArray
+import moped.json.JsonString
 
 object CompleteCommand {
   val default = new CompleteCommand()
@@ -57,18 +55,21 @@ object CompleteCommand {
 
 case class CompleteCommand() extends Command {
   def run(app: Application): Int = {
-    val (format, current, arguments) = app.arguments match {
-      case _ :: "zsh" :: NumberExtractor(current) :: tail =>
-        (ZshShell, current.toInt, tail)
+    val (format, argumentLength, arguments) = app.arguments match {
+      case _ :: "zsh" :: NumberExtractor(argumentLength) :: tail =>
+        (ZshCompletion, argumentLength.toInt, tail)
+      case "bash" :: NumberExtractor(argumentLength) :: tail =>
+        (BashCompletion, argumentLength.toInt, tail)
+      case _ :: "fish" :: tail =>
+        (FishCompletion, tail.length, tail)
       case els =>
         app.error(
-          s"invalid arguments, to fix this problem pass in '${app.binaryName} complete zsh $$CURRENT $$ARGUMENTS'. " +
-            s"Other shells like bash are not supported at the moment."
+          s"invalid arguments, to fix this problem pass in '${app.binaryName} complete $$SHELL $$ARGUMENTS_LENGTH $$ARGUMENTS'. "
         )
         return 1
     }
     val isMissingTrailingEmptyString =
-      current == arguments.length + 1
+      argumentLength == arguments.length + 1
     val argumentsWithTrailingEmptyString =
       if (isMissingTrailingEmptyString) arguments :+ ""
       else arguments
@@ -83,7 +84,7 @@ case class CompleteCommand() extends Command {
       case _ :: subcommandName :: head :: tail =>
         app.commands.find(_.matchesName(subcommandName)).foreach { subcommand =>
           renderSubcommandCompletions(
-            current,
+            argumentLength,
             format,
             subcommand,
             head,
@@ -97,8 +98,8 @@ case class CompleteCommand() extends Command {
   }
 
   private def renderSubcommandCompletions(
-      current: Int,
-      shell: CompletionShell,
+      argumentLength: Int,
+      shell: ShellCompletion,
       subcommand: CommandParser[_],
       head: String,
       tail: List[String],
@@ -120,7 +121,7 @@ case class CompleteCommand() extends Command {
     )
     val context = TabCompletionContext(
       shell,
-      current,
+      argumentLength,
       head :: tail,
       last,
       secondLast,
@@ -137,9 +138,11 @@ case class CompleteCommand() extends Command {
       app: Application
   ): Unit = {
     import scala.collection.JavaConverters._
+    val prettyItems =
+      JsonArray(items.map(i => JsonString(i.name)).toList).toDoc.render(80)
     Files.write(
       app.env.homeDirectory.resolve(".dump"),
-      List(items.mkString(" | ")).asJava,
+      List(prettyItems).asJava,
       StandardOpenOption.APPEND,
       StandardOpenOption.CREATE
     )

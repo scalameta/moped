@@ -9,8 +9,17 @@ import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.reporters.Terminals
 import org.typelevel.paiges.Doc
+import moped.annotations.CatchInvalidFlags
+import moped.annotations.PositionalArguments
+import moped.macros.ParameterShape
+import moped.annotations.TabCompleter
 
 object HelpCommand {
+  val completer: Completer[List[String]] = context =>
+    context.app.commands.iterator
+      .filterNot(_.isHidden)
+      .map(c => TabCompletionItem(c.subcommandName))
+      .toList
   def parser(help: HelpCommand): CommandParser[HelpCommand] =
     new CodecCommandParser[HelpCommand](
       JsonCodec.encoderDecoderJsonCodec(
@@ -18,7 +27,20 @@ object HelpCommand {
           new ClassShape(
             "HelpCommand",
             "moped.console.HelpCommand",
-            Nil,
+            List(
+              List(
+                new ParameterShape(
+                  "arguments",
+                  "List[String]",
+                  List(
+                    TabCompleter(completer),
+                    PositionalArguments(),
+                    CatchInvalidFlags()
+                  ),
+                  None
+                )
+              )
+            ),
             List(
               CommandName("help", "--help", "-help"),
               Description("Print this help message")

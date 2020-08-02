@@ -11,6 +11,7 @@ import moped.internal.console.CommandLineParser
 import moped.json._
 import moped.macros._
 import org.typelevel.paiges.Doc
+import scala.annotation.StaticAnnotation
 
 trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A
@@ -62,10 +63,18 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   def withTabCompletion(
       fn: TabCompletionContext => List[TabCompletionItem]
   ): CommandParser[A] = ???
-  def complete(context: TabCompletionContext): List[TabCompletionItem] =
-    annotations
-      .collectFirst { case TabCompleter(fn) => fn.complete(context) }
-      .getOrElse(Nil)
+  def complete(context: TabCompletionContext): List[TabCompletionItem] = {
+    val allAnnotations: Iterator[StaticAnnotation] = Iterator(
+      annotations.iterator,
+      parametersFlat.iterator
+        .filter(_.isPositionalArgument)
+        .flatMap(_.annotations.iterator)
+    ).flatten
+    val completer = allAnnotations
+      .collectFirst { case TabCompleter(fn) => fn }
+      .getOrElse(Completer.empty)
+    completer.complete(context)
+  }
 }
 
 object CommandParser {

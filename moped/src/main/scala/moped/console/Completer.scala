@@ -9,6 +9,7 @@ trait Completer[A] {
 }
 
 object Completer {
+  def empty[T]: Completer[T] = _ => Nil
   implicit val pathCompleter: Completer[Path] = PathCompleter
 
   implicit def iterableCompleter[A, C[x] <: Iterable[x]](implicit

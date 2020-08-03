@@ -12,6 +12,7 @@ import moped.console.Application
 import moped.console.CommandParser
 import moped.console.Environment
 import munit.FunSuite
+import moped.commands.VersionCommand
 
 abstract class BaseSuite extends FunSuite {
 
@@ -38,6 +39,7 @@ abstract class BaseSuite extends FunSuite {
       ),
       commands = List(
         CommandParser[HelpCommand],
+        CommandParser[VersionCommand],
         CommandParser[CompleteCommand],
         CommandParser[EchoCommand]
       )

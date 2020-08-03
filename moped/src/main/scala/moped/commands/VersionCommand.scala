@@ -24,8 +24,8 @@ object VersionCommand {
             "moped.commands.VersionCommand",
             List(),
             List(
-              Description("Print the version of this program"),
-              CommandName("version")
+              CommandName("version"),
+              Description("Print the version of this program")
             )
           )
         ),

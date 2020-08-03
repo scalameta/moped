@@ -12,6 +12,7 @@ import moped.console.Command
 import moped.console.CommandParser
 import moped.json.JsonArray
 import moped.json.JsonString
+import moped.commands.VersionCommand
 
 @Description("Write arguments to the standard output")
 @ExampleUsage(
@@ -45,6 +46,7 @@ object EchoCommand {
       "1.0.0",
       commands = List(
         CommandParser[HelpCommand],
+        CommandParser[VersionCommand],
         CommandParser[TerminalsCommand],
         CommandParser[EchoCommand],
         CommandParser[CompleteCommand]

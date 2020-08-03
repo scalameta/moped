@@ -35,7 +35,7 @@ class CompleteCommandSuite extends BaseSuite {
   checkCompletions(
     "subcommands",
     List(""),
-    List("help", "echo")
+    List("help", "version", "echo")
   )
 
   checkCompletions(
@@ -64,13 +64,13 @@ class CompleteCommandSuite extends BaseSuite {
   checkCompletions(
     "help-subcommand",
     List("help", ""),
-    List("help", "echo")
+    List("help", "version", "echo")
   )
 
   checkCompletions(
     "help-subcommand",
     List("help", "e"),
-    List("help", "echo")
+    List("help", "version", "echo")
   )
 
   checkCompletions(

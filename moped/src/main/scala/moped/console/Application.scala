@@ -14,6 +14,7 @@ import moped.json.ErrorResult
 import moped.json.ValueResult
 import moped.reporters.ConsoleReporter
 import moped.reporters.Reporter
+import moped.commands.HelpCommand
 
 case class Application(
     binaryName: String,

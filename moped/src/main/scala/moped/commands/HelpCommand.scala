@@ -1,4 +1,4 @@
-package moped.console
+package moped.commands
 
 import moped.annotations.CommandName
 import moped.annotations.Description
@@ -14,6 +14,13 @@ import moped.annotations.PositionalArguments
 import moped.macros.ParameterShape
 import moped.annotations.TabCompleter
 import scala.collection.immutable.Nil
+import moped.console.Application
+import moped.console.CodecCommandParser
+import moped.console.Command
+import moped.console.CommandParser
+import moped.console.Completer
+import moped.console.NotRecognizedCommand
+import moped.console.TabCompletionItem
 
 object HelpCommand {
   val completer: Completer[List[String]] = { context =>
@@ -32,7 +39,7 @@ object HelpCommand {
         ClassShaper(
           new ClassShape(
             "HelpCommand",
-            "moped.console.HelpCommand",
+            "moped.commands.HelpCommand",
             List(
               List(
                 new ParameterShape(

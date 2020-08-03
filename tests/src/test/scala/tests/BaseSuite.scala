@@ -10,7 +10,7 @@ import moped.console.Application
 import moped.console.CommandParser
 import moped.console.CompleteCommand
 import moped.console.Environment
-import moped.console.HelpCommand
+import moped.commands.HelpCommand
 import munit.FunSuite
 
 abstract class BaseSuite extends FunSuite {

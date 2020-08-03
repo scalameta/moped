@@ -9,7 +9,7 @@ import moped.console.Application
 import moped.console.Command
 import moped.console.CommandParser
 import moped.console.CompleteCommand
-import moped.console.HelpCommand
+import moped.commands.HelpCommand
 import moped.json.JsonString
 import moped.json.JsonArray
 

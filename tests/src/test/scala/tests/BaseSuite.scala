@@ -8,7 +8,7 @@ import java.nio.file.Path
 
 import moped.console.Application
 import moped.console.CommandParser
-import moped.console.CompleteCommand
+import moped.commands.CompleteCommand
 import moped.console.Environment
 import moped.commands.HelpCommand
 import munit.FunSuite

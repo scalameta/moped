@@ -1,4 +1,4 @@
-package moped.console
+package moped.commands
 
 import scala.collection.immutable.Nil
 
@@ -19,6 +19,16 @@ import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import moped.json.JsonArray
 import moped.json.JsonString
+import moped.console.Application
+import moped.console.BashCompletion
+import moped.console.CodecCommandParser
+import moped.console.Command
+import moped.console.CommandParser
+import moped.console.FishCompletion
+import moped.console.ShellCompletion
+import moped.console.TabCompletionContext
+import moped.console.TabCompletionItem
+import moped.console.ZshCompletion
 
 object CompleteCommand {
   val default = new CompleteCommand()
@@ -29,7 +39,7 @@ object CompleteCommand {
         ClassShaper(
           new ClassShape(
             "CompleteCommand",
-            "moped.console.CompleteCommand",
+            "moped.commands.CompleteCommand",
             List(
               List(
                 new ParameterShape(

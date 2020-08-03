@@ -41,7 +41,7 @@ class CompleteCommandSuite extends BaseSuite {
   checkCompletions(
     "echo-empty",
     List("echo", ""),
-    List("--uppercase")
+    List()
   )
 
   checkCompletions(
@@ -59,7 +59,7 @@ class CompleteCommandSuite extends BaseSuite {
   checkCompletions(
     "echo-uppercase",
     List("echo", "--uppercase", ""),
-    List("--uppercase")
+    List()
   )
   checkCompletions(
     "help-subcommand",

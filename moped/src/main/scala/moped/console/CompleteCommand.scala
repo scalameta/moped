@@ -169,23 +169,11 @@ case class CompleteCommand() extends Command {
           } else if (setting.isTabComplete) {
             setting.tabCompleter.toList.flatMap(_.complete(context))
           } else {
-            tabCompleteFallback(command, context)
+            command.complete(context)
           }
         case None =>
-          tabCompleteFallback(command, context)
+          command.complete(context)
       }
-    }
-  }
-
-  private def tabCompleteFallback(
-      command: CommandParser[_],
-      context: TabCompletionContext
-  ): List[TabCompletionItem] = {
-    val fromCommand = command.complete(context)
-    if (fromCommand.isEmpty && context.last == "") {
-      tabCompleteFlags(context)
-    } else {
-      fromCommand
     }
   }
 

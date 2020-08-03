@@ -12,6 +12,7 @@ import moped.internal.console.CommandLineParser
 import moped.json._
 import moped.macros._
 import org.typelevel.paiges.Doc
+import moped.internal.console.Cases
 
 trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A
@@ -53,7 +54,7 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
     else fromAnnotations
   }
   private def fallbackSubcommandName =
-    shape.name.stripSuffix("Command").toLowerCase()
+    Cases.camelToKebab(shape.name).stripSuffix("-command").toLowerCase()
   def decodeCommand(context: DecodingContext): DecodingResult[BaseCommand] =
     this.decode(context)
   def parseCommand(arguments: List[String]): DecodingResult[BaseCommand] =

@@ -41,6 +41,7 @@ abstract class BaseSuite extends FunSuite {
         CommandParser[HelpCommand],
         CommandParser[VersionCommand],
         CommandParser[CompleteCommand],
+        CommandParser[WorkingDirectoryCommand],
         CommandParser[EchoCommand]
       )
     )

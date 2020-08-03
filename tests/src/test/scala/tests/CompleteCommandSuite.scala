@@ -26,6 +26,14 @@ class CompleteCommandSuite extends BaseSuite {
     }
   }
 
+  def publicCommandNames: List[String] =
+    List(
+      "help",
+      "version",
+      "working-directory",
+      "echo"
+    )
+
   checkCompletions(
     "empty",
     List(),
@@ -35,7 +43,7 @@ class CompleteCommandSuite extends BaseSuite {
   checkCompletions(
     "subcommands",
     List(""),
-    List("help", "version", "echo")
+    publicCommandNames
   )
 
   checkCompletions(
@@ -64,17 +72,23 @@ class CompleteCommandSuite extends BaseSuite {
   checkCompletions(
     "help-subcommand",
     List("help", ""),
-    List("help", "version", "echo")
+    publicCommandNames
   )
 
   checkCompletions(
     "help-subcommand",
     List("help", "e"),
-    List("help", "version", "echo")
+    publicCommandNames
   )
 
   checkCompletions(
     "help-subcommand-repeat",
+    List("help", "echo", ""),
+    List()
+  )
+
+  checkCompletions(
+    "path",
     List("help", "echo", ""),
     List()
   )

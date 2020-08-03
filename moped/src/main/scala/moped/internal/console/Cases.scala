@@ -7,20 +7,19 @@ object Cases {
     val m = Kebab.pattern.matcher(kebab)
     val sb = new StringBuffer
     while (m.find()) {
-      m.appendReplacement(
-        sb,
-        m.group().charAt(1).toUpper + m.group().substring(2)
-      )
+      val replacement = m.group().charAt(1).toUpper + m.group().substring(2)
+      m.appendReplacement(sb, replacement)
     }
     m.appendTail(sb)
-    sb.toString
+    sb.toString.capitalize
   }
 
   def camelToKebab(camel: String): String = {
     val m = Camel.pattern.matcher(camel)
     val sb = new StringBuffer
     while (m.find()) {
-      m.appendReplacement(sb, "-" + m.group().toLowerCase())
+      val prefix = if (m.start() == 0) "" else "-"
+      m.appendReplacement(sb, prefix + m.group().toLowerCase())
     }
     m.appendTail(sb)
     sb.toString

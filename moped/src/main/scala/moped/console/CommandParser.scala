@@ -2,6 +2,7 @@ package moped.console
 
 import java.io.PrintStream
 
+import scala.annotation.StaticAnnotation
 import scala.language.experimental.macros
 
 import moped.annotations.CommandName
@@ -11,7 +12,6 @@ import moped.internal.console.CommandLineParser
 import moped.json._
 import moped.macros._
 import org.typelevel.paiges.Doc
-import scala.annotation.StaticAnnotation
 
 trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A

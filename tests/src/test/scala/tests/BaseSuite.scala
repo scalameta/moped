@@ -6,11 +6,11 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 
+import moped.commands.CompleteCommand
+import moped.commands.HelpCommand
 import moped.console.Application
 import moped.console.CommandParser
-import moped.commands.CompleteCommand
 import moped.console.Environment
-import moped.commands.HelpCommand
 import munit.FunSuite
 
 abstract class BaseSuite extends FunSuite {

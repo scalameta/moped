@@ -1,20 +1,16 @@
 package moped.commands
 
-import moped.annotations.CatchInvalidFlags
+import moped.annotations.CommandName
 import moped.annotations.Description
-import moped.annotations.Hidden
-import moped.annotations.PositionalArguments
+import moped.console.Application
 import moped.console.CodecCommandParser
+import moped.console.Command
 import moped.console.CommandParser
 import moped.json.JsonCodec
 import moped.json.JsonDecoder
 import moped.json.JsonEncoder
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
-import moped.macros.ParameterShape
-import moped.console.Command
-import moped.console.Application
-import moped.annotations.CommandName
 
 object VersionCommand {
   val default = new VersionCommand()

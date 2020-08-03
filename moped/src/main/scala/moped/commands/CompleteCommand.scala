@@ -1,24 +1,14 @@
 package moped.commands
 
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+
 import scala.collection.immutable.Nil
 
 import moped.annotations.CatchInvalidFlags
 import moped.annotations.Description
 import moped.annotations.Hidden
 import moped.annotations.PositionalArguments
-import moped.internal.console.Cases
-import moped.internal.console.CommandLineParser
-import moped.internal.json.NumberExtractor
-import moped.json.JsonCodec
-import moped.json.JsonDecoder
-import moped.json.JsonEncoder
-import moped.macros.ClassShape
-import moped.macros.ClassShaper
-import moped.macros.ParameterShape
-import java.nio.file.Files
-import java.nio.file.StandardOpenOption
-import moped.json.JsonArray
-import moped.json.JsonString
 import moped.console.Application
 import moped.console.BashCompletion
 import moped.console.CodecCommandParser
@@ -29,6 +19,17 @@ import moped.console.ShellCompletion
 import moped.console.TabCompletionContext
 import moped.console.TabCompletionItem
 import moped.console.ZshCompletion
+import moped.internal.console.Cases
+import moped.internal.console.CommandLineParser
+import moped.internal.json.NumberExtractor
+import moped.json.JsonArray
+import moped.json.JsonCodec
+import moped.json.JsonDecoder
+import moped.json.JsonEncoder
+import moped.json.JsonString
+import moped.macros.ClassShape
+import moped.macros.ClassShaper
+import moped.macros.ParameterShape
 
 object CompleteCommand {
   val default = new CompleteCommand()

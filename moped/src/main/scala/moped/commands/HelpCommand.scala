@@ -1,19 +1,12 @@
 package moped.commands
 
+import scala.collection.immutable.Nil
+
+import moped.annotations.CatchInvalidFlags
 import moped.annotations.CommandName
 import moped.annotations.Description
-import moped.json.JsonCodec
-import moped.json.JsonDecoder
-import moped.json.JsonEncoder
-import moped.macros.ClassShape
-import moped.macros.ClassShaper
-import moped.reporters.Terminals
-import org.typelevel.paiges.Doc
-import moped.annotations.CatchInvalidFlags
 import moped.annotations.PositionalArguments
-import moped.macros.ParameterShape
 import moped.annotations.TabCompleter
-import scala.collection.immutable.Nil
 import moped.console.Application
 import moped.console.CodecCommandParser
 import moped.console.Command
@@ -21,6 +14,14 @@ import moped.console.CommandParser
 import moped.console.Completer
 import moped.console.NotRecognizedCommand
 import moped.console.TabCompletionItem
+import moped.json.JsonCodec
+import moped.json.JsonDecoder
+import moped.json.JsonEncoder
+import moped.macros.ClassShape
+import moped.macros.ClassShaper
+import moped.macros.ParameterShape
+import moped.reporters.Terminals
+import org.typelevel.paiges.Doc
 
 object HelpCommand {
   val completer: Completer[List[String]] = { context =>

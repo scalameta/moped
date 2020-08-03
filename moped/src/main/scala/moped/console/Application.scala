@@ -6,6 +6,7 @@ import scala.concurrent.duration.Duration
 
 import fansi.Color
 import fansi.Str
+import moped.commands.HelpCommand
 import moped.internal.console.CommandLineParser
 import moped.internal.diagnostics.AggregateDiagnostic
 import moped.json.DecodingContext
@@ -14,7 +15,6 @@ import moped.json.ErrorResult
 import moped.json.ValueResult
 import moped.reporters.ConsoleReporter
 import moped.reporters.Reporter
-import moped.commands.HelpCommand
 
 case class Application(
     binaryName: String,

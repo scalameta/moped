@@ -13,13 +13,19 @@ import moped.annotations.CatchInvalidFlags
 import moped.annotations.PositionalArguments
 import moped.macros.ParameterShape
 import moped.annotations.TabCompleter
+import scala.collection.immutable.Nil
 
 object HelpCommand {
-  val completer: Completer[List[String]] = context =>
-    context.app.commands.iterator
-      .filterNot(_.isHidden)
-      .map(c => TabCompletionItem(c.subcommandName))
-      .toList
+  val completer: Completer[List[String]] = { context =>
+    if (context.arguments.length == 1) {
+      context.app.commands.iterator
+        .filterNot(_.isHidden)
+        .map(c => TabCompletionItem(c.subcommandName))
+        .toList
+    } else {
+      Nil
+    }
+  }
   def parser(help: HelpCommand): CommandParser[HelpCommand] =
     new CodecCommandParser[HelpCommand](
       JsonCodec.encoderDecoderJsonCodec(

@@ -6,7 +6,7 @@ class CompleteCommandSuite extends BaseSuite {
   def checkCompletions(
       name: TestOptions,
       args: List[String],
-      expected: String,
+      expected: List[String],
       format: String = "zsh"
   )(implicit loc: munit.Location): Unit = {
     test(name) {
@@ -22,45 +22,60 @@ class CompleteCommandSuite extends BaseSuite {
         ) ++ completeArgs
       )
       assertEquals(exit, 0, clues(app.capturedOutput))
-      assertNoDiff(app.capturedOutput, expected)
+      assertEquals(app.capturedOutput.trim.linesIterator.toList, expected)
     }
   }
 
   checkCompletions(
     "empty",
     List(),
-    ""
+    List()
   )
 
   checkCompletions(
     "subcommands",
     List(""),
-    """|help
-       |echo
-       |""".stripMargin
+    List("help", "echo")
   )
 
   checkCompletions(
     "echo-empty",
     List("echo", ""),
-    "--uppercase"
+    List("--uppercase")
   )
 
   checkCompletions(
     "echo-flag",
     List("echo", "-"),
-    "--uppercase"
+    List("--uppercase")
   )
 
   checkCompletions(
     "echo-uppercase",
     List("echo", "--uppercase"),
-    "--uppercase"
+    List("--uppercase")
   )
 
   checkCompletions(
     "echo-uppercase",
     List("echo", "--uppercase", ""),
-    "--uppercase"
+    List("--uppercase")
+  )
+  checkCompletions(
+    "help-subcommand",
+    List("help", ""),
+    List("help", "echo")
+  )
+
+  checkCompletions(
+    "help-subcommand",
+    List("help", "e"),
+    List("help", "echo")
+  )
+
+  checkCompletions(
+    "help-subcommand-repeat",
+    List("help", "echo", ""),
+    List()
   )
 }

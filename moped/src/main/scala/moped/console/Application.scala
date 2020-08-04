@@ -15,12 +15,17 @@ import moped.json.ErrorResult
 import moped.json.ValueResult
 import moped.reporters.ConsoleReporter
 import moped.reporters.Reporter
+import dev.dirs.ProjectDirectories
+import java.nio.file.Paths
+import java.nio.file.Path
 
 case class Application(
     binaryName: String,
     version: String,
     commands: List[CommandParser[_]],
     arguments: List[String] = Nil,
+    projectQualifier: String = "",
+    projectOrganization: String = "",
     onEmptyArguments: BaseCommand = new HelpCommand(),
     onNotRecognoziedCommand: BaseCommand = NotRecognizedCommand,
     env: Environment = Environment.default,
@@ -29,6 +34,7 @@ case class Application(
     ),
     token: CancelToken = CancelToken.empty()
 ) {
+  require(binaryName.nonEmpty, "binaryName must be non-empty")
   def out = env.standardOutput
   def err = env.standardError
   def error(message: Str): Unit = {
@@ -40,6 +46,13 @@ case class Application(
   def info(message: Str): Unit = {
     env.standardError.println(Color.LightBlue("info: ") ++ message)
   }
+
+  def projectDirectories: ProjectDirectories =
+    ProjectDirectories.from(projectQualifier, projectOrganization, binaryName)
+  def configDirectory: Path = Paths.get(projectDirectories.configDir)
+  def cacheDirectory: Path = Paths.get(projectDirectories.cacheDir)
+  def dataDirectory: Path = Paths.get(projectDirectories.dataDir)
+  def preferencesDirectory: Path = Paths.get(projectDirectories.preferenceDir)
 
   def runAndExitIfNonZero(args: List[String]): Unit = {
     val exit = run(args)

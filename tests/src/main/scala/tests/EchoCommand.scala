@@ -13,6 +13,8 @@ import moped.console.CommandParser
 import moped.json.JsonArray
 import moped.json.JsonString
 import moped.commands.VersionCommand
+import moped.console.InstallCompletionsCommand
+import moped.console.UninstallCompletionsCommand
 
 @Description("Write arguments to the standard output")
 @ExampleUsage(
@@ -49,7 +51,9 @@ object EchoCommand {
         CommandParser[VersionCommand],
         CommandParser[TerminalsCommand],
         CommandParser[EchoCommand],
-        CommandParser[CompleteCommand]
+        CommandParser[CompleteCommand],
+        CommandParser[InstallCompletionsCommand],
+        CommandParser[UninstallCompletionsCommand]
       )
     )
     import scala.collection.JavaConverters._

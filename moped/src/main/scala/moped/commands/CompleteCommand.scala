@@ -53,7 +53,7 @@ object CompleteCommand {
             ),
             List(
               Hidden(),
-              Description("Print tab completions for bash or zsh")
+              Description("Print tab completions for bash, zsh and fish")
             )
           )
         ),
@@ -68,13 +68,13 @@ case class CompleteCommand() extends Command {
   def run(app: Application): Int = {
     val (format, argumentLength, arguments) = app.arguments match {
       case _ :: "zsh" :: NumberExtractor(argumentLength) :: tail =>
-        (ZshCompletion, argumentLength.toInt, tail)
+        (new ZshCompletion(app), argumentLength.toInt, tail)
       case _ :: "bash" :: NumberExtractor(argumentLength) :: tail =>
-        (BashCompletion, argumentLength.toInt, tail)
+        (new BashCompletion(app), argumentLength.toInt, tail)
       case _ :: "fish" :: tail =>
         // Fish completions pass in an empty string "" as the last argument so we
         // don't need the second argument to know `tail.length`
-        (FishCompletion, tail.length, tail)
+        (new FishCompletion(app), tail.length, tail)
       case els =>
         app.error(
           s"invalid arguments $els, to fix this problem pass in '${app.binaryName} complete $$SHELL $$ARGUMENTS_LENGTH $$ARGUMENTS'. "

@@ -22,27 +22,24 @@ final class ZshCompletion(app: Application) extends ShellCompletion(app) {
     Utils.overwriteFile(completionFile, completionScript)
     app.info(completionFile.toString())
     if (Files.isRegularFile(zshrc)) {
-      Utils.appendFile(
+      val functionDir = completionFile.getParent()
+      Utils.appendLines(
         zshrc,
-        s"[ -s '$completionFile' ] && source '$completionFile'"
+        List(
+          s"if [[ -d '$functionDir' ]]; then fpath=($$fpath '$functionDir'); fi"
+        )
       )
     }
   }
   def uninstall(): Unit = {
     if (Files.isRegularFile(zshrc)) {
-      val query = completionFile.toString()
-      val before = Utils.readFile(zshrc)
-      val after =
-        before.linesIterator.filterNot(_.contains(query)).mkString("\n")
-      if (before != after) {
-        Utils.overwriteFile(zshrc, after)
-      }
+      Utils.filterLinesMatching(zshrc, completionFile.toString())
     }
 
   }
   private def zshrc = app.env.homeDirectory.resolve(".zshrc")
   private def completionFile: Path =
-    app.configDirectory.resolve("zsh").resolve(s"_${app.binaryName}")
+    app.cacheDirectory.resolve("zsh").resolve(s"_${app.binaryName}")
   private def completionScript: String =
     """|#compdef _BINARY_NAME BINARY_NAME
        |
@@ -57,16 +54,18 @@ final class BashCompletion(app: Application) extends ShellCompletion(app) {
     Utils.overwriteFile(completionFile, completionScript)
     app.info(completionFile.toString())
     if (Files.isRegularFile(bashrc)) {
-      Utils.appendFile(
+      Utils.appendLines(
         bashrc,
-        s"[ -s '$completionFile' ] && source '$completionFile'"
+        List(s"[ -s '$completionFile' ] && source '$completionFile'")
       )
     }
   }
-  def uninstall(): Unit = {}
+  def uninstall(): Unit = {
+    Utils.filterLinesMatching(bashrc, completionFile.toString())
+  }
   private def bashrc = app.env.homeDirectory.resolve(".bashrc")
   private def completionFile: Path =
-    app.configDirectory.resolve("zsh").resolve(s"_${app.binaryName}")
+    app.configDirectory.resolve("bash").resolve(s"${app.binaryName}.sh")
   private def completionScript: String =
     """|_BINARY_NAME() { 
        |  completions=$(BINARY_NAME complete bash ${#COMP_WORDS[@]} ${COMP_WORDS[@]} 2> /dev/null)

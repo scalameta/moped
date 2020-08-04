@@ -4,6 +4,7 @@ import java.nio.file.Path
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 import java.nio.file.StandardOpenOption
+import scala.collection.JavaConverters._
 
 object Utils {
   def readFile(path: Path): String = {
@@ -18,14 +19,22 @@ object Utils {
       StandardOpenOption.TRUNCATE_EXISTING
     )
   }
-  def appendFile(path: Path, text: String): Unit = {
+  def appendLines(path: Path, text: List[String]): Unit = {
     Files.createDirectories(path.getParent())
     Files.write(
       path,
-      text.getBytes(StandardCharsets.UTF_8),
-      StandardOpenOption.APPEND,
-      StandardOpenOption.TRUNCATE_EXISTING
+      text.asJava,
+      StandardOpenOption.CREATE,
+      StandardOpenOption.APPEND
     )
+
+  }
+  def filterLinesMatching(path: Path, query: String): Unit = {
+    val before = Utils.readFile(path)
+    val after = before.linesIterator.filterNot(_.contains(query)).mkString("\n")
+    if (before != after) {
+      Utils.overwriteFile(path, after)
+    }
   }
 
 }

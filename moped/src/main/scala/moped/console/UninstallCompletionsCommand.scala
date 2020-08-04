@@ -1,10 +1,8 @@
 package moped.console
 
 import moped.annotations.CommandName
-import moped.annotations.CatchInvalidFlags
 import moped.annotations.Description
 import moped.annotations.Hidden
-import moped.annotations.PositionalArguments
 import moped.json.JsonCodec
 import moped.json.JsonDecoder
 import moped.json.JsonEncoder

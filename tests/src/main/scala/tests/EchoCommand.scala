@@ -5,7 +5,7 @@ import java.nio.file.StandardOpenOption
 
 import moped.annotations.PositionalArguments
 import moped.annotations._
-import moped.commands.CompleteCommand
+import moped.commands.RunCompletionsCommand
 import moped.commands.HelpCommand
 import moped.console.Application
 import moped.console.Command
@@ -15,6 +15,7 @@ import moped.json.JsonString
 import moped.commands.VersionCommand
 import moped.console.InstallCompletionsCommand
 import moped.console.UninstallCompletionsCommand
+import moped.commands.CompletionsCommand
 
 @Description("Write arguments to the standard output")
 @ExampleUsage(
@@ -51,9 +52,7 @@ object EchoCommand {
         CommandParser[VersionCommand],
         CommandParser[TerminalsCommand],
         CommandParser[EchoCommand],
-        CommandParser[CompleteCommand],
-        CommandParser[InstallCompletionsCommand],
-        CommandParser[UninstallCompletionsCommand]
+        CommandParser[CompletionsCommand]
       )
     )
     import scala.collection.JavaConverters._

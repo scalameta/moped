@@ -2,14 +2,12 @@ package moped.console
 
 import moped.annotations.CommandName
 import moped.annotations.Description
-import moped.annotations.Hidden
 import moped.json.JsonCodec
 import moped.json.JsonDecoder
 import moped.json.JsonEncoder
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
 
-@CommandName("install-completions")
 class InstallCompletionsCommand extends Command {
   override def run(app: Application): Int = {
     ShellCompletion.all(app).foreach { shell =>
@@ -31,8 +29,8 @@ object InstallCompletionsCommand {
             "moped.commands.InstallCompletionsCommand",
             List(),
             List(
-              Hidden(),
-              Description("Install tab completions for bash, zsh and fish")
+              CommandName("install"),
+              Description("Install tab completions scripts")
             )
           )
         ),

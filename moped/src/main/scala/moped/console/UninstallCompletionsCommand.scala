@@ -2,14 +2,12 @@ package moped.console
 
 import moped.annotations.CommandName
 import moped.annotations.Description
-import moped.annotations.Hidden
 import moped.json.JsonCodec
 import moped.json.JsonDecoder
 import moped.json.JsonEncoder
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
 
-@CommandName("uninstall-completions")
 class UninstallCompletionsCommand extends Command {
   override def run(app: Application): Int = {
     ShellCompletion.all(app).foreach { shell =>
@@ -31,8 +29,8 @@ object UninstallCompletionsCommand {
             "moped.commands.UninstallCompletionsCommand",
             List(),
             List(
-              Hidden(),
-              Description("Uninstall tab completions for bash, zsh and fish")
+              CommandName("uninstall"),
+              Description("Uninstall tab completion scripts")
             )
           )
         ),

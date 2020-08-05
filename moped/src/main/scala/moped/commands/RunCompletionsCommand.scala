@@ -7,7 +7,6 @@ import scala.collection.immutable.Nil
 
 import moped.annotations.CatchInvalidFlags
 import moped.annotations.Description
-import moped.annotations.Hidden
 import moped.annotations.PositionalArguments
 import moped.console.Application
 import moped.console.BashCompletion
@@ -30,12 +29,13 @@ import moped.json.JsonString
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.macros.ParameterShape
+import moped.annotations.CommandName
 
-object CompleteCommand {
-  val default = new CompleteCommand()
+object RunCompletionsCommand {
 
-  implicit lazy val parser: CommandParser[CompleteCommand] =
-    new CodecCommandParser[CompleteCommand](
+  def parser(app: Application): CommandParser[RunCompletionsCommand] = {
+    val default = RunCompletionsCommand(app)
+    new CodecCommandParser[RunCompletionsCommand](
       JsonCodec.encoderDecoderJsonCodec(
         ClassShaper(
           new ClassShape(
@@ -52,21 +52,22 @@ object CompleteCommand {
               )
             ),
             List(
-              Hidden(),
-              Description("Print tab completions for bash, zsh and fish")
+              CommandName("run"),
+              Description("Print tab completions given command arguments")
             )
           )
         ),
-        JsonEncoder.stringJsonEncoder.contramap[CompleteCommand](_ => ""),
+        JsonEncoder.stringJsonEncoder.contramap[RunCompletionsCommand](_ => ""),
         JsonDecoder.constant(default)
       ),
       default
     )
+  }
 }
 
-case class CompleteCommand() extends Command {
-  def run(app: Application): Int = {
-    val (format, argumentLength, arguments) = app.arguments match {
+case class RunCompletionsCommand(app: Application) extends Command {
+  def run(completionsApp: Application): Int = {
+    val (format, argumentLength, arguments) = completionsApp.arguments match {
       case _ :: "zsh" :: NumberExtractor(argumentLength) :: tail =>
         (new ZshCompletion(app), argumentLength.toInt, tail)
       case _ :: "bash" :: NumberExtractor(argumentLength) :: tail =>
@@ -77,7 +78,7 @@ case class CompleteCommand() extends Command {
         (new FishCompletion(app), tail.length, tail)
       case els =>
         app.error(
-          s"invalid arguments $els, to fix this problem pass in '${app.binaryName} complete $$SHELL $$ARGUMENTS_LENGTH $$ARGUMENTS'. "
+          s"invalid arguments $els, to fix this problem pass in '${app.binaryName} run $$SHELL $$ARGUMENTS_LENGTH $$ARGUMENTS'. "
         )
         return 1
     }

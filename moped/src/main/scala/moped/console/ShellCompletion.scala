@@ -45,7 +45,7 @@ final class ZshCompletion(app: Application) extends ShellCompletion(app) {
     """|#compdef _BINARY_NAME BINARY_NAME
        |
        |function _BINARY_NAME {
-       |    compadd -- $(BINARY_NAME complete zsh $CURRENT $words[@] 2> /dev/null)
+       |    compadd -- $(BINARY_NAME completions run zsh $CURRENT $words[@] 2> /dev/null)
        |}
        |""".stripMargin.replace("BINARY_NAME", app.binaryName)
 }
@@ -69,7 +69,7 @@ final class BashCompletion(app: Application) extends ShellCompletion(app) {
     app.configDirectory.resolve("bash").resolve(s"${app.binaryName}.sh")
   private def completionScript: String =
     """|_BINARY_NAME() { 
-       |  completions=$(BINARY_NAME complete bash ${#COMP_WORDS[@]} ${COMP_WORDS[@]} 2> /dev/null)
+       |  completions=$(BINARY_NAME completions run bash ${#COMP_WORDS[@]} ${COMP_WORDS[@]} 2> /dev/null)
        |  cur="${COMP_WORDS[COMP_CWORD]}"
        |  COMPREPLY=($(compgen -W "$completions" -- $cur))
        |  return 0
@@ -98,7 +98,7 @@ final class FishCompletion(app: Application) extends ShellCompletion(app) {
     """|function _BINARY_NAME
        |   set -l arguments (commandline -poc)
        |   set -l current (commandline -ct)
-       |   BINARY_NAME complete fish $arguments $current 2> /dev/null
+       |   BINARY_NAME completions run fish $arguments $current 2> /dev/null
        |end
        |complete -f -c BINARY_NAME -a "(_BINARY_NAME)"
        |""".stripMargin.replace("BINARY_NAME", app.binaryName)

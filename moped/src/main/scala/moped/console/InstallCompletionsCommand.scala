@@ -11,6 +11,7 @@ import moped.macros.ClassShaper
 class InstallCompletionsCommand extends Command {
   override def run(app: Application): Int = {
     ShellCompletion.all(app).foreach { shell =>
+      shell.uninstall()
       shell.install()
     }
     0

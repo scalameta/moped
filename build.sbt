@@ -103,7 +103,7 @@ lazy val docs = project
       baseDirectory.in(ThisBuild).value / "website" / "target" / "docs",
     mdocExtraArguments := List("--no-link-hygiene")
   )
-  .dependsOn(moped)
+  .dependsOn(tests)
   .enablePlugins(DocusaurusPlugin)
 
 addCommandAlias(

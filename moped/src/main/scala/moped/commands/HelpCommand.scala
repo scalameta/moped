@@ -74,6 +74,8 @@ object HelpCommand {
       l match {
         case command :: ("--help" | "-h" | "-help") :: Nil =>
           "help" :: command :: Nil
+        case command :: ("--version" | "-v" | "-version") :: Nil =>
+          "version" :: command :: Nil
         case Nil => Nil
         case head :: tail =>
           head :: loop(tail)

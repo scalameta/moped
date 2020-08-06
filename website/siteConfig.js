@@ -3,31 +3,29 @@
 
 const repoUrl = "https://github.com/scalameta/moped";
 const baseUrl = "/moped/";
-const title = "Moped";
-const tagline = "Scala library to buildcommand-line applications";
+const title = "Moped 🛵";
+const tagline = "Scala library to build command-line applications";
 const url = "https://scalameta.org/moped";
 const features = [
   {
-    title: "HOCON and JSON",
+    title: "Automatic",
     content:
-      "Use Moped to convert HOCON and JSON configuration into Scala case classes.",
-    image: "https://i.imgur.com/zKu8dz4.png",
+      "Declare your command-line application as a Scala case class and let Moped automatically generate the command-line parser and `--help` message.",
+    image: "https://i.imgur.com/w7YzxOU.png",
     imageAlign: "left",
   },
   {
-    title: "Command-line parsing",
+    title: "Configurable",
     content:
-      "Use Moped to build command-line tools with automatic `--help` message generation, clear error reporting and tab completion support. " +
-      "Command-line flags are converted into Scala case classes, just like HOCON and JSON configuration.",
-    image: "https://i.imgur.com/w7YzxOU.png",
+      "Allow your users to declare configuration in HOCON and JSON files so they don't have to repeat the same command-line flags on every invocation.",
+    image: "https://i.imgur.com/zKu8dz4.png",
     imageAlign: "right",
   },
   {
-    title: "Documentation generation",
+    title: "Testable",
     content:
-      "Automatically generate markdown documentation for all configuration options in your application, " +
-      "including example usages, deprecation notices, command-line flags, and more.",
-    image: "https://i.imgur.com/zWCMmhu.png",
+      "Use Moped testkit to easily test your command-line application's interactions with the file system and standard output.",
+    image: "https://i.imgur.com/oXQuFal.png",
     imageAlign: "left",
   },
 ];

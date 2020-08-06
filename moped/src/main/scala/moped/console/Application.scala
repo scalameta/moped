@@ -57,7 +57,8 @@ case class Application(
     env.standardError.println(Color.LightBlue("info: ") ++ message)
   }
 
-  def consumedArguments: List[String] = arguments.dropRight(relativeArguments.length)
+  def consumedArguments: List[String] =
+    arguments.dropRight(relativeArguments.length)
 
   def projectDirectories: ProjectDirectories =
     ProjectDirectories.from(projectQualifier, projectOrganization, binaryName)
@@ -69,6 +70,24 @@ case class Application(
   def runAndExitIfNonZero(args: List[String]): Unit = {
     val exit = run(args)
     if (exit != 0) System.exit(exit)
+  }
+  def runSingleCommand(arguments: List[String]): Int = {
+    val singleCommand = commands
+      .find { c =>
+        c.subcommandName != "version" &&
+        c.subcommandName != "help"
+      }
+      .orElse(commands.headOption)
+    singleCommand match {
+      case Some(command) =>
+        run(command.subcommandName :: arguments)
+      case None =>
+        this.error(
+          "can't run command since the commands list is empty. " +
+            "To fix this problem, update `Application.commands` field to be non-empty."
+        )
+        1
+    }
   }
   def run(arguments: List[String]): Int = {
     Application.run(this.copy(arguments = arguments))
@@ -129,9 +148,12 @@ object Application {
       }
     }
     val future = loop(0, base.commands)
-    future.value match {
+    val exit = future.value match {
       case Some(value) => value.get
       case None => Await.result(future, Duration.Inf)
     }
+    app.out.flush()
+    app.err.flush()
+    exit
   }
 }

@@ -3,7 +3,7 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "Library to build configurable Scala applications",
+    "tagline": "Scala library to buildcommand-line applications",
     "docs": {
       "getting-started": {
         "title": "Getting started"

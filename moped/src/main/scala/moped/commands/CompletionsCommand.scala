@@ -1,13 +1,9 @@
 package moped.commands
-import scala.collection.immutable.Nil
-
 import moped.annotations.CatchInvalidFlags
 import moped.annotations.CommandName
 import moped.annotations.Description
 import moped.annotations.PositionalArguments
-import moped.console.Application
 import moped.console.CodecCommandParser
-import moped.console.Command
 import moped.console.CommandParser
 import moped.console.InstallCompletionsCommand
 import moped.console.UninstallCompletionsCommand

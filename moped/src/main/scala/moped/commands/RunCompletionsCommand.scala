@@ -65,18 +65,18 @@ object RunCompletionsCommand {
 
 class RunCompletionsCommand() extends Command {
   def run(app: Application): Int = {
-    val (format, argumentLength, arguments) = app.arguments match {
-      case _ :: "zsh" :: NumberExtractor(argumentLength) :: tail =>
+    val (format, argumentLength, arguments) = app.relativeArguments match {
+      case "zsh" :: NumberExtractor(argumentLength) :: tail =>
         (new ZshCompletion(app), argumentLength.toInt, tail)
-      case _ :: "bash" :: NumberExtractor(argumentLength) :: tail =>
+      case "bash" :: NumberExtractor(argumentLength) :: tail =>
         (new BashCompletion(app), argumentLength.toInt, tail)
-      case _ :: "fish" :: tail =>
+      case "fish" :: tail =>
         // Fish completions pass in an empty string "" as the last argument so we
         // don't need the second argument to know `tail.length`
         (new FishCompletion(app), tail.length, tail)
       case els =>
         app.error(
-          s"invalid arguments $els, to fix this problem pass in '${app.binaryName} run $$SHELL $$ARGUMENTS_LENGTH $$ARGUMENTS'. "
+          s"invalid arguments $els, to fix this problem pass in '${app.consumedArguments.mkString(" ")} $$SHELL $$ARGUMENTS_LENGTH $$ARGUMENTS'. "
         )
         return 1
     }
@@ -85,8 +85,8 @@ class RunCompletionsCommand() extends Command {
     val argumentsWithTrailingEmptyString =
       if (isMissingTrailingEmptyString) arguments :+ ""
       else arguments
-    val completionItems =
-      completions(argumentsWithTrailingEmptyString, app, argumentLength, format)
+    val argumentsWithoutBinaryName = argumentsWithTrailingEmptyString.drop(1)
+    val completionItems = completions(argumentsWithoutBinaryName, app, format)
     renderCompletions(completionItems, app)
     0
   }
@@ -94,23 +94,24 @@ class RunCompletionsCommand() extends Command {
   private def completions(
       arguments: List[String],
       app: Application,
-      argumentLength: Int,
       format: ShellCompletion
   ): List[TabCompletionItem] = {
-    def loop(args: List[String]): List[TabCompletionItem] =
-      args match {
-        case _ :: _ :: Nil =>
-          app.relativeCommands
+    def loop(
+        rest: List[String],
+        relativeCommands: List[CommandParser[_]]
+    ): List[TabCompletionItem] = {
+      rest match {
+        case _ :: Nil =>
+          relativeCommands
             .filterNot(_.isHidden)
             .map(p => TabCompletionItem(p.subcommandName))
-        case _ :: subcommandName :: head :: tail =>
-          app.relativeCommands.find(_.matchesName(subcommandName)) match {
+        case subcommandName :: head :: tail =>
+          relativeCommands.find(_.matchesName(subcommandName)) match {
             case Some(subcommand) =>
               if (subcommand.nestedCommands.nonEmpty) {
-                loop(head :: tail)
+                loop(head :: tail, subcommand.nestedCommands)
               } else {
-                renderSubcommandCompletions(
-                  argumentLength,
+                subcommandCompletions(
                   format,
                   subcommand,
                   head,
@@ -124,11 +125,11 @@ class RunCompletionsCommand() extends Command {
         case _ =>
           Nil
       }
-    loop(arguments)
+    }
+    loop(arguments, app.commands)
   }
 
-  private def renderSubcommandCompletions(
-      argumentLength: Int,
+  private def subcommandCompletions(
       shell: ShellCompletion,
       subcommand: CommandParser[_],
       head: String,
@@ -151,7 +152,6 @@ class RunCompletionsCommand() extends Command {
     )
     val context = TabCompletionContext(
       shell,
-      argumentLength,
       head :: tail,
       last,
       secondLast,
@@ -159,30 +159,15 @@ class RunCompletionsCommand() extends Command {
       inlined,
       app
     )
-    tabCompletions(subcommand, context)
+    subcommandCompletions(subcommand, context)
   }
 
-  private def renderCompletions(
-      items: List[TabCompletionItem],
-      app: Application
-  ): Unit = {
-    Utils.appendLines(
-      app.env.homeDirectory.resolve(".dump"),
-      List(
-        JsonArray(items.map(i => JsonString(i.name)).toList).toDoc.render(80)
-      )
-    )
-    items.foreach { item =>
-      app.out.println(item.name)
-    }
-  }
-
-  private def tabCompletions(
+  private def subcommandCompletions(
       command: CommandParser[_],
       context: TabCompletionContext
   ): List[TabCompletionItem] = {
     if (context.last.startsWith("-")) {
-      tabCompleteFlags(context)
+      flagCompletions(context)
     } else {
       context.setting match {
         case Some(setting) =>
@@ -201,7 +186,7 @@ class RunCompletionsCommand() extends Command {
     }
   }
 
-  private def tabCompleteFlags(
+  private def flagCompletions(
       context: TabCompletionContext
   ): List[TabCompletionItem] = {
     context.allSettings
@@ -212,6 +197,21 @@ class RunCompletionsCommand() extends Command {
       .toList
       .sorted
       .map(camel => TabCompletionItem("--" + Cases.camelToKebab(camel)))
+  }
+
+  private def renderCompletions(
+      items: List[TabCompletionItem],
+      app: Application
+  ): Unit = {
+    Utils.appendLines(
+      app.env.homeDirectory.resolve(".dump"),
+      List(
+        JsonArray(items.map(i => JsonString(i.name)).toList).toDoc.render(80)
+      )
+    )
+    items.foreach { item =>
+      app.out.println(item.name)
+    }
   }
 
 }

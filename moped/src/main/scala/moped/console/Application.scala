@@ -50,6 +50,8 @@ case class Application(
     env.standardError.println(Color.LightBlue("info: ") ++ message)
   }
 
+  def consumedArguments = arguments.dropRight(relativeArguments.length)
+
   def projectDirectories: ProjectDirectories =
     ProjectDirectories.from(projectQualifier, projectOrganization, binaryName)
   def configDirectory: Path = Paths.get(projectDirectories.configDir)
@@ -62,16 +64,13 @@ case class Application(
     if (exit != 0) System.exit(exit)
   }
   def run(args: List[String]): Int = {
-    def loop(
-        consumedArguments: List[String],
-        remainingArguments: List[String],
-        relativeCommands: List[CommandParser[_]]
-    ): Future[Int] = {
+    def loop(n: Int, relativeCommands: List[CommandParser[_]]): Future[Int] = {
       val app = this.copy(
-        arguments = remainingArguments,
-        relativeArguments = relativeArguments,
+        arguments = args,
+        relativeArguments = args.drop(n + 1),
         relativeCommands = relativeCommands
       )
+      val remainingArguments = args.drop(n)
       remainingArguments match {
         case Nil => onEmptyArguments.runAsFuture(app)
         case subcommand :: tail =>
@@ -79,8 +78,7 @@ case class Application(
             case Some(command) =>
               if (command.nestedCommands.nonEmpty) {
                 loop(
-                  relativeArguments :+ subcommand,
-                  tail,
+                  n + 1,
                   command.nestedCommands
                 )
               } else {
@@ -109,7 +107,7 @@ case class Application(
           }
       }
     }
-    val value = loop(Nil, args, commands)
+    val value = loop(0, commands)
     Await.result(value, Duration.Inf)
   }
 }

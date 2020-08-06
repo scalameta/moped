@@ -4,7 +4,6 @@ import moped.macros.ParameterShape
 
 final case class TabCompletionContext(
     shell: ShellCompletion,
-    current: Int,
     arguments: List[String],
     last: String,
     secondLast: Option[String],

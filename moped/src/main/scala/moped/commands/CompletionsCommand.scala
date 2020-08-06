@@ -49,35 +49,14 @@ object CompletionsCommand {
       ),
       default
     ) {
-      override def subcommands(app: Application): List[CommandParser[_]] =
+      override def subcommands: List[CommandParser[_]] =
         List(
           CommandParser[HelpCommand],
           CommandParser[InstallCompletionsCommand],
           CommandParser[UninstallCompletionsCommand],
-          RunCompletionsCommand.parser(app)
+          CommandParser[RunCompletionsCommand]
         )
     }
 }
 
-class CompletionsCommand extends Command {
-
-  override def run(app: Application): Int = {
-    val completionsApp = app.copy(
-      binaryName = s"${app.binaryName} completions",
-      commands = List(
-        CommandParser[HelpCommand],
-        CommandParser[InstallCompletionsCommand],
-        CommandParser[UninstallCompletionsCommand],
-        RunCompletionsCommand.parser(app)
-      )
-    )
-    app.arguments match {
-      case _ :: arguments =>
-        completionsApp.run(arguments)
-      case Nil =>
-        app.error("missing arguments")
-        1
-    }
-  }
-
-}
+class CompletionsCommand extends NestedCommand

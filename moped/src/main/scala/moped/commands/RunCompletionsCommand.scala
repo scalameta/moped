@@ -31,8 +31,8 @@ import moped.macros.ParameterShape
 
 object RunCompletionsCommand {
 
-  def parser(app: Application): CommandParser[RunCompletionsCommand] = {
-    val default = new RunCompletionsCommand(app)
+  implicit lazy val parser: CommandParser[RunCompletionsCommand] = {
+    val default = new RunCompletionsCommand()
     new CodecCommandParser[RunCompletionsCommand](
       JsonCodec.encoderDecoderJsonCodec(
         ClassShaper(
@@ -63,8 +63,7 @@ object RunCompletionsCommand {
   }
 }
 
-class RunCompletionsCommand(underlyingApp: Application) extends Command {
-  private def commands = underlyingApp.commands
+class RunCompletionsCommand() extends Command {
   def run(app: Application): Int = {
     val (format, argumentLength, arguments) = app.arguments match {
       case _ :: "zsh" :: NumberExtractor(argumentLength) :: tail =>
@@ -101,13 +100,13 @@ class RunCompletionsCommand(underlyingApp: Application) extends Command {
     def loop(args: List[String]): List[TabCompletionItem] =
       args match {
         case _ :: _ :: Nil =>
-          commands
+          app.relativeCommands
             .filterNot(_.isHidden)
             .map(p => TabCompletionItem(p.subcommandName))
         case _ :: subcommandName :: head :: tail =>
-          commands.find(_.matchesName(subcommandName)) match {
+          app.relativeCommands.find(_.matchesName(subcommandName)) match {
             case Some(subcommand) =>
-              if (subcommand.subcommands(app).nonEmpty) {
+              if (subcommand.nestedCommands.nonEmpty) {
                 loop(head :: tail)
               } else {
                 renderSubcommandCompletions(
@@ -158,7 +157,7 @@ class RunCompletionsCommand(underlyingApp: Application) extends Command {
       secondLast,
       setting,
       inlined,
-      app.copy(commands = commands)
+      app
     )
     tabCompletions(subcommand, context)
   }

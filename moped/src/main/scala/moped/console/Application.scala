@@ -77,9 +77,12 @@ case class Application(
         case subcommand :: tail =>
           relativeCommands.find(_.matchesName(subcommand)) match {
             case Some(command) =>
-              val underlyingCommands = command.subcommands(app)
-              if (underlyingCommands.nonEmpty) {
-                loop(relativeArguments :+ subcommand, tail, underlyingCommands)
+              if (command.nestedCommands.nonEmpty) {
+                loop(
+                  relativeArguments :+ subcommand,
+                  tail,
+                  command.nestedCommands
+                )
               } else {
                 val conf =
                   CommandLineParser.parseArgs[command.Value](tail)(

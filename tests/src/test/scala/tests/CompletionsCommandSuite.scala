@@ -2,7 +2,7 @@ package tests
 
 import munit.TestOptions
 
-class CompleteCommandSuite extends BaseSuite {
+class CompletionsCommandSuite extends BaseSuite {
   def checkCompletions(
       name: TestOptions,
       args: List[String],

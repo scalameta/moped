@@ -1,4 +1,4 @@
-package tests
+package moped.testkit
 
 import java.io.IOException
 import java.nio.file.FileVisitResult

@@ -2,12 +2,13 @@ package moped.console
 
 import java.nio.file.Files
 import java.nio.file.Path
-
-import moped.internal.console.Utils
-import scala.collection.mutable
 import java.nio.file.Paths
+
+import scala.collection.mutable
 import scala.sys.process.ProcessLogger
 import scala.util.control.NonFatal
+
+import moped.internal.console.Utils
 
 sealed abstract class ShellCompletion(app: Application) {
   def install(): Unit

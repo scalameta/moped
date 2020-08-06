@@ -1,7 +1,7 @@
 package tests
 
-import munit.TestOptions
 import moped.commands.HelpCommand
+import munit.TestOptions
 
 class HelpCommandSuite extends BaseSuite {
   checkHelpMessage(

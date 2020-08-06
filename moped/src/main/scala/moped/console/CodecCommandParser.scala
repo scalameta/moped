@@ -6,8 +6,8 @@ import moped.json.DecodingResult
 import moped.json.JsonCodec
 import moped.json.JsonElement
 import moped.macros.ClassShape
-import org.typelevel.paiges.Doc
 import moped.macros.ClassShaper
+import org.typelevel.paiges.Doc
 
 class CodecCommandParser[A <: BaseCommand](
     codec: JsonCodec[A],

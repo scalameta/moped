@@ -1,10 +1,12 @@
 package moped.commands
 
 import scala.collection.immutable.Nil
+import scala.collection.mutable
 
 import moped.annotations.CatchInvalidFlags
 import moped.annotations.CommandName
 import moped.annotations.Description
+import moped.annotations.ExtraName
 import moped.annotations.PositionalArguments
 import moped.annotations.TabCompleter
 import moped.console.Application
@@ -22,8 +24,6 @@ import moped.macros.ClassShaper
 import moped.macros.ParameterShape
 import moped.reporters.Terminals
 import org.typelevel.paiges.Doc
-import moped.annotations.ExtraName
-import scala.collection.mutable
 
 object HelpCommand {
   val completer: Completer[List[String]] = { context =>

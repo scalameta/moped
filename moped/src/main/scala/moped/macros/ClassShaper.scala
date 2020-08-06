@@ -3,12 +3,12 @@ package moped.macros
 import moped.annotations.Description
 import moped.annotations.DescriptionDoc
 import moped.annotations.ExampleUsage
+import moped.annotations.LongDescription
+import moped.annotations.LongDescriptionDoc
 import moped.annotations.Usage
 import moped.internal.console.HelpMessage
 import moped.json._
 import org.typelevel.paiges.Doc
-import moped.annotations.LongDescription
-import moped.annotations.LongDescriptionDoc
 
 object ClassShaper {
   def empty[T]: ClassShaper[T] =

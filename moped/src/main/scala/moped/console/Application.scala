@@ -17,9 +17,9 @@ import moped.json.DecodingContext
 import moped.json.DecodingResult
 import moped.json.ErrorResult
 import moped.json.ValueResult
+import moped.macros.ClassShape
 import moped.reporters.ConsoleReporter
 import moped.reporters.Reporter
-import moped.macros.ClassShape
 
 case class Application(
     binaryName: String,
@@ -57,7 +57,7 @@ case class Application(
     env.standardError.println(Color.LightBlue("info: ") ++ message)
   }
 
-  def consumedArguments = arguments.dropRight(relativeArguments.length)
+  def consumedArguments: List[String] = arguments.dropRight(relativeArguments.length)
 
   def projectDirectories: ProjectDirectories =
     ProjectDirectories.from(projectQualifier, projectOrganization, binaryName)

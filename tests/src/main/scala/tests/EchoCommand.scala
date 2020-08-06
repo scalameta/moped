@@ -23,14 +23,25 @@ import moped.json.JsonString
 case class EchoCommand(
     @Description("If true, the output will be all UPPERCASE")
     uppercase: Boolean = false,
+    @Description("If false, the output will be changed to '--no-unchanged'")
+    unchanged: Boolean = true,
+    @Description("If false, the output will be all lowercase")
+    noLowercase: Boolean = true,
+    @TrailingArguments()
+    trailing: List[String] = Nil,
     @PositionalArguments()
     args: List[String] = Nil
 ) extends Command {
   def run(app: Application): Int = {
     val toPrint =
-      if (uppercase) args.map(_.toUpperCase())
+      if (!unchanged) List("--no-unchanged")
+      else if (uppercase) args.map(_.toUpperCase())
+      else if (!noLowercase) args.map(_.toLowerCase())
       else args
     app.env.standardOutput.println(toPrint.mkString(" "))
+    if (trailing.nonEmpty) {
+      app.env.standardOutput.println(trailing.mkString(" "))
+    }
     0
   }
 }

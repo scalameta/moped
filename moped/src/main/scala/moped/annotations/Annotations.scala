@@ -36,6 +36,7 @@ final case class Hidden() extends StaticAnnotation
 final case class Flag() extends StaticAnnotation
 final case class ParseAsNumber() extends StaticAnnotation
 final case class PositionalArguments() extends StaticAnnotation
+final case class TrailingArguments() extends StaticAnnotation
 final case class Section(name: String) extends StaticAnnotation
 final case class CatchInvalidFlags() extends StaticAnnotation
 final case class TabCompleteAsOneOf(options: String*) extends StaticAnnotation

@@ -29,8 +29,11 @@ case class Application(
     arguments: List[String] = Nil,
     relativeArguments: List[String] = Nil,
     preProcessClassShape: ClassShape => ClassShape = HelpCommand.insertHelpFlag,
-    preProcessArguments: List[String] => List[String] =
-      HelpCommand.swapTrailingHelpFlag,
+    preProcessArguments: List[String] => List[String] = { args =>
+      HelpCommand.swapTrailingHelpFlag(
+        HelpCommand.moveFlagsBehindSubcommand(args)
+      )
+    },
     projectQualifier: String = "",
     projectOrganization: String = "",
     onEmptyArguments: BaseCommand = new HelpCommand(),

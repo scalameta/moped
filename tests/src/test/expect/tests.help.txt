@@ -2,35 +2,58 @@ $ tests help --help
 DESCRIPTION:
   Print this help message
 
+OPTIONS:
+  --help: Boolean           Print this help message
+  --arguments: List[String]
+
 $ tests version --help
 DESCRIPTION:
   Print the version of this program
+
+OPTIONS:
+  --help: Boolean Print this help message
 
 $ tests completions help --help
 DESCRIPTION:
   Print this help message
 
+OPTIONS:
+  --help: Boolean           Print this help message
+  --arguments: List[String]
+
 $ tests completions install --help
 DESCRIPTION:
   Install tab completions scripts
+
+OPTIONS:
+  --help: Boolean Print this help message
 
 $ tests completions uninstall --help
 DESCRIPTION:
   Uninstall tab completion scripts
 
+OPTIONS:
+  --help: Boolean Print this help message
+
 $ tests completions run --help
 DESCRIPTION:
   Print tab completions given command arguments
 
+OPTIONS:
+  --help: Boolean           Print this help message
+  --arguments: List[String]
+
 $ tests working-directory --help
 OPTIONS:
-  --home: Option[Path] = null
+  --help: Boolean      Print this help message
+  --home: Option[Path]
 
 $ tests echo --help
 DESCRIPTION:
   Write arguments to the standard output
 
 OPTIONS:
+  --help: Boolean              Print this help message
   --uppercase: Boolean = false If true, the output will be all UPPERCASE
   --args: List[String] = []
 

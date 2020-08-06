@@ -35,6 +35,7 @@ final case class ParameterShape(
   def extraNames: List[String] =
     annotations.collect {
       case PositionalArguments() => CommandLineParser.PositionalArgument
+      case TrailingArguments() => CommandLineParser.TrailingArgument
       case ExtraName(value) => value
     }
   def deprecatedNames: List[DeprecatedName] =

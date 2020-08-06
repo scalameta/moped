@@ -30,6 +30,13 @@ class CommandLineParser[T](
             )
           )
         }
+      case ("--" :: tail, NoFlag) =>
+        val trailingArguments = appendValues(
+          curr,
+          TrailingArgument,
+          tail.map(JsonString(_))
+        )
+        loop(add(curr, TrailingArgument, trailingArguments), Nil, NoFlag)
       case (head :: tail, NoFlag) =>
         val equal = head.indexOf('=')
         if (equal >= 0) { // split "--key=value" into ["--key", "value"]
@@ -107,9 +114,10 @@ class CommandLineParser[T](
                     val kebab = Cases.camelToKebab(candidate)
                     s"\n\tDid you mean '--$kebab'?"
                 }
+                val kebabFlag = Cases.camelToKebab(flag)
                 ErrorResult(
                   Diagnostic.error(
-                    s"found argument '--$flag' which wasn't expected, or isn't valid in this context.$didYouMean"
+                    s"found argument '--$kebabFlag' which wasn't expected, or isn't valid in this context.$didYouMean"
                   )
                 )
               case Some(_) =>
@@ -136,7 +144,8 @@ class CommandLineParser[T](
 }
 
 object CommandLineParser {
-  val PositionalArgument = "remainingArgs"
+  val PositionalArgument = "moped@positional"
+  val TrailingArgument = "moped@trailing"
 
   def parseArgs[T](
       args: List[String]

@@ -23,6 +23,7 @@ import moped.macros.ParameterShape
 import moped.reporters.Terminals
 import org.typelevel.paiges.Doc
 import moped.annotations.ExtraName
+import scala.collection.mutable
 
 object HelpCommand {
   val completer: Completer[List[String]] = { context =>
@@ -52,6 +53,21 @@ object HelpCommand {
         )
       ) :: shape.parameters
     )
+  }
+  def moveFlagsBehindSubcommand(arguments: List[String]): List[String] = {
+    val flagsToMoveBehindSubcommand = mutable.ListBuffer.empty[String]
+    def loop(args: List[String]): List[String] =
+      args match {
+        case Nil => flagsToMoveBehindSubcommand.toList
+        case head :: tail =>
+          if (head.startsWith("-")) {
+            flagsToMoveBehindSubcommand += head
+            loop(tail)
+          } else {
+            head :: flagsToMoveBehindSubcommand.prependToList(tail)
+          }
+      }
+    loop(arguments)
   }
   def swapTrailingHelpFlag(arguments: List[String]): List[String] = {
     def loop(l: List[String]): List[String] =

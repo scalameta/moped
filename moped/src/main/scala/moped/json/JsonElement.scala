@@ -1,7 +1,5 @@
 package moped.json
 
-import scala.collection.mutable
-
 import moped.internal.reporters._
 import moped.reporters._
 import org.typelevel.paiges.Doc

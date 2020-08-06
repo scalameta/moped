@@ -6,6 +6,8 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 
 import scala.collection.JavaConverters._
+import java.io.InputStream
+import java.io.ByteArrayOutputStream
 
 object Utils {
 
@@ -44,6 +46,20 @@ object Utils {
         StandardOpenOption.TRUNCATE_EXISTING
       )
     }
+  }
+
+  def readInputStreamString(is: InputStream): String = {
+    new String(readInputStreamBytes(is), StandardCharsets.UTF_8)
+  }
+  def readInputStreamBytes(is: InputStream): Array[Byte] = {
+    val baos = new ByteArrayOutputStream()
+    val buffer = new Array[Byte](4096)
+    var nread = -1
+    do {
+      nread = is.read(buffer, 0, buffer.length)
+      if (nread != -1) baos.write(buffer, 0, nread)
+    } while (nread != -1)
+    baos.toByteArray
   }
 
 }

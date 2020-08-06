@@ -40,6 +40,10 @@ lazy val tests = project
   .settings(
     skip.in(publish) := true,
     testFrameworks := List(new TestFramework("munit.Framework")),
+    buildInfoPackage := "tests",
+    buildInfoKeys := Seq[BuildInfoKey](
+      "expectDirectory" -> sourceDirectory.in(Test).value./("expect")
+    ),
     mainClass.in(GraalVMNativeImage) := Some(
       "tests.EchoCommand"
     ),
@@ -76,7 +80,7 @@ lazy val tests = project
       )
     }
   )
-  .enablePlugins(GraalVMNativeImagePlugin)
+  .enablePlugins(BuildInfoPlugin, GraalVMNativeImagePlugin)
   .dependsOn(testkit)
 
 addCommandAlias(

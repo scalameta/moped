@@ -1,4 +1,6 @@
 package moped.internal.diagnostics
 
-class MessageOnlyDiagnostic(val message: String)
-    extends moped.reporters.Diagnostic(moped.reporters.ErrorSeverity)
+import moped.reporters.Severity
+
+class MessageOnlyDiagnostic(val message: String, severity: Severity)
+    extends moped.reporters.Diagnostic(severity)

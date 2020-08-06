@@ -25,7 +25,7 @@ class CommandLineParser[T](
         if (setting.isBoolean) ValueResult(add(curr, flag, JsonBoolean(true)))
         else {
           ErrorResult(
-            Diagnostic.message(
+            Diagnostic.error(
               s"the argument '--${Cases.camelToKebab(flag)}' requires a value but none was supplied"
             )
           )
@@ -88,7 +88,7 @@ class CommandLineParser[T](
     val camel = Cases.kebabToCamel(dash.replaceFirstIn(head, ""))
     camel.split("\\.").toList match {
       case Nil =>
-        ErrorResult(Diagnostic.message(s"Flag '$head' must not be empty"))
+        ErrorResult(Diagnostic.error(s"Flag '$head' must not be empty"))
       case flag :: flags =>
         val (key, keys) = toInline.get(flag) match {
           case Some(setting) => setting.name -> (flag :: flags)
@@ -108,7 +108,7 @@ class CommandLineParser[T](
                     s"\n\tDid you mean '--$kebab'?"
                 }
                 ErrorResult(
-                  Diagnostic.message(
+                  Diagnostic.error(
                     s"found argument '--$flag' which wasn't expected, or isn't valid in this context.$didYouMean"
                   )
                 )

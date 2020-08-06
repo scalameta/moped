@@ -36,7 +36,14 @@ abstract class Diagnostic(
 }
 
 object Diagnostic {
-  def message(value: String): Diagnostic = new MessageOnlyDiagnostic(value)
+  def debug(value: String): Diagnostic =
+    new MessageOnlyDiagnostic(value, DebugSeverity)
+  def info(value: String): Diagnostic =
+    new MessageOnlyDiagnostic(value, InfoSeverity)
+  def warning(value: String): Diagnostic =
+    new MessageOnlyDiagnostic(value, WarningSeverity)
+  def error(value: String): Diagnostic =
+    new MessageOnlyDiagnostic(value, ErrorSeverity)
   def typeMismatch(expected: String, context: DecodingContext): Diagnostic =
     new TypeMismatchDiagnostic(expected, context)
   def fromDiagnostics(head: Diagnostic, other: List[Diagnostic]): Diagnostic = {

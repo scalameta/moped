@@ -27,6 +27,8 @@ case class Application(
     relativeCommands: List[CommandParser[_]] = Nil,
     arguments: List[String] = Nil,
     relativeArguments: List[String] = Nil,
+    preProcessArguments: List[String] => List[String] =
+      HelpCommand.swapTrailingHelpFlag,
     projectQualifier: String = "",
     projectOrganization: String = "",
     onEmptyArguments: BaseCommand = new HelpCommand(),
@@ -43,7 +45,7 @@ case class Application(
   def error(message: Str): Unit = {
     env.standardError.println(Color.LightRed("error: ") ++ message)
   }
-  def warn(message: Str): Unit = {
+  def warning(message: Str): Unit = {
     env.standardError.println(Color.LightYellow("warn: ") ++ message)
   }
   def info(message: Str): Unit = {
@@ -63,7 +65,8 @@ case class Application(
     val exit = run(args)
     if (exit != 0) System.exit(exit)
   }
-  def run(args: List[String]): Int = {
+  def run(arguments: List[String]): Int = {
+    val args = preProcessArguments(arguments)
     def loop(n: Int, relativeCommands: List[CommandParser[_]]): Future[Int] = {
       val app = this.copy(
         arguments = args,

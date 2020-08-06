@@ -4,6 +4,10 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 import moped.internal.console.Utils
+import scala.collection.mutable
+import java.nio.file.Paths
+import scala.sys.process.ProcessLogger
+import scala.util.control.NonFatal
 
 sealed abstract class ShellCompletion(app: Application) {
   def install(): Unit
@@ -21,26 +25,46 @@ object ShellCompletion {
 final class ZshCompletion(app: Application) extends ShellCompletion(app) {
   def install(): Unit = {
     Utils.overwriteFile(completionFile, completionScript)
-    app.info(completionFile.toString())
-    if (Files.isRegularFile(zshrc)) {
-      val functionDir = completionFile.getParent()
-      Utils.appendLines(
-        zshrc,
-        List(
-          s"if [[ -d '$functionDir' ]]; then fpath=($$fpath '$functionDir'); fi"
+    val readableFunctionDirectory = fpath.find(path => Files.isReadable(path))
+    readableFunctionDirectory match {
+      case Some(dir) =>
+        val link = dir.resolve(s"_${app.binaryName}")
+        Files.createSymbolicLink(link, completionFile)
+        app.info(link.toString())
+      case None =>
+        app.error(
+          "unable to find a readable directory in the zsh function path ($fpath). " +
+            "To fix this problem, manually create a symbolic link with the command below:\n" +
+            s"\tln -svf '$completionFile' $$(echo $$fpath[1])"
         )
-      )
     }
   }
   def uninstall(): Unit = {
-    if (Files.isRegularFile(zshrc)) {
-      Utils.filterLinesMatching(zshrc, completionFile.toString())
+    fpath.foreach { path =>
+      val script = path.resolve(underscoreName)
+      if (Files.isRegularFile(script) && Files.isReadable(script)) {
+        Files.delete(script)
+      }
     }
-
   }
+
+  private def underscoreName = s"_${app.binaryName}"
   private def zshrc = app.env.homeDirectory.resolve(".zshrc")
+  private def fpath: List[Path] = {
+    val paths = mutable.ListBuffer.empty[Path]
+    try {
+      val process = scala.sys.process
+        .Process(List("zsh", "-c", "for f in $fpath; echo $f"))
+        .!(ProcessLogger(out => paths += Paths.get(out), err => app.error(err)))
+      if (process == 0) paths.toList
+      else Nil
+    } catch {
+      case NonFatal(_) =>
+        Nil
+    }
+  }
   private def completionFile: Path =
-    app.cacheDirectory.resolve("zsh").resolve(s"_${app.binaryName}")
+    app.configDirectory.resolve("zsh").resolve(underscoreName)
   private def completionScript: String =
     """|#compdef _BINARY_NAME BINARY_NAME
        |

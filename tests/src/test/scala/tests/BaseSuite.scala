@@ -15,8 +15,12 @@ import moped.console.Environment
 import munit.FunSuite
 import munit.TestOptions
 import moped.reporters.ConsoleReporter
+import moped.internal.console.Utils
+import java.nio.file.Paths
+import scala.collection.immutable.Nil
 
 abstract class BaseSuite extends FunSuite {
+  val reporter = new ConsoleReporter(System.out)
 
   class PathFixture extends Fixture[Path]("Path") {
     private var path: Path = _
@@ -37,7 +41,7 @@ abstract class BaseSuite extends FunSuite {
       standardError = ps
     )
     private val app = Application(
-      "app",
+      "tests",
       "1.0.0",
       env = env,
       reporter = new ConsoleReporter(env.standardOutput),
@@ -50,9 +54,12 @@ abstract class BaseSuite extends FunSuite {
       )
     )
     def apply(): Application = app
+    def reset(): Unit = {
+      out.reset()
+    }
     def capturedOutput: String = out.toString(StandardCharsets.UTF_8.name())
     override def beforeEach(context: BeforeEach): Unit = {
-      out.reset()
+      reset()
     }
   }
 
@@ -85,4 +92,45 @@ abstract class BaseSuite extends FunSuite {
     }
   }
 
+  def checkHelpMessage(
+      expectFile: Path,
+      writeExpectOutput: Boolean = false
+  ): Unit = {
+    test("help") {
+      val expected =
+        if (Files.isRegularFile(expectFile)) Utils.readFile(expectFile)
+        else ""
+      val out = new StringBuilder()
+      def loop(prefix: List[String], c: CommandParser[_]): Unit =
+        if (c.nestedCommands.nonEmpty) {
+          c.nestedCommands.foreach { n =>
+            loop(prefix :+ c.subcommandName, n)
+          }
+        } else {
+          app.reset()
+          val commands: List[String] =
+            prefix :+ c.subcommandName :+ "--help"
+          val exit = app().run(commands)
+          assertEquals(exit, 0, app.capturedOutput)
+          out
+            .append("$ ")
+            .append((app().binaryName :: commands).mkString(" "))
+            .append("\n")
+            .append(app.capturedOutput)
+            .append("\n")
+        }
+      app().commands.foreach(c => loop(Nil, c))
+      val obtained = out.toString()
+      if (writeExpectOutput) {
+        if (isCI) {
+          fail("writeExpectOutput must be false when isCI=true")
+        }
+        Utils.overwriteFile(expectFile, obtained)
+        reporter.info(expectFile.toString())
+      } else {
+        assertNoDiff(obtained, expected, clues(expectFile))
+      }
+    }
+
+  }
 }

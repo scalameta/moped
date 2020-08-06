@@ -34,6 +34,19 @@ object HelpCommand {
       Nil
     }
   }
+
+  def swapTrailingHelpFlag(arguments: List[String]): List[String] = {
+    def loop(l: List[String]): List[String] =
+      l match {
+        case command :: ("--help" | "-h" | "-help") :: Nil =>
+          "help" :: command :: Nil
+        case Nil => Nil
+        case head :: tail =>
+          head :: loop(tail)
+      }
+    loop(arguments)
+  }
+
   def parser(help: HelpCommand): CommandParser[HelpCommand] =
     new CodecCommandParser[HelpCommand](
       JsonCodec.encoderDecoderJsonCodec(
@@ -56,7 +69,7 @@ object HelpCommand {
               )
             ),
             List(
-              CommandName("help", "--help", "-help"),
+              CommandName("help", "-h", "--help", "-help"),
               Description("Print this help message")
             )
           )

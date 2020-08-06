@@ -31,6 +31,7 @@ class CompleteCommandSuite extends BaseSuite {
     List(
       "help",
       "version",
+      "completions",
       "working-directory",
       "echo"
     )
@@ -80,6 +81,12 @@ class CompleteCommandSuite extends BaseSuite {
     "help-subcommand",
     List("help", "e"),
     publicCommandNames
+  )
+
+  checkCompletions(
+    "completions-subcommand".only,
+    List("completions", "e"),
+    List("help", "install", "uninstall", "run")
   )
 
   checkCompletions(

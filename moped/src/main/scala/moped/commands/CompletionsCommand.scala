@@ -48,7 +48,15 @@ object CompletionsCommand {
         JsonDecoder.constant(default)
       ),
       default
-    )
+    ) {
+      override def subcommands(app: Application): List[CommandParser[_]] =
+        List(
+          CommandParser[HelpCommand],
+          CommandParser[InstallCompletionsCommand],
+          CommandParser[UninstallCompletionsCommand],
+          RunCompletionsCommand.parser(app)
+        )
+    }
 }
 
 class CompletionsCommand extends Command {

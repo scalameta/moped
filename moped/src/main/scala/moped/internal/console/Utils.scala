@@ -8,9 +8,11 @@ import java.nio.file.StandardOpenOption
 import scala.collection.JavaConverters._
 
 object Utils {
+
   def readFile(path: Path): String = {
     new String(Files.readAllBytes(path), StandardCharsets.UTF_8)
   }
+
   def overwriteFile(path: Path, text: String): Unit = {
     Files.createDirectories(path.getParent())
     Files.write(
@@ -20,6 +22,7 @@ object Utils {
       StandardOpenOption.TRUNCATE_EXISTING
     )
   }
+
   def appendLines(path: Path, text: List[String]): Unit = {
     Files.createDirectories(path.getParent())
     Files.write(
@@ -28,13 +31,18 @@ object Utils {
       StandardOpenOption.CREATE,
       StandardOpenOption.APPEND
     )
-
   }
+
   def filterLinesMatching(path: Path, query: String): Unit = {
-    val before = Utils.readFile(path)
-    val after = before.linesIterator.filterNot(_.contains(query)).mkString("\n")
-    if (before != after) {
-      Utils.overwriteFile(path, after)
+    val before = Files.readAllLines(path).asScala
+    val after = before.filterNot(_.contains(query))
+    if (!before.sameElements(after)) {
+      Files.write(
+        path,
+        after.asJava,
+        StandardOpenOption.CREATE,
+        StandardOpenOption.TRUNCATE_EXISTING
+      )
     }
   }
 

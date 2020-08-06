@@ -1,8 +1,5 @@
 package tests
 
-import java.nio.file.Files
-import java.nio.file.StandardOpenOption
-
 import moped.annotations.PositionalArguments
 import moped.annotations._
 import moped.commands.CompletionsCommand
@@ -11,6 +8,7 @@ import moped.commands.VersionCommand
 import moped.console.Application
 import moped.console.Command
 import moped.console.CommandParser
+import moped.internal.console.Utils
 import moped.json.JsonArray
 import moped.json.JsonString
 
@@ -52,14 +50,9 @@ object EchoCommand {
         CommandParser[CompletionsCommand]
       )
     )
-    import scala.collection.JavaConverters._
-    val prettyArguments =
-      JsonArray(args.map(JsonString(_)).toList).toDoc.render(80)
-    Files.write(
+    Utils.appendLines(
       app.env.homeDirectory.resolve(".dump"),
-      List(prettyArguments).asJava,
-      StandardOpenOption.APPEND,
-      StandardOpenOption.CREATE
+      List(JsonArray(args.map(JsonString(_)).toList).toDoc.render(80))
     )
     app.runAndExitIfNonZero(args.toList)
   }

@@ -68,7 +68,7 @@ case class Application(
           case Some(command) =>
             val conf =
               CommandLineParser.parseArgs[command.Value](tail)(
-                command.asClassDefinition
+                command.asClassShaper
               )
             val configured: DecodingResult[BaseCommand] =
               conf.flatMap(elem => command.decodeCommand(DecodingContext(elem)))

@@ -16,7 +16,7 @@ import org.typelevel.paiges.Doc
 
 trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A
-  def asClassDefinition: ClassShaper[Value] = this
+  def asClassShaper: ClassShaper[Value] = this
   def asDecoder: JsonDecoder[Value] = this
   def description: Doc = this.commandLineDescription.getOrElse(Doc.empty)
   def usage: Doc = this.commandLineUsage.getOrElse(Doc.empty)
@@ -43,7 +43,7 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   final def helpMessage(out: PrintStream, width: Int): Unit = {
     out.println(helpMessage.renderTrim(width))
   }
-  def subcommands: List[CommandParser[_]] = Nil
+  def subcommands(app: Application): List[CommandParser[_]] = Nil
   def subcommandName: String =
     subcommandNames.headOption.getOrElse(fallbackSubcommandName)
   def subcommandNames: List[String] = {

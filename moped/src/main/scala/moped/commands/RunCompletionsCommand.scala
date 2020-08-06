@@ -1,8 +1,5 @@
 package moped.commands
 
-import java.nio.file.Files
-import java.nio.file.StandardOpenOption
-
 import scala.collection.immutable.Nil
 
 import moped.annotations.CatchInvalidFlags
@@ -21,6 +18,7 @@ import moped.console.TabCompletionItem
 import moped.console.ZshCompletion
 import moped.internal.console.Cases
 import moped.internal.console.CommandLineParser
+import moped.internal.console.Utils
 import moped.internal.json.NumberExtractor
 import moped.json.JsonArray
 import moped.json.JsonCodec
@@ -34,7 +32,7 @@ import moped.macros.ParameterShape
 object RunCompletionsCommand {
 
   def parser(app: Application): CommandParser[RunCompletionsCommand] = {
-    val default = new RunCompletionsCommand(app.commands)
+    val default = new RunCompletionsCommand(app)
     new CodecCommandParser[RunCompletionsCommand](
       JsonCodec.encoderDecoderJsonCodec(
         ClassShaper(
@@ -65,7 +63,8 @@ object RunCompletionsCommand {
   }
 }
 
-class RunCompletionsCommand(commands: List[CommandParser[_]]) extends Command {
+class RunCompletionsCommand(underlyingApp: Application) extends Command {
+  private def commands = underlyingApp.commands
   def run(app: Application): Int = {
     val (format, argumentLength, arguments) = app.arguments match {
       case _ :: "zsh" :: NumberExtractor(argumentLength) :: tail =>
@@ -108,8 +107,9 @@ class RunCompletionsCommand(commands: List[CommandParser[_]]) extends Command {
         case _ :: subcommandName :: head :: tail =>
           commands.find(_.matchesName(subcommandName)) match {
             case Some(subcommand) =>
-              if (subcommand.subcommands.nonEmpty) loop(head :: tail)
-              else {
+              if (subcommand.subcommands(app).nonEmpty) {
+                loop(head :: tail)
+              } else {
                 renderSubcommandCompletions(
                   argumentLength,
                   format,
@@ -158,7 +158,7 @@ class RunCompletionsCommand(commands: List[CommandParser[_]]) extends Command {
       secondLast,
       setting,
       inlined,
-      app
+      app.copy(commands = commands)
     )
     tabCompletions(subcommand, context)
   }
@@ -167,14 +167,11 @@ class RunCompletionsCommand(commands: List[CommandParser[_]]) extends Command {
       items: List[TabCompletionItem],
       app: Application
   ): Unit = {
-    import scala.collection.JavaConverters._
-    val prettyItems =
-      JsonArray(items.map(i => JsonString(i.name)).toList).toDoc.render(80)
-    Files.write(
+    Utils.appendLines(
       app.env.homeDirectory.resolve(".dump"),
-      List(prettyItems).asJava,
-      StandardOpenOption.APPEND,
-      StandardOpenOption.CREATE
+      List(
+        JsonArray(items.map(i => JsonString(i.name)).toList).toDoc.render(80)
+      )
     )
     items.foreach { item =>
       app.out.println(item.name)

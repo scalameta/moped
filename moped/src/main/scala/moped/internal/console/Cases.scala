@@ -11,9 +11,6 @@ object Cases {
       m.appendReplacement(sb, replacement)
     }
     m.appendTail(sb)
-    if (sb.length() > 0) {
-      // sb.setCharAt(0, sb.charAt(0).toUpper)
-    }
     sb.toString
   }
 

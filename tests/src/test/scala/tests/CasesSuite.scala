@@ -19,7 +19,7 @@ class CasesSuite extends BaseSuite {
       assertEquals(Cases.camelToKebab(camel), clue(kebab))
     }
 
-  check("Complete", "complete")
-  check("CompleteCommand", "complete-command")
-  check("Complete_command", "complete_command")
+  check("complete", "complete")
+  check("completeCommand", "complete-command")
+  check("complete_command", "complete_command")
 }

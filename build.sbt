@@ -83,6 +83,29 @@ lazy val tests = project
   .enablePlugins(BuildInfoPlugin, GraalVMNativeImagePlugin)
   .dependsOn(testkit)
 
+val scalatagsVersion = Def.setting {
+  if (scalaVersion.value.startsWith("2.11")) "0.6.7"
+  else "0.7.0"
+}
+
+lazy val docs = project
+  .in(file("moped-docs"))
+  .settings(
+    moduleName := "moped-docs",
+    libraryDependencies ++= List(
+      "com.lihaoyi" %% "scalatags" % scalatagsVersion.value
+    ),
+    mdocVariables := Map(
+      "VERSION" -> version.value.replaceFirst("\\+.*", ""),
+      "SCALA_VERSION" -> scalaVersion.value
+    ),
+    mdocOut :=
+      baseDirectory.in(ThisBuild).value / "website" / "target" / "docs",
+    mdocExtraArguments := List("--no-link-hygiene")
+  )
+  .dependsOn(moped)
+  .enablePlugins(DocusaurusPlugin)
+
 addCommandAlias(
   "native-image",
   "; tests/graalvm-native-image:packageBin ; taskready"

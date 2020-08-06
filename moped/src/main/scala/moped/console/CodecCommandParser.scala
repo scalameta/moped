@@ -7,17 +7,24 @@ import moped.json.JsonCodec
 import moped.json.JsonElement
 import moped.macros.ClassShape
 import org.typelevel.paiges.Doc
+import moped.macros.ClassShaper
 
 class CodecCommandParser[A <: BaseCommand](
-    val codec: JsonCodec[A],
-    val default: A
+    codec: JsonCodec[A],
+    default: A,
+    val shape: ClassShape
 ) extends CommandParser[A] {
+  def this(codec: JsonCodec[A], default: A) = this(codec, default, codec.shape)
   override def options: Doc =
-    HelpMessage.generate(default)(codec, codec)
+    HelpMessage.generate(default)(codec, ClassShaper(shape))
   def decode(context: DecodingContext): DecodingResult[A] =
     codec.decode(context)
   def encode(value: A): JsonElement =
     codec.encode(value)
-  def shape: ClassShape =
-    codec.shape
+  override def withApplication(app: Application): CommandParser[A] =
+    new CodecCommandParser[A](codec, default, app.preProcessClassShape(shape)) {
+      override def nestedCommands: List[CommandParser[_]] = {
+        super.nestedCommands.map(_.withApplication(app))
+      }
+    }
 }

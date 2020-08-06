@@ -22,6 +22,7 @@ import moped.macros.ClassShaper
 import moped.macros.ParameterShape
 import moped.reporters.Terminals
 import org.typelevel.paiges.Doc
+import moped.annotations.ExtraName
 
 object HelpCommand {
   val completer: Completer[List[String]] = { context =>
@@ -35,6 +36,23 @@ object HelpCommand {
     }
   }
 
+  def insertHelpFlag(shape: ClassShape): ClassShape = {
+    shape.copy(
+      parameters = List(
+        new ParameterShape(
+          "help",
+          "Boolean",
+          List(
+            ExtraName("-h"),
+            ExtraName("-help"),
+            ExtraName("--help"),
+            Description("Print this help message")
+          ),
+          None
+        )
+      ) :: shape.parameters
+    )
+  }
   def swapTrailingHelpFlag(arguments: List[String]): List[String] = {
     def loop(l: List[String]): List[String] =
       l match {

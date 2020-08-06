@@ -19,6 +19,7 @@ import moped.json.ErrorResult
 import moped.json.ValueResult
 import moped.reporters.ConsoleReporter
 import moped.reporters.Reporter
+import moped.macros.ClassShape
 
 case class Application(
     binaryName: String,
@@ -27,6 +28,7 @@ case class Application(
     relativeCommands: List[CommandParser[_]] = Nil,
     arguments: List[String] = Nil,
     relativeArguments: List[String] = Nil,
+    preProcessClassShape: ClassShape => ClassShape = HelpCommand.insertHelpFlag,
     preProcessArguments: List[String] => List[String] =
       HelpCommand.swapTrailingHelpFlag,
     projectQualifier: String = "",
@@ -66,16 +68,29 @@ case class Application(
     if (exit != 0) System.exit(exit)
   }
   def run(arguments: List[String]): Int = {
-    val args = preProcessArguments(arguments)
+    Application.run(this.copy(arguments = arguments))
+  }
+}
+
+object Application {
+  def run(app: Application): Int = {
+    val args = app.preProcessArguments(app.arguments)
+    val base = app.copy(commands = app.commands.map(_.withApplication(app)))
+    val params =
+      base.commands
+        .find(_.matchesName("completions"))
+        .toList
+        .flatMap(_.nestedCommands.map(_.parameters))
     def loop(n: Int, relativeCommands: List[CommandParser[_]]): Future[Int] = {
-      val app = this.copy(
+      val app = base.copy(
         arguments = args,
         relativeArguments = args.drop(n + 1),
         relativeCommands = relativeCommands
       )
       val remainingArguments = args.drop(n)
       remainingArguments match {
-        case Nil => onEmptyArguments.runAsFuture(app)
+        case Nil =>
+          app.onEmptyArguments.runAsFuture(app)
         case subcommand :: tail =>
           relativeCommands.find(_.matchesName(subcommand)) match {
             case Some(command) =>
@@ -106,11 +121,14 @@ case class Application(
                 }
               }
             case None =>
-              onNotRecognoziedCommand.runAsFuture(app)
+              app.onNotRecognoziedCommand.runAsFuture(app)
           }
       }
     }
-    val value = loop(0, commands)
-    Await.result(value, Duration.Inf)
+    val future = loop(0, base.commands)
+    future.value match {
+      case Some(value) => value.get
+      case None => Await.result(future, Duration.Inf)
+    }
   }
 }

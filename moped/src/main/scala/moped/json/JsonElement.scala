@@ -5,6 +5,7 @@ import scala.collection.mutable
 import moped.internal.reporters._
 import moped.reporters._
 import org.typelevel.paiges.Doc
+import scala.collection.immutable.ListMap
 
 sealed abstract class JsonElement extends Product with Serializable {
   private var myPosition: Position = NoPosition
@@ -60,9 +61,8 @@ final case class JsonBoolean(value: Boolean) extends JsonPrimitive
 final case class JsonString(value: String) extends JsonPrimitive
 final case class JsonArray(elements: List[JsonElement]) extends JsonElement
 final case class JsonObject(members: List[JsonMember]) extends JsonElement {
-  val value: mutable.Map[String, JsonElement] =
-    new mutable.LinkedHashMap() ++
-      members.iterator.map(m => m.key.value -> m.value)
+  val value: Map[String, JsonElement] =
+    ListMap(members.map(m => m.key.value -> m.value): _*)
   def getMember(key: String): Option[JsonElement] = {
     value.get(key)
   }

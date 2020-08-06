@@ -4,6 +4,8 @@ import scala.annotation.StaticAnnotation
 
 import moped.console.Completer
 import org.typelevel.paiges.Doc
+import moped.console.CommandParser
+import moped.console.BaseCommand
 
 final case class ShortName(value: Char) extends StaticAnnotation
 final case class ExtraName(value: String) extends StaticAnnotation
@@ -20,10 +22,10 @@ final case class BinaryName(value: String) extends StaticAnnotation
 final case class CommandName(value: String*) extends StaticAnnotation
 final case class Usage(value: String) extends StaticAnnotation
 final case class Description(value: String) extends StaticAnnotation
+final case class DescriptionDoc(value: Doc) extends StaticAnnotation
 final case class LongDescription(value: String) extends StaticAnnotation
 final case class LongDescriptionDoc(value: Doc) extends StaticAnnotation
 final case class ExampleUsage(value: String) extends StaticAnnotation
-final case class DescriptionDoc(value: Doc) extends StaticAnnotation
 final case class SinceVersion(value: String) extends StaticAnnotation
 final case class Deprecated(message: String, since: String)
     extends StaticAnnotation
@@ -38,3 +40,5 @@ final case class Section(name: String) extends StaticAnnotation
 final case class CatchInvalidFlags() extends StaticAnnotation
 final case class TabCompleteAsOneOf(options: String*) extends StaticAnnotation
 final case class TabCompleter(fn: Completer[_]) extends StaticAnnotation
+final case class NestedCommand(ev: CommandParser[_ <: BaseCommand])
+    extends StaticAnnotation

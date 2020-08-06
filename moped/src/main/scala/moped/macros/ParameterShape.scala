@@ -5,6 +5,7 @@ import scala.annotation.StaticAnnotation
 import moped.annotations._
 import moped.console.Completer
 import moped.internal.console.CommandLineParser
+import org.typelevel.paiges.Doc
 
 /**
  * Metadata about one parameter of a class.
@@ -26,9 +27,10 @@ final case class ParameterShape(
   def matchesLowercase(name: String): Boolean =
     allNames.exists(_.equalsIgnoreCase(name))
 
-  def description: Option[String] =
+  def description: Option[Doc] =
     annotations.collectFirst {
-      case Description(value) => value
+      case Description(value) => Doc.paragraph(value)
+      case DescriptionDoc(value) => value
     }
   def extraNames: List[String] =
     annotations.collect {

@@ -13,18 +13,20 @@ import moped.internal.console.CommandLineParser
 import moped.json._
 import moped.macros._
 import org.typelevel.paiges.Doc
+import moped.annotations.NestedCommand
 
 trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A
   def asClassShaper: ClassShaper[Value] = this
   def asDecoder: JsonDecoder[Value] = this
+  def withApplication(app: Application): CommandParser[A] = this
   def description: Doc =
-    this.commandLineDescription.getOrElse(Doc.empty)
+    commandLineDescription.getOrElse(Doc.empty)
   def longDescription: Doc =
     commandLineLongDescription.getOrElse(description)
-  def usage: Doc = this.commandLineUsage.getOrElse(Doc.empty)
+  def usage: Doc = commandLineUsage.getOrElse(Doc.empty)
   def options: Doc = Doc.empty
-  def examples: Doc = Doc.intercalate(Doc.line, this.commandLineExamples)
+  def examples: Doc = Doc.intercalate(Doc.line, commandLineExamples)
   def isHidden: Boolean = annotations.contains(Hidden())
   def matchesName(name: String): Boolean =
     subcommandNames.exists(_.equalsIgnoreCase(name))
@@ -46,7 +48,10 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   final def helpMessage(out: PrintStream, width: Int): Unit = {
     out.println(helpMessage.renderTrim(width))
   }
-  def nestedCommands: List[CommandParser[_]] = Nil
+  def nestedCommands: List[CommandParser[_]] =
+    annotations.collect {
+      case NestedCommand(cmd) => cmd
+    }
   def subcommandName: String =
     subcommandNames.headOption.getOrElse(fallbackSubcommandName)
   def subcommandNames: List[String] = {

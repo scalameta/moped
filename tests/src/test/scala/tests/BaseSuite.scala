@@ -16,7 +16,6 @@ import munit.FunSuite
 import munit.TestOptions
 import moped.reporters.ConsoleReporter
 import moped.internal.console.Utils
-import java.nio.file.Paths
 import scala.collection.immutable.Nil
 
 abstract class BaseSuite extends FunSuite {

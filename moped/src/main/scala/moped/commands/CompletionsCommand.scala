@@ -36,7 +36,13 @@ object CompletionsCommand {
             ),
             List(
               CommandName("completions"),
-              Description("Manage tab completions for bash, zsh and fish")
+              Description("Manage tab completions for bash, zsh and fish"),
+              moped.annotations.NestedCommand(HelpCommand.parser),
+              moped.annotations.NestedCommand(InstallCompletionsCommand.parser),
+              moped.annotations.NestedCommand(
+                UninstallCompletionsCommand.parser
+              ),
+              moped.annotations.NestedCommand(RunCompletionsCommand.parser)
             )
           )
         ),
@@ -44,15 +50,7 @@ object CompletionsCommand {
         JsonDecoder.constant(default)
       ),
       default
-    ) {
-      override def nestedCommands: List[CommandParser[_]] =
-        List(
-          CommandParser[HelpCommand],
-          CommandParser[InstallCompletionsCommand],
-          CommandParser[UninstallCompletionsCommand],
-          CommandParser[RunCompletionsCommand]
-        )
-    }
+    )
 }
 
 class CompletionsCommand extends NestedCommand

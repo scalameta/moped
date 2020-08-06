@@ -12,31 +12,33 @@ object HelpMessage {
   )(implicit encoder: JsonEncoder[T], settings: ClassShaper[T]): Doc = {
     def toHelp(setting: ParameterShape, value: JsonElement): (String, Doc) = {
       val name = Cases.camelToKebab(setting.name)
-      val key = s"--$name: ${setting.tpe} = ${value.toDoc.render(80)} "
-      key -> paragraph(setting.description.getOrElse(""))
+      val defaultValue = value match {
+        case JsonNull() => ""
+        case _ => s" = ${value.toDoc.render(80)}"
+      }
+      val key = s"--$name: ${setting.tpe}$defaultValue "
+      key -> setting.description.getOrElse(Doc.empty)
     }
 
-    val defaultConf = encoder.encode(default) match {
-      case JsonObject(members) => members.map(_.value)
-      case _ => Nil
+    val defaultConf: Map[String, JsonElement] = encoder.encode(default) match {
+      case obj @ JsonObject(members) => obj.value
+      case _ => Map.empty
     }
-
-    val keyValues = settings.parametersFlat.zip(defaultConf).flatMap {
-      case (setting, value) =>
-        if (setting.isHidden) {
-          Nil
-        } else if (setting.annotations.exists(_.isInstanceOf[Inline])) {
-          for {
-            underlying <- setting.underlying.toList
-            (field, fieldDefault) <- underlying.parametersFlat.zip(value match {
-              case obj: JsonObject => obj.members.map(_.value)
-              case _ => List(value)
-            })
-          } yield toHelp(field, fieldDefault)
-        } else {
-          toHelp(setting, value) :: Nil
-        }
-      case _ => Nil
+    val keyValues = settings.parametersFlat.flatMap { setting =>
+      val value = defaultConf.getOrElse(setting.name, JsonNull())
+      if (setting.isHidden) {
+        Nil
+      } else if (setting.annotations.exists(_.isInstanceOf[Inline])) {
+        for {
+          underlying <- setting.underlying.toList
+          (field, fieldDefault) <- underlying.parametersFlat.zip(value match {
+            case obj: JsonObject => obj.members.map(_.value)
+            case _ => List(value)
+          })
+        } yield toHelp(field, fieldDefault)
+      } else {
+        toHelp(setting, value) :: Nil
+      }
     }
     tabulate(keyValues)
   }

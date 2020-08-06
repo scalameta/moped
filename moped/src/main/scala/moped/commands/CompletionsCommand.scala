@@ -49,7 +49,7 @@ object CompletionsCommand {
       ),
       default
     ) {
-      override def subcommands: List[CommandParser[_]] =
+      override def nestedCommands: List[CommandParser[_]] =
         List(
           CommandParser[HelpCommand],
           CommandParser[InstallCompletionsCommand],

@@ -20,6 +20,8 @@ final case class BinaryName(value: String) extends StaticAnnotation
 final case class CommandName(value: String*) extends StaticAnnotation
 final case class Usage(value: String) extends StaticAnnotation
 final case class Description(value: String) extends StaticAnnotation
+final case class LongDescription(value: String) extends StaticAnnotation
+final case class LongDescriptionDoc(value: Doc) extends StaticAnnotation
 final case class ExampleUsage(value: String) extends StaticAnnotation
 final case class DescriptionDoc(value: Doc) extends StaticAnnotation
 final case class SinceVersion(value: String) extends StaticAnnotation

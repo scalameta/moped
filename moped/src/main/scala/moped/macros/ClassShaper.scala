@@ -7,6 +7,8 @@ import moped.annotations.Usage
 import moped.internal.console.HelpMessage
 import moped.json._
 import org.typelevel.paiges.Doc
+import moped.annotations.LongDescription
+import moped.annotations.LongDescriptionDoc
 
 object ClassShaper {
   def empty[T]: ClassShaper[T] =
@@ -64,6 +66,12 @@ trait ClassShaper[T] extends Product {
     annotations.collectFirst {
       case DescriptionDoc(doc) => doc
       case Description(doc) => Doc.text(doc)
+    }
+
+  def commandLineLongDescription: Option[Doc] =
+    annotations.collectFirst {
+      case LongDescriptionDoc(doc) => doc
+      case LongDescription(doc) => Doc.text(doc)
     }
 
   def commandLineUsage: Option[Doc] =

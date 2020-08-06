@@ -35,9 +35,8 @@ object InstallCompletionsCommand {
             )
           )
         ),
-        JsonEncoder.stringJsonEncoder.contramap[InstallCompletionsCommand](_ =>
-          ""
-        ),
+        JsonEncoder.stringJsonEncoder
+          .contramap[InstallCompletionsCommand](_ => ""),
         JsonDecoder.constant(default)
       ),
       default

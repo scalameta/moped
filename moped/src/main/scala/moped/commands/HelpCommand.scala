@@ -78,13 +78,8 @@ class HelpCommand(
     appExamples: Application => Doc = _ => Doc.empty
 ) extends Command {
   override def run(app: Application): Int = {
-    app.arguments match {
+    app.relativeArguments match {
       case Nil =>
-        app.err.println(
-          s"Missing argument, to fix this problem run '${app.binaryName} help SUBCOMMAND_NAME'"
-        )
-        1
-      case _ :: Nil =>
         val usage = appUsage(app)
         if (usage.nonEmpty) {
           app.out.println(s"USAGE:")
@@ -98,8 +93,8 @@ class HelpCommand(
           app.out.println(s"DESCRIPTION:")
           app.out.println(description.indent(2).renderTrim(screenWidth))
         }
-        if (app.commands.nonEmpty) {
-          val rows = app.commands.map { command =>
+        if (app.relativeCommands.nonEmpty) {
+          val rows = app.relativeCommands.map { command =>
             command.subcommandName -> command.description
           }
           val message = Doc.tabulate(' ', "  ", rows).indent(2)
@@ -114,13 +109,13 @@ class HelpCommand(
         }
         val examples = appExamples(app)
         if (examples.nonEmpty) {
-          if (app.commands.nonEmpty) app.out.println()
+          if (app.relativeCommands.nonEmpty) app.out.println()
           app.out.println(s"EXAMPLES:")
           app.out.println(examples.indent(2).renderTrim(screenWidth))
         }
         0
-      case _ :: subcommand :: Nil =>
-        app.commands.find(_.matchesName(subcommand)) match {
+      case subcommand :: Nil =>
+        app.relativeCommands.find(_.matchesName(subcommand)) match {
           case Some(command) =>
             command.helpMessage(app.out, screenWidth)
             0

@@ -18,7 +18,10 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A
   def asClassShaper: ClassShaper[Value] = this
   def asDecoder: JsonDecoder[Value] = this
-  def description: Doc = this.commandLineDescription.getOrElse(Doc.empty)
+  def description: Doc =
+    this.commandLineDescription.getOrElse(Doc.empty)
+  def longDescription: Doc =
+    commandLineLongDescription.getOrElse(description)
   def usage: Doc = this.commandLineUsage.getOrElse(Doc.empty)
   def options: Doc = Doc.empty
   def examples: Doc = Doc.intercalate(Doc.line, this.commandLineExamples)
@@ -28,7 +31,7 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   def helpMessageSections: List[(String, Doc)] =
     List(
       "USAGE:" -> usage,
-      "DESCRIPTION:" -> description,
+      "DESCRIPTION:" -> longDescription,
       "OPTIONS:" -> options,
       "EXAMPLES:" -> examples
     )

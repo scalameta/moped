@@ -11,7 +11,10 @@ object Cases {
       m.appendReplacement(sb, replacement)
     }
     m.appendTail(sb)
-    sb.toString.capitalize
+    if (sb.length() > 0) {
+      // sb.setCharAt(0, sb.charAt(0).toUpper)
+    }
+    sb.toString
   }
 
   def camelToKebab(camel: String): String = {

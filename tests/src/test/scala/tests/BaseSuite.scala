@@ -13,6 +13,8 @@ import moped.console.Application
 import moped.console.CommandParser
 import moped.console.Environment
 import munit.FunSuite
+import munit.TestOptions
+import moped.reporters.ConsoleReporter
 
 abstract class BaseSuite extends FunSuite {
 
@@ -30,13 +32,15 @@ abstract class BaseSuite extends FunSuite {
   class ApplicationFixture extends Fixture[Application]("Application") {
     private val out = new ByteArrayOutputStream
     private val ps = new PrintStream(out)
+    private val env = Environment(
+      standardOutput = ps,
+      standardError = ps
+    )
     private val app = Application(
       "app",
       "1.0.0",
-      env = Environment(
-        standardOutput = ps,
-        standardError = ps
-      ),
+      env = env,
+      reporter = new ConsoleReporter(env.standardOutput),
       commands = List(
         CommandParser[HelpCommand],
         CommandParser[VersionCommand],
@@ -60,5 +64,25 @@ abstract class BaseSuite extends FunSuite {
       path,
       app
     )
+
+  def checkErrorOutput(
+      name: TestOptions,
+      arguments: List[String],
+      expectedOutput: String
+  ): Unit = {
+    checkOutput(name, arguments, expectedOutput, expectedExit = 1)
+  }
+  def checkOutput(
+      name: TestOptions,
+      arguments: List[String],
+      expectedOutput: String,
+      expectedExit: Int = 0
+  ): Unit = {
+    test(name) {
+      val exit = app().run(arguments)
+      assertEquals(exit, expectedExit, clues(app.capturedOutput))
+      assertNoDiff(app.capturedOutput, expectedOutput)
+    }
+  }
 
 }

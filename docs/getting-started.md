@@ -137,5 +137,6 @@ Finally, let's distribute a native-image binary for our `echo` command using the
 sbt-native-image packager.
 
 ```diff
-
+  // project/plugins.sbt
+  // build.sbt
 ```

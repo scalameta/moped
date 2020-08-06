@@ -1,8 +1,9 @@
+def scala212 = "2.12.12"
 inThisBuild(
   List(
     useSuperShell := false,
     scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0",
-    scalaVersion := "2.12.12",
+    scalaVersion := scala212,
     scalafixCaching := true,
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
@@ -19,6 +20,7 @@ skip.in(publish) := true
 lazy val moped = project
   .settings(
     libraryDependencies ++= List(
+      "org.graalvm.nativeimage" % "svm" % "20.1.0" % "compile-internal",
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
       "dev.dirs" % "directories" % "20",
@@ -44,49 +46,27 @@ lazy val tests = project
     buildInfoKeys := Seq[BuildInfoKey](
       "expectDirectory" -> sourceDirectory.in(Test).value./("expect")
     ),
-    mainClass.in(GraalVMNativeImage) := Some(
-      "tests.EchoCommand"
-    ),
-    graalVMNativeImageCommand ~= { old =>
-      import scala.util.Try
-      import java.nio.file.Paths
-      import scala.sys.process._
-      Try {
-        val jabba = Paths
-          .get(sys.props("user.home"))
-          .resolve(".jabba")
-          .resolve("bin")
-          .resolve("jabba")
-        val home = s"$jabba which --home graalvm@20.0.0".!!.trim()
-        Paths.get(home).resolve("bin").resolve("native-image").toString
-      }.getOrElse(old)
-    },
-    graalVMNativeImageOptions ++= {
-      val reflectionFile =
-        Keys.sourceDirectory.in(Compile).value./("graal")./("reflection.json")
-      assert(reflectionFile.exists, "no such file: " + reflectionFile)
-      List(
-        "-H:+ReportUnsupportedElementsAtRuntime",
-        "--initialize-at-build-time",
-        "--no-server",
-        "--enable-http",
-        "--enable-https",
-        "-H:EnableURLProtocols=http,https",
-        "--enable-all-security-services",
-        "--no-fallback",
-        s"-H:ReflectionConfigurationFiles=$reflectionFile",
-        "--allow-incomplete-classpath",
-        "-H:+ReportExceptionStackTraces"
-      )
-    }
+    mainClass.in(Compile) := Some("tests.EchoCommand"),
+    mopedNativeImageOptions ++= List(
+      "--initialize-at-build-time",
+      "--report-unsupported-elements-at-runtime"
+    )
   )
-  .enablePlugins(BuildInfoPlugin, GraalVMNativeImagePlugin)
+  .enablePlugins(BuildInfoPlugin, MopedPlugin)
   .dependsOn(testkit)
 
 val scalatagsVersion = Def.setting {
   if (scalaVersion.value.startsWith("2.11")) "0.6.7"
   else "0.7.0"
 }
+
+lazy val plugin = project
+  .in(file("moped-sbt"))
+  .settings(
+    sbtPlugin := true,
+    moduleName := "sbt-moped",
+    crossScalaVersions := List(scala212)
+  )
 
 lazy val docs = project
   .in(file("moped-docs"))

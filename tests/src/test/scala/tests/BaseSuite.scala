@@ -6,13 +6,13 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 
-import moped.commands.CompleteCommand
+import moped.commands.CompletionsCommand
 import moped.commands.HelpCommand
+import moped.commands.VersionCommand
 import moped.console.Application
 import moped.console.CommandParser
 import moped.console.Environment
 import munit.FunSuite
-import moped.commands.VersionCommand
 
 abstract class BaseSuite extends FunSuite {
 
@@ -40,7 +40,7 @@ abstract class BaseSuite extends FunSuite {
       commands = List(
         CommandParser[HelpCommand],
         CommandParser[VersionCommand],
-        CommandParser[CompleteCommand],
+        CommandParser[CompletionsCommand],
         CommandParser[WorkingDirectoryCommand],
         CommandParser[EchoCommand]
       )

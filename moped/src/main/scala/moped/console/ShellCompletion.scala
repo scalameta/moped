@@ -1,8 +1,9 @@
 package moped.console
 
-import java.nio.file.Path
-import moped.internal.console.Utils
 import java.nio.file.Files
+import java.nio.file.Path
+
+import moped.internal.console.Utils
 
 sealed abstract class ShellCompletion(app: Application) {
   def install(): Unit

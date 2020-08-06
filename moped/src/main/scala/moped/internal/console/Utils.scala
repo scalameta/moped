@@ -1,9 +1,10 @@
 package moped.internal.console
 
-import java.nio.file.Path
-import java.nio.file.Files
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+
 import scala.collection.JavaConverters._
 
 object Utils {

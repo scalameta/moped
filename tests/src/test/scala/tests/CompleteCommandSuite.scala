@@ -15,7 +15,8 @@ class CompleteCommandSuite extends BaseSuite {
       val current = if (isEmpty) args.length + 1 else args.length
       val exit = app().run(
         List(
-          "complete",
+          "completions",
+          "run",
           format,
           current.toString(),
           app().binaryName

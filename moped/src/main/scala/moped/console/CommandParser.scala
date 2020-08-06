@@ -8,11 +8,11 @@ import scala.language.experimental.macros
 import moped.annotations.CommandName
 import moped.annotations.Hidden
 import moped.annotations.TabCompleter
+import moped.internal.console.Cases
 import moped.internal.console.CommandLineParser
 import moped.json._
 import moped.macros._
 import org.typelevel.paiges.Doc
-import moped.internal.console.Cases
 
 trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   type Value = A

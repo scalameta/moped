@@ -6,6 +6,7 @@ import java.nio.file.StandardOpenOption
 import scala.collection.immutable.Nil
 
 import moped.annotations.CatchInvalidFlags
+import moped.annotations.CommandName
 import moped.annotations.Description
 import moped.annotations.PositionalArguments
 import moped.console.Application
@@ -29,7 +30,6 @@ import moped.json.JsonString
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.macros.ParameterShape
-import moped.annotations.CommandName
 
 object RunCompletionsCommand {
 

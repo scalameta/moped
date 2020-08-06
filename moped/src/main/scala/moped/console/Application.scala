@@ -1,9 +1,13 @@
 package moped.console
 
+import java.nio.file.Path
+import java.nio.file.Paths
+
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
+import dev.dirs.ProjectDirectories
 import fansi.Color
 import fansi.Str
 import moped.commands.HelpCommand
@@ -15,9 +19,6 @@ import moped.json.ErrorResult
 import moped.json.ValueResult
 import moped.reporters.ConsoleReporter
 import moped.reporters.Reporter
-import dev.dirs.ProjectDirectories
-import java.nio.file.Paths
-import java.nio.file.Path
 
 case class Application(
     binaryName: String,

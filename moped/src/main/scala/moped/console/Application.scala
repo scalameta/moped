@@ -24,7 +24,9 @@ case class Application(
     binaryName: String,
     version: String,
     commands: List[CommandParser[_]],
+    relativeCommands: List[CommandParser[_]] = Nil,
     arguments: List[String] = Nil,
+    relativeArguments: List[String] = Nil,
     projectQualifier: String = "",
     projectOrganization: String = "",
     onEmptyArguments: BaseCommand = new HelpCommand(),
@@ -60,33 +62,51 @@ case class Application(
     if (exit != 0) System.exit(exit)
   }
   def run(args: List[String]): Int = {
-    val app = this.copy(arguments = args)
-    val f: Future[Int] = args match {
-      case Nil => onEmptyArguments.runAsFuture(app)
-      case subcommand :: tail =>
-        commands.find(_.matchesName(subcommand)) match {
-          case Some(command) =>
-            val conf =
-              CommandLineParser.parseArgs[command.Value](tail)(
-                command.asClassShaper
-              )
-            val configured: DecodingResult[BaseCommand] =
-              conf.flatMap(elem => command.decodeCommand(DecodingContext(elem)))
-            configured match {
-              case ValueResult(value) =>
-                value.runAsFuture(app)
-              case ErrorResult(error) =>
-                error.all.foreach {
-                  case _: AggregateDiagnostic =>
-                  case diagnostic =>
-                    app.reporter.log(diagnostic)
+    def loop(
+        consumedArguments: List[String],
+        remainingArguments: List[String],
+        relativeCommands: List[CommandParser[_]]
+    ): Future[Int] = {
+      val app = this.copy(
+        arguments = remainingArguments,
+        relativeArguments = relativeArguments,
+        relativeCommands = relativeCommands
+      )
+      remainingArguments match {
+        case Nil => onEmptyArguments.runAsFuture(app)
+        case subcommand :: tail =>
+          relativeCommands.find(_.matchesName(subcommand)) match {
+            case Some(command) =>
+              val underlyingCommands = command.subcommands(app)
+              if (underlyingCommands.nonEmpty) {
+                loop(relativeArguments :+ subcommand, tail, underlyingCommands)
+              } else {
+                val conf =
+                  CommandLineParser.parseArgs[command.Value](tail)(
+                    command.asClassShaper
+                  )
+                val configured: DecodingResult[BaseCommand] =
+                  conf.flatMap(elem =>
+                    command.decodeCommand(DecodingContext(elem))
+                  )
+                configured match {
+                  case ValueResult(value) =>
+                    value.runAsFuture(app)
+                  case ErrorResult(error) =>
+                    error.all.foreach {
+                      case _: AggregateDiagnostic =>
+                      case diagnostic =>
+                        app.reporter.log(diagnostic)
+                    }
+                    Future.successful(1)
                 }
-                Future.successful(1)
-            }
-          case None =>
-            onNotRecognoziedCommand.runAsFuture(app)
-        }
+              }
+            case None =>
+              onNotRecognoziedCommand.runAsFuture(app)
+          }
+      }
     }
-    Await.result(f, Duration.Inf)
+    val value = loop(Nil, args, commands)
+    Await.result(value, Duration.Inf)
   }
 }

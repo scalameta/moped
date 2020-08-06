@@ -43,6 +43,7 @@ trait CommandParser[A <: BaseCommand] extends JsonCodec[A] {
   final def helpMessage(out: PrintStream, width: Int): Unit = {
     out.println(helpMessage.renderTrim(width))
   }
+  def subcommands: List[CommandParser[_]] = Nil
   def subcommandName: String =
     subcommandNames.headOption.getOrElse(fallbackSubcommandName)
   def subcommandNames: List[String] = {

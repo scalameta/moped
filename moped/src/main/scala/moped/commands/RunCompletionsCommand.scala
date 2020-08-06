@@ -34,7 +34,7 @@ import moped.annotations.CommandName
 object RunCompletionsCommand {
 
   def parser(app: Application): CommandParser[RunCompletionsCommand] = {
-    val default = RunCompletionsCommand(app)
+    val default = new RunCompletionsCommand(app.commands)
     new CodecCommandParser[RunCompletionsCommand](
       JsonCodec.encoderDecoderJsonCodec(
         ClassShaper(
@@ -65,9 +65,9 @@ object RunCompletionsCommand {
   }
 }
 
-case class RunCompletionsCommand(app: Application) extends Command {
-  def run(completionsApp: Application): Int = {
-    val (format, argumentLength, arguments) = completionsApp.arguments match {
+class RunCompletionsCommand(commands: List[CommandParser[_]]) extends Command {
+  def run(app: Application): Int = {
+    val (format, argumentLength, arguments) = app.arguments match {
       case _ :: "zsh" :: NumberExtractor(argumentLength) :: tail =>
         (new ZshCompletion(app), argumentLength.toInt, tail)
       case _ :: "bash" :: NumberExtractor(argumentLength) :: tail =>
@@ -87,28 +87,45 @@ case class RunCompletionsCommand(app: Application) extends Command {
     val argumentsWithTrailingEmptyString =
       if (isMissingTrailingEmptyString) arguments :+ ""
       else arguments
-    argumentsWithTrailingEmptyString match {
-      case _ :: _ :: Nil =>
-        renderCompletions(
-          app.commands
-            .filterNot(_.isHidden)
-            .map(p => TabCompletionItem(p.subcommandName)),
-          app
-        )
-      case _ :: subcommandName :: head :: tail =>
-        app.commands.find(_.matchesName(subcommandName)).foreach { subcommand =>
-          renderSubcommandCompletions(
-            argumentLength,
-            format,
-            subcommand,
-            head,
-            tail,
-            app
-          )
-        }
-      case _ =>
-    }
+    val completionItems =
+      completions(argumentsWithTrailingEmptyString, app, argumentLength, format)
+    renderCompletions(completionItems, app)
     0
+  }
+
+  private def completions(
+      arguments: List[String],
+      app: Application,
+      argumentLength: Int,
+      format: ShellCompletion
+  ): List[TabCompletionItem] = {
+    def loop(args: List[String]): List[TabCompletionItem] =
+      args match {
+        case _ :: _ :: Nil =>
+          commands
+            .filterNot(_.isHidden)
+            .map(p => TabCompletionItem(p.subcommandName))
+        case _ :: subcommandName :: head :: tail =>
+          commands.find(_.matchesName(subcommandName)) match {
+            case Some(subcommand) =>
+              if (subcommand.subcommands.nonEmpty) loop(head :: tail)
+              else {
+                renderSubcommandCompletions(
+                  argumentLength,
+                  format,
+                  subcommand,
+                  head,
+                  tail,
+                  app
+                )
+              }
+            case None =>
+              Nil
+          }
+        case _ =>
+          Nil
+      }
+    loop(arguments)
   }
 
   private def renderSubcommandCompletions(
@@ -118,7 +135,7 @@ case class RunCompletionsCommand(app: Application) extends Command {
       head: String,
       tail: List[String],
       app: Application
-  ): Unit = {
+  ): List[TabCompletionItem] = {
     val last = tail.lastOption.getOrElse(head)
     val inlined =
       CommandLineParser.allSettings(subcommand).filter {
@@ -143,8 +160,7 @@ case class RunCompletionsCommand(app: Application) extends Command {
       inlined,
       app
     )
-    val completionItems = tabCompletions(subcommand, context)
-    renderCompletions(completionItems, app)
+    tabCompletions(subcommand, context)
   }
 
   private def renderCompletions(

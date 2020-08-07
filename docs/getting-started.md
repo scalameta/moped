@@ -206,3 +206,57 @@ Hello world!
 $ ./echo/target/moped/echo --uppercase Hello world!
 HELLO WORLD!
 ```
+
+## Inspirations
+
+Moped is inspired by several existing libraries:
+
+- JavaScript/TypeScript: [oclif](https://oclif.io)
+- Java: [Picocli](https://picocli.info/)
+- Rust: [Structopt](https://docs.rs/structopt/0.3.16/structopt/)
+- Python: [Click](https://click.palletsprojects.com/en/7.x/)
+- Scala: [Ammonite](http://ammonite.io/#ScalaScripts)
+
+## Why Moped?
+
+You may be thinking that there are so many command-line parsing libraries out
+there, why create another one?
+
+Moped was created based on my experience of building the command-line tools for
+[Scalafmt](https://scalameta.org/scalafmt),
+[Scalafix](https://scalacenter.github.io/scalafix),
+[MDoc](https://scalameta.org/mdoc) and
+[Fastpass](https://github.com/scalameta/fastpass). None of those command-line
+tools currently use Moped, but they all share logic that has been copy-pasted
+from project to project. The honest answer for why Moped exists is that I want
+to stop copy-pasting large amounts of code every time I create a new
+command-line application.
+
+I have tried to use alternative libraries such as
+[Scopt](https://github.com/scopt/scopt) (still used by Scalafmt),
+[case-app](https://github.com/alexarchambault/case-app) (was used by Scalafix
+for a long time) and [Picocli](https://picocli.info/). These libraries work
+great for what they're advertised to do but in my particular use-cases I have
+needed additional features:
+
+- Low-boilerplate: after using scopt I observed that it required a lot of manual
+  work to introduce a new command-line argument. This worked fine while I was
+  the only contributor in the project but as soon as other people started
+  sending PRs I noticed it took a long time to review code because changes to
+  the command-line interface always required copy-pasting setting names and
+  flags to multiple different places (command-line parser, implementation code,
+  website documentation).
+- Reasonable compile-times and comprehensible compile errors: after using
+  case-app for a while I observed that it took a long time to compile my
+  command-line interface and I spent a lot of time struggling to troubleshoot
+  cryptic compile error messages. While I loved the low-boilerplate API of
+  case-app, I still didn't feel productive.
+- Holistic command-line/JSON/HOCON parsing and idiomatic Scala: after playing
+  around with Picocli I observed that I still nek
+
+Here are some of the features that
+
+Scalafi that needed similar functionality but doesn't exist currently in the
+Scala ecosystem:
+
+- Low-boilerplate:

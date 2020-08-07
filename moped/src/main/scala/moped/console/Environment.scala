@@ -1,12 +1,12 @@
 package moped.console
 
+import java.io.BufferedReader
 import java.io.PrintStream
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.{util => ju}
 
 import scala.collection.JavaConverters._
-import java.io.BufferedReader
 
 final case class Environment(
     standardOutput: PrintStream = Console.out,

@@ -49,18 +49,18 @@ case class EchoCommand(
 object EchoCommand {
   implicit val parser: CommandParser[EchoCommand] =
     CommandParser.derive(EchoCommand())
-  def main(args: Array[String]): Unit = {
-    val app = Application(
-      "tests",
-      "1.0.0",
-      commands = List(
-        CommandParser[HelpCommand],
-        CommandParser[VersionCommand],
-        CommandParser[TerminalsCommand],
-        CommandParser[EchoCommand],
-        CommandParser[CompletionsCommand]
-      )
+  lazy val app = Application(
+    "tests",
+    "1.0.0",
+    commands = List(
+      CommandParser[HelpCommand],
+      CommandParser[VersionCommand],
+      CommandParser[TerminalsCommand],
+      CommandParser[EchoCommand],
+      CommandParser[CompletionsCommand]
     )
+  )
+  def main(args: Array[String]): Unit = {
     Utils.appendLines(
       app.env.homeDirectory.resolve(".dump"),
       List(JsonArray(args.map(JsonString(_)).toList).toDoc.render(80))

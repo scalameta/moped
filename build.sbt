@@ -1,4 +1,6 @@
 def scala212 = "2.12.12"
+def graalvm = "20.1.0"
+def isCI = "true".equalsIgnoreCase(System.getenv("CI"))
 inThisBuild(
   List(
     useSuperShell := false,
@@ -20,10 +22,14 @@ skip.in(publish) := true
 lazy val moped = project
   .settings(
     libraryDependencies ++= List(
-      "org.graalvm.nativeimage" % "svm" % "20.1.0" % "compile-internal",
+      // The GraalVM native-image dependency is necessary to avoid runtime
+      // exceptions when running native binaries. The dependency is
+      // "compile-internal" because downstream users don't need it on their
+      // compile or runtime classpaths.
+      "org.graalvm.nativeimage" % "svm" % graalvm % "compile-internal",
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
       "dev.dirs" % "directories" % "20",
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
       "com.lihaoyi" %% "pprint" % "0.5.9",
       "com.lihaoyi" %% "fansi" % "0.2.7",
       "org.typelevel" %% "paiges-core" % "0.3.1"
@@ -65,13 +71,19 @@ lazy val plugin = project
   .settings(
     sbtPlugin := true,
     moduleName := "sbt-moped",
-    crossScalaVersions := List(scala212)
+    crossScalaVersions := List(scala212),
+    buildInfoPackage := "sbtmoped",
+    buildInfoKeys := Seq[BuildInfoKey](
+      version
+    )
   )
+  .enablePlugins(BuildInfoPlugin)
 
 lazy val docs = project
   .in(file("moped-docs"))
   .settings(
     moduleName := "moped-docs",
+    fork := isCI,
     libraryDependencies ++= List(
       "com.lihaoyi" %% "scalatags" % scalatagsVersion.value
     ),
@@ -86,15 +98,4 @@ lazy val docs = project
   .dependsOn(tests)
   .enablePlugins(DocusaurusPlugin)
 
-addCommandAlias(
-  "native-image",
-  "; tests/graalvm-native-image:packageBin ; taskready"
-)
-
-commands += Command.command("taskready") { s =>
-  import scala.sys.process._
-  if (System.getenv("CI") == null) {
-    scala.util.Try("say 'native-image ready'".!)
-  }
-  s
-}
+addCommandAlias("native-image", "tests/mopedNativeImage")

@@ -45,6 +45,11 @@ goals:
 
 ## Quick start
 
+Let's write a small `echo` command-line tool that prints its arguments to
+standard output.
+
+### Add library dependency
+
 ```diff
   // build.sbt
   lazy val echo = project
@@ -52,6 +57,8 @@ goals:
 +     libraryDependencies += "org.scalameta" %% "moped" % "@VERSION@"
     )
 ```
+
+### Implement the `echo` command
 
 Next, write a case class for your user configuration.
 
@@ -82,7 +89,13 @@ case class EchoCommand(
     0
   }
 }
-object HelloCommand {
+```
+
+Then, write a companion object that includes the automatically generated
+command-line parser and command-line application.
+
+```scala mdoc
+object EchoCommand {
   implicit lazy val parser = CommandParser.derive(EchoCommand())
   lazy val app = Application(
     binaryName = "echo",
@@ -94,23 +107,29 @@ object HelloCommand {
     )
   )
   def main(args: Array[String]): Unit = {
-    app.runSingleCommand(args.toList)
+    System.exit(app.runSingleCommand(args.toList))
   }
 }
 ```
 
+Let's run the application manually with a few example arguments to check that it
+works as expected.
+
 ```scala mdoc
-HelloCommand.app.runSingleCommand(List("Hello world!"))
+EchoCommand.app.runSingleCommand(List("Hello world!"))
 
-HelloCommand.app.runSingleCommand(List("--uppercase", "Hello world!"))
+EchoCommand.app.runSingleCommand(List("--uppercase", "Hello world!"))
 
-HelloCommand.app.runSingleCommand(List("--help"))
+EchoCommand.app.runSingleCommand(List("--help"))
 
-HelloCommand.app.runSingleCommand(List("--version"))
+EchoCommand.app.runSingleCommand(List("--version"))
 ```
 
-Next, add a dependency on Moped testkit to write end-to-end tests for your new
-echo application.
+### Write tests for `echo` command
+
+Manual tests are good just to get started but it's often more productive to
+iterate on the code by running tests. Let's add a dependency on Moped testkit
+and write tests for the `echo` application.
 
 ```diff
   // build.sbt
@@ -124,19 +143,66 @@ echo application.
 Next, add a test suite to verify the application works as expected.
 
 ```scala mdoc
-class EchoSuite extends moped.testkit.MopedSuite(HelloCommand.app) {
+// src/test/tests/EchoSuite.scala
+class EchoSuite extends moped.testkit.MopedSuite(EchoCommand.app) {
+  checkOutput(
+    "echo prints arguments unchanged to output",
+    List("echo", "Hello World"),
+    "Hello World"
+  )
   checkOutput(
     "--uppercase prints output in upper-case",
-    List("echo", "--uppercase", "hello world"),
+    List("echo", "--uppercase", "Hello World"),
     "HELLO WORLD"
+  )
+  checkErrorOutput(
+    "--upper does not exist",
+    List("echo", "--upper", "Hello World"),
+    """|error: found argument '--upper' which wasn't expected, or isn't valid in this context.
+       |	Did you mean '--uppercase'?
+       |""".stripMargin
   )
 }
 ```
 
-Finally, let's distribute a native-image binary for our `echo` command using the
-sbt-native-image packager.
+Run `sbt echo/test` to verify that the tests pass.
+
+### Build `echo` native-image
+
+For our `echo` application to be useful for other people we need some way to
+share it. Let's build a native-image binary for our `echo` command using the
+Moped sbt plugin.
 
 ```diff
   // project/plugins.sbt
++ addSbtPlugin("org.scalameta" % "sbt-moped" % "@VERSION@")
   // build.sbt
+  lazy val echo = project
+    .settings(
++     mainClass.in(Compile) := Some("echo.EchoCommand"),
+      libraryDependencies += "org.scalameta" %% "moped-testkit" % "@VERSION@" % Test,
+      testFrameworks += new TestFramework("munit.Framework"),
+    )
++   .enablePlugins(MopedPlugin)
+```
+
+Next, run `sbt echo/mopedNativeImage` to create a native-image binary. It's
+normal that this step takes a few minutes to complete.
+
+```sh
+$ sbt
+> echo/mopedNativeImage
+...
+[/path/to/echo:91465]    classlist:   6,709.72 ms,  1.36 GB
+...
+[/path/to/echo:91465]      [total]:  37,170.72 ms,  2.65 GB
+```
+
+Finally, run the `echo` binary.
+
+```sh
+$ ./echo/target/moped/echo Hello world!
+Hello world!
+$ ./echo/target/moped/echo --uppercase Hello world!
+HELLO WORLD!
 ```

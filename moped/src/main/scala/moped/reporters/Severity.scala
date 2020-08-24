@@ -21,16 +21,12 @@ object Severity {
       case other => throw new IndexOutOfBoundsException(other.toString())
     }
   def color(sev: Severity): Attrs =
-    if (Terminals.isColorEnabled) {
-      Attrs.Empty
-    } else {
-      sev match {
-        case SilentSeverity => Color.LightMagenta
-        case DebugSeverity => Color.LightGreen
-        case InfoSeverity => Color.LightBlue
-        case WarningSeverity => Color.LightYellow
-        case ErrorSeverity => Color.LightRed
-      }
+    sev match {
+      case SilentSeverity => Color.LightMagenta
+      case DebugSeverity => Color.LightGreen
+      case InfoSeverity => Color.LightBlue
+      case WarningSeverity => Color.LightYellow
+      case ErrorSeverity => Color.LightRed
     }
 }
 case object SilentSeverity extends Severity("silent", 0)

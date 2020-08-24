@@ -23,6 +23,8 @@ final case class Environment(
     environmentVariables: collection.Map[String, String] =
       System.getenv().asScala
 ) {
+  def isColorEnabled: Boolean =
+    environmentVariables.get("NO_COLOR").exists(_.equalsIgnoreCase("true"))
   def withProjectDirectories(dirs: ProjectDirectories): Environment =
     copy(
       dataDirectory = Paths.get(dirs.dataDir),

@@ -21,7 +21,6 @@ import moped.json.JsonEncoder
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
 import moped.macros.ParameterShape
-import moped.reporters.Terminals
 import org.typelevel.paiges.Doc
 
 object HelpCommand {
@@ -120,12 +119,12 @@ object HelpCommand {
 
 class HelpCommand(
     app: Application,
-    screenWidth: Int = Terminals.screenWidth(),
     appUsage: Application => Doc = app =>
       Doc.text(s"${app.binaryName} COMMAND [OPTIONS]"),
     appDescription: Application => Doc = _ => Doc.empty,
     appExamples: Application => Doc = _ => Doc.empty
 ) extends Command {
+  def screenWidth = app.terminal.screenWidth
   override def run(): Int = {
     app.relativeArguments match {
       case Nil =>

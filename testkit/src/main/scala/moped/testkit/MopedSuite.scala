@@ -15,12 +15,13 @@ import moped.json.JsonElement
 import moped.parsers.JsonParser
 import moped.reporters.ConsoleReporter
 import moped.reporters.Input
+import moped.reporters.Tput
 import munit.FunSuite
 import munit.Location
 import munit.TestOptions
 
 abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
-  val reporter = new ConsoleReporter(System.out)
+  val reporter: ConsoleReporter = ConsoleReporter(System.out)
   val temporaryDirectory = new DirectoryFixture
   def workingDirectory: Path = temporaryDirectory().resolve("workingDirectory")
   def preferencesDirectory: Path = temporaryDirectory().resolve("preferences")
@@ -52,7 +53,8 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
           standardOutput = ps,
           standardError = ps
         ),
-        reporter = new ConsoleReporter(ps)
+        tput = Tput.constant(120),
+        reporter = ConsoleReporter(ps, isColorEnabled = false)
       )
     def apply(): Application = instrumentedApp
     def reset(): Unit = {

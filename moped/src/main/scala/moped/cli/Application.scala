@@ -24,6 +24,8 @@ import moped.parsers.ConfigurationParser
 import moped.parsers.JsonParser
 import moped.reporters.ConsoleReporter
 import moped.reporters.Reporter
+import moped.reporters.Terminals
+import moped.reporters.Tput
 
 case class Application(
     binaryName: String,
@@ -48,10 +50,12 @@ case class Application(
     searcher: ConfigurationSearcher = new AggregateSearcher(
       List(ProjectSearcher, SystemSearcher)
     ),
-    token: CancelToken = CancelToken.empty()
+    token: CancelToken = CancelToken.empty(),
+    tput: Tput = Tput.system
 ) extends AlwaysDerivedParameter
     with AlwaysHiddenParameter {
   require(binaryName.nonEmpty, "binaryName must be non-empty")
+  val terminal = new Terminals(tput)
   def out = env.standardOutput
   def err = env.standardError
   def error(message: Str): Unit = {
@@ -113,7 +117,7 @@ object Application {
       version,
       commands,
       env = env,
-      reporter = new ConsoleReporter(env.standardOutput)
+      reporter = ConsoleReporter(env.standardOutput, env.isColorEnabled)
     )
   }
   def run(app: Application): Int = {

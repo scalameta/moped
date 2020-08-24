@@ -4,10 +4,11 @@ import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicInteger
 
 import fansi.Attrs
+import moped.cli.Environment
 
-class ConsoleReporter(
+class ConsoleReporter private (
     ps: PrintStream,
-    severityColor: Severity => Attrs = sev => Severity.color(sev)
+    severityColor: Severity => Attrs
 ) extends Reporter {
 
   private val counts: Map[Severity, AtomicInteger] =
@@ -24,4 +25,18 @@ class ConsoleReporter(
   override def warningCount(): Int = counts(WarningSeverity).get()
   override def reset(): Unit = counts.valuesIterator.foreach(_.set(0))
 
+}
+
+object ConsoleReporter {
+  def apply(ps: PrintStream): ConsoleReporter = {
+    ConsoleReporter(ps, Environment.default.isColorEnabled)
+  }
+  def apply(ps: PrintStream, isColorEnabled: Boolean): ConsoleReporter = {
+    new ConsoleReporter(
+      ps,
+      severityColor = sev =>
+        if (isColorEnabled) Severity.color(sev)
+        else Attrs.Empty
+    )
+  }
 }

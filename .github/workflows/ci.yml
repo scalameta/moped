@@ -20,7 +20,7 @@ jobs:
           java-version: "adopt@1.${{ matrix.java }}"
       - run: sbt coverage test coverageReport
         shell: bash
-      - run: pip install --user coverage && codecov
+      - run: bash <(curl -s https://codecov.io/bash)
         shell: bash
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

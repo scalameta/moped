@@ -62,7 +62,7 @@ class ConfigCommandSuite extends BaseSuite {
   checkErrorOutput(
     "hocon-error",
     List("config"),
-    """|/workingDirectory/.tests.conf:2:0 error: Expecting a value but got wrong token: end of file
+    """|/workingDirectory/.tests.conf:2 error: Expecting a value but got wrong token: end of file
        |foobar =
        |        ^
        |""".stripMargin,
@@ -74,7 +74,7 @@ class ConfigCommandSuite extends BaseSuite {
   checkErrorOutput(
     "hocon-type-error",
     List("config"),
-    """|/workingDirectory/.tests.conf:1:0 error: Type mismatch;
+    """|/workingDirectory/.tests.conf:1 error: Type mismatch;
        |  found    : JsonString
        |  expected : JsonBoolean
        |foobar = message
@@ -109,7 +109,7 @@ class ConfigCommandSuite extends BaseSuite {
   checkErrorOutput(
     "toml-type-error",
     List("config"),
-    """|<none>:0 error: Type mismatch;
+    """|error: Type mismatch;
        |  found    : JsonString
        |  expected : JsonBoolean
        |""".stripMargin,
@@ -130,7 +130,7 @@ class ConfigCommandSuite extends BaseSuite {
   checkErrorOutput(
     "yaml-error",
     List("config"),
-    """|/workingDirectory/.tests.yaml:2:0 error: found unexpected end of stream
+    """|/workingDirectory/.tests.yaml:2 error: found unexpected end of stream
        |foobar: "
        |         ^
        |""".stripMargin,
@@ -166,7 +166,7 @@ class ConfigCommandSuite extends BaseSuite {
   checkErrorOutput(
     "dhall-error",
     List("config"),
-    """|/workingDirectory/.tests.dhall:3:0 error: Encountered unexpected token: <EOF>. Was expecting one of: "," "}"
+    """|/workingDirectory/.tests.dhall:3 error: Encountered unexpected token: <EOF>. Was expecting one of: "," "}"
        |{ foobar = hel
        |              ^
        |""".stripMargin,
@@ -179,7 +179,7 @@ class ConfigCommandSuite extends BaseSuite {
   checkErrorOutput(
     "dhall-type-error",
     List("config"),
-    """|<none>:0 error: Type mismatch;
+    """|error: Type mismatch;
        |  found    : JsonString
        |  expected : JsonBoolean
        |""".stripMargin,
@@ -223,7 +223,7 @@ class ConfigCommandSuite extends BaseSuite {
   )
 
   checkErrorOutput(
-    "jsonnet-type-error".only,
+    "jsonnet-type-error",
     List("config"),
     """|error: Type mismatch;
        |  found    : JsonString

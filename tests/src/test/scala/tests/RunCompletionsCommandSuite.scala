@@ -71,7 +71,7 @@ class RunCompletionsCommandSuite extends BaseSuite {
   )
 
   checkCompletions(
-    "echo-uppercase".only,
+    "echo-uppercase",
     List("echo", "--uppercase"),
     allFlags
   )

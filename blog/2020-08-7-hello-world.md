@@ -80,9 +80,10 @@ case class EchoCommand(
   @Description("If true, prints the output in UPPERCASE")
   uppercase: Boolean = false,
   @PositionalArguments()
-  arguments: List[String] = Nil
+  arguments: List[String] = Nil,
+  app: Application = Application.default
 ) extends Command {
-  def run(app: Application): Int = {
+  def run(): Int = {
     val toPrint =
       if (uppercase) arguments.map(_.toUpperCase)
       else arguments

@@ -64,7 +64,6 @@ Next, write a case class for your user configuration.
 
 ```scala mdoc
 import moped.annotations._
-import moped.commands._
 import moped.cli._
 
 @Description("Writes arguments to standard output")
@@ -81,11 +80,11 @@ case class EchoCommand(
   @PositionalArguments
   arguments: List[String] = Nil
 ) extends Command {
-  def run(app: Application): Int = {
+  def run(): Int = {
     val toPrint =
       if (uppercase) arguments.map(_.toUpperCase)
       else arguments
-    app.out.println(toPrint.mkString(" "))
+    println(toPrint.mkString(" "))
     0
   }
 }
@@ -95,9 +94,10 @@ Then, write a companion object that includes the automatically generated
 command-line parser and command-line application.
 
 ```scala mdoc
+import moped.commands._
 object EchoCommand {
   implicit lazy val parser = CommandParser.derive(EchoCommand())
-  lazy val app = Application(
+  lazy val app = Application.fromName(
     binaryName = "echo",
     version = "1.0.0",
     commands = List(

@@ -4,10 +4,14 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
+import scala.util.control.NonFatal
 
 import dev.dirs.ProjectDirectories
 import fansi.Color
 import fansi.Str
+import moped.annotations.CatchInvalidFlags
+import moped.annotations.CommandName
+import moped.annotations.PositionalArguments
 import moped.commands.HelpCommand
 import moped.internal.console.CommandLineParser
 import moped.internal.diagnostics.AggregateDiagnostic
@@ -16,16 +20,20 @@ import moped.json.AlwaysHiddenParameter
 import moped.json.DecodingContext
 import moped.json.DecodingResult
 import moped.json.ErrorResult
+import moped.json.JsonDecoder
 import moped.json.JsonElement
+import moped.json.JsonEncoder
 import moped.json.JsonObject
 import moped.json.ValueResult
 import moped.macros.ClassShape
+import moped.macros.ParameterShape
 import moped.parsers.ConfigurationParser
 import moped.parsers.JsonParser
 import moped.reporters.ConsoleReporter
 import moped.reporters.Reporter
 import moped.reporters.Terminals
 import moped.reporters.Tput
+import os.Shellable
 
 case class Application(
     binaryName: String,
@@ -51,7 +59,9 @@ case class Application(
       List(ProjectSearcher, SystemSearcher)
     ),
     token: CancelToken = CancelToken.empty(),
-    tput: Tput = Tput.system
+    mockedProcesses: List[Application] = Nil,
+    tput: Tput = Tput.system,
+    isSingleCommand: Boolean = false
 ) extends AlwaysDerivedParameter
     with AlwaysHiddenParameter {
   require(binaryName.nonEmpty, "binaryName must be non-empty")
@@ -68,6 +78,9 @@ case class Application(
     env.standardError.println(Color.LightBlue("info: ") ++ message)
   }
 
+  def process(command: Shellable*): SpawnableProcess =
+    new SpawnableProcess(command, env, mockedProcesses)
+
   def consumedArguments: List[String] =
     arguments.dropRight(relativeArguments.length)
 
@@ -75,7 +88,11 @@ case class Application(
     val exit = run(args)
     if (exit != 0) System.exit(exit)
   }
-  def runSingleCommand(arguments: List[String]): Int = {
+  def run(arguments: List[String]): Int = {
+    if (isSingleCommand) runSingleCommand(arguments)
+    else Application.run(this.copy(arguments = arguments))
+  }
+  private def runSingleCommand(arguments: List[String]): Int = {
     val singleCommand = commands
       .find { c =>
         c.subcommandName != "version" &&
@@ -84,7 +101,10 @@ case class Application(
       .orElse(commands.headOption)
     singleCommand match {
       case Some(command) =>
-        run(command.subcommandName :: arguments)
+        val newArguments = command.subcommandName :: arguments
+        Application.run(
+          this.copy(arguments = command.subcommandName :: arguments)
+        )
       case None =>
         this.error(
           "can't run command since the commands list is empty. " +
@@ -92,9 +112,6 @@ case class Application(
         )
         1
     }
-  }
-  def run(arguments: List[String]): Int = {
-    Application.run(this.copy(arguments = arguments))
   }
 }
 
@@ -120,15 +137,63 @@ object Application {
       reporter = ConsoleReporter(env.standardOutput, env.isColorEnabled)
     )
   }
+
+  def simple(binaryName: String)(fn: Application => Int): Application = {
+    single(
+      binaryName,
+      app =>
+        new Command {
+          def run(): Int = {
+            try fn(app)
+            catch {
+              case NonFatal(e) =>
+                e.printStackTrace(app.err)
+                1
+            }
+          }
+        }
+    )
+  }
+
+  def single(
+      binaryName: String,
+      command: Application => BaseCommand
+  ): Application = {
+    val app = Application
+      .fromName(
+        binaryName,
+        version = "1.0.0",
+        commands = List(
+          new CommandParser[BaseCommand](
+            JsonEncoder.unitJsonEncoder.contramap[BaseCommand](_ => ()),
+            JsonDecoder.applicationJsonDecoder.map(a => command(a)),
+            command(Application.default),
+            ClassShape(
+              binaryName,
+              binaryName,
+              List(
+                List(
+                  new ParameterShape(
+                    "arguments",
+                    "List[String]",
+                    List(new PositionalArguments(), new CatchInvalidFlags()),
+                    None
+                  )
+                )
+              ),
+              List(new CommandName(binaryName))
+            )
+          )
+        )
+      )
+      .copy(isSingleCommand = true)
+    app
+  }
+
   def run(app: Application): Int = {
     implicit val ec = app.executionContext
     val args = app.preProcessArguments(app.arguments)
     val base = app.copy(commands = app.commands.map(_.withApplication(app)))
-    val params =
-      base.commands
-        .find(_.matchesName("completions"))
-        .toList
-        .flatMap(_.nestedCommands.map(_.parameters))
     def loop(n: Int, relativeCommands: List[CommandParser[_]]): Future[Int] = {
       val app = base.copy(
         arguments = args,
@@ -177,13 +242,21 @@ object Application {
           }
       }
     }
-    val future = loop(0, base.commands)
-    val exit = future.value match {
-      case Some(value) => value.get
-      case None => Await.result(future, Duration.Inf)
+    try {
+      val future =
+        loop(0, base.commands)
+      val exit = future.value match {
+        case Some(value) => value.get
+        case None => Await.result(future, Duration.Inf)
+      }
+      exit
+    } catch {
+      case NonFatal(e) =>
+        e.printStackTrace(app.err)
+        1
+    } finally {
+      app.out.flush()
+      app.err.flush()
     }
-    app.out.flush()
-    app.err.flush()
-    exit
   }
 }

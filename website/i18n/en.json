@@ -5,6 +5,9 @@
     "previous": "Previous",
     "tagline": "Scala library to build command-line applications",
     "docs": {
+      "configuration": {
+        "title": "Configuration"
+      },
       "getting-started": {
         "title": "Getting started"
       },

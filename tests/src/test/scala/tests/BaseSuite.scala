@@ -30,6 +30,9 @@ abstract class BaseSuite
             YamlParser,
             DhallParser,
             JsonnetParser
+          ),
+          mockedProcesses = List(
+            Application.single("zsh", app => new MockedZshCommand(app))
           )
         )
     ) {}

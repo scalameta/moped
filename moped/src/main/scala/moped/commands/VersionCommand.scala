@@ -29,7 +29,7 @@ object VersionCommand {
           )
         ),
         JsonEncoder.stringJsonEncoder.contramap[VersionCommand](_ => ""),
-        JsonDecoder.constant(default)
+        JsonDecoder.applicationJsonDecoder.map(app => new VersionCommand(app))
       ),
       default
     )

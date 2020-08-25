@@ -112,7 +112,9 @@ object MopedPlugin extends AutoPlugin {
 
         // Start native-image linker.
         streams.value.log.info(command.mkString(" "))
-        val exit = Process(command, cwd = Some(target.in(Moped).value)).!
+        val cwd = target.in(Moped).value
+        cwd.mkdirs()
+        val exit = Process(command, cwd = Some(cwd)).!
         if (exit != 0) {
           throw new MessageOnlyException(
             s"native-image command failed with exit code '$exit'"

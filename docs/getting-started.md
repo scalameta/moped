@@ -62,9 +62,8 @@ standard output.
 
 Next, write a case class for your user configuration.
 
-```scala mdoc
+```scala mdoc:reset-object
 import moped.annotations._
-import moped.commands._
 import moped.cli._
 
 @Description("Writes arguments to standard output")
@@ -79,9 +78,10 @@ case class EchoCommand(
   @Description("If true, prints the output in UPPERCASE")
   uppercase: Boolean = false,
   @PositionalArguments
-  arguments: List[String] = Nil
+  arguments: List[String] = Nil,
+  app: Application = Application.default
 ) extends Command {
-  def run(app: Application): Int = {
+  def run(): Int = {
     val toPrint =
       if (uppercase) arguments.map(_.toUpperCase)
       else arguments
@@ -95,9 +95,10 @@ Then, write a companion object that includes the automatically generated
 command-line parser and command-line application.
 
 ```scala mdoc
+import moped.commands._
 object EchoCommand {
   implicit lazy val parser = CommandParser.derive(EchoCommand())
-  lazy val app = Application(
+  lazy val app = Application.fromName(
     binaryName = "echo",
     version = "1.0.0",
     commands = List(
@@ -105,9 +106,9 @@ object EchoCommand {
       CommandParser[HelpCommand],
       CommandParser[VersionCommand],
     )
-  )
+  ).copy(isSingleCommand = true)
   def main(args: Array[String]): Unit = {
-    System.exit(app.runSingleCommand(args.toList))
+    System.exit(app.run(args.toList))
   }
 }
 ```
@@ -116,13 +117,13 @@ Let's run the application manually with a few example arguments to check that it
 works as expected.
 
 ```scala mdoc
-EchoCommand.app.runSingleCommand(List("Hello world!"))
+EchoCommand.app.run(List("Hello world!"))
 
-EchoCommand.app.runSingleCommand(List("--uppercase", "Hello world!"))
+EchoCommand.app.run(List("--uppercase", "Hello world!"))
 
-EchoCommand.app.runSingleCommand(List("--help"))
+EchoCommand.app.run(List("--help"))
 
-EchoCommand.app.runSingleCommand(List("--version"))
+EchoCommand.app.run(List("--version"))
 ```
 
 ### Write tests for `echo` command
@@ -142,30 +143,57 @@ and write tests for the `echo` application.
 
 Next, add a test suite to verify the application works as expected.
 
+```scala mdoc:invisible
+import org.junit.runner._
+val junit = new JUnitCore()
+junit.addListener(new moped.testkit.MopedTextListener())
+def runTestSuite[T <: munit.Suite](implicit ev: scala.reflect.ClassTag[T]) =
+  junit.run(new munit.MUnitRunner(ev.runtimeClass.asInstanceOf[Class[munit.Suite]]))
+```
+
 ```scala mdoc
 // src/test/tests/EchoSuite.scala
 class EchoSuite extends moped.testkit.MopedSuite(EchoCommand.app) {
   checkOutput(
     "echo prints arguments unchanged to output",
-    List("echo", "Hello World"),
-    "Hello World"
+    arguments = List("echo", "Hello World"),
+    expectedOutput = "Hello World"
   )
   checkOutput(
     "--uppercase prints output in upper-case",
-    List("echo", "--uppercase", "Hello World"),
-    "HELLO WORLD"
+    arguments = List("echo", "--uppercase", "Hello World"),
+    expectedOutput = "HELLO WORLD"
   )
   checkErrorOutput(
     "--upper does not exist",
     List("echo", "--upper", "Hello World"),
-    """|error: found argument '--upper' which wasn't expected, or isn't valid in this context.
-       |	Did you mean '--uppercase'?
-       |""".stripMargin
+    expectedOutput =
+     """|error: found argument '--upper' which wasn't expected, or isn't valid in this context.
+        |	Did you mean '--uppercase'?
+        |""".stripMargin
   )
 }
+
+runTestSuite[EchoSuite]
 ```
 
 Run `sbt echo/test` to verify that the tests pass.
+
+Failing test are reported with diffs comparing the expected output with the
+obtained output.
+
+```scala mdoc
+// src/test/tests/FailingSuite.scala
+class FailingSuite extends moped.testkit.MopedSuite(EchoCommand.app) {
+  checkOutput(
+    "echo prints arguments unchanged to output",
+    arguments = List("echo", "Hello World"),
+    expectedOutput = "Goodbye World"
+  )
+}
+
+runTestSuite[FailingSuite]
+```
 
 ### Build `echo` native-image
 

@@ -19,6 +19,7 @@ import moped.reporters.Tput
 import munit.FunSuite
 import munit.Location
 import munit.TestOptions
+import munit.internal.console.AnsiColors
 
 abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
   val reporter: ConsoleReporter = ConsoleReporter(System.out)
@@ -27,6 +28,7 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
   def preferencesDirectory: Path = temporaryDirectory().resolve("preferences")
   def cacheDirectory: Path = temporaryDirectory().resolve("cache")
   def dataDirectory: Path = temporaryDirectory().resolve("data")
+  def homeDirectory: Path = temporaryDirectory().resolve("home")
   val app = new ApplicationFixture(applicationToTest)
 
   class DirectoryFixture extends Fixture[Path]("Directory") {
@@ -44,24 +46,31 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
       extends Fixture[Application]("Application") {
     private val out = new ByteArrayOutputStream
     private val ps = new PrintStream(out)
+    private val tput = Tput.constant(120)
+    private val reporter = ConsoleReporter(ps, isColorEnabled = false)
     private def instrumentedApp =
       app.copy(
         env = app.env.copy(
-          workingDirectory = workingDirectory,
+          dataDirectory = dataDirectory,
           cacheDirectory = cacheDirectory,
           preferencesDirectory = preferencesDirectory,
+          workingDirectory = Files.createDirectories(workingDirectory),
+          homeDirectory = homeDirectory,
           standardOutput = ps,
           standardError = ps
         ),
-        tput = Tput.constant(120),
-        reporter = ConsoleReporter(ps, isColorEnabled = false)
+        tput = tput,
+        reporter = reporter,
+        mockedProcesses = app.mockedProcesses.map(
+          _.copy(tput = tput, reporter = reporter)
+        )
       )
     def apply(): Application = instrumentedApp
     def reset(): Unit = {
       out.reset()
     }
     def capturedOutput: String = {
-      out.toString(StandardCharsets.UTF_8.name())
+      AnsiColors.filterAnsi(out.toString(StandardCharsets.UTF_8.name()))
     }
     override def beforeEach(context: BeforeEach): Unit = {
       reset()

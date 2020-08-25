@@ -9,6 +9,8 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.BasicFileAttributes
 
+import scala.collection.mutable
+
 import moped.internal.console.Utils
 
 object FileLayout {
@@ -20,6 +22,7 @@ object FileLayout {
     if (!Files.isDirectory(root)) return ""
     import scala.collection.JavaConverters._
     val out = new StringBuilder()
+    val buf = mutable.ArrayBuffer.empty[Path]
     Files.walkFileTree(
       root,
       new SimpleFileVisitor[Path] {
@@ -35,23 +38,26 @@ object FileLayout {
             attrs: BasicFileAttributes
         ): FileVisitResult = {
           if (includePath(file)) {
-            val relpath = root.relativize(file).iterator().asScala.mkString("/")
-            out.append("/").append(relpath)
-            if (attrs.isSymbolicLink()) {
-              out
-                .append(" -> ")
-                .append(Files.readSymbolicLink(file))
-
-            } else {
-              val text = Utils.readFile(file)
-              out.append("\n").append(text)
-            }
-            out.append("\n")
+            buf += file
           }
           FileVisitResult.CONTINUE
         }
       }
     )
+    buf.sorted.foreach { file =>
+      val relpath = root.relativize(file).iterator().asScala.mkString("/")
+      out.append("/").append(relpath)
+      if (Files.isSymbolicLink(file)) {
+        out
+          .append(" -> ")
+          .append(Files.readSymbolicLink(file))
+
+      } else {
+        val text = Utils.readFile(file)
+        out.append("\n").append(text)
+      }
+      out.append("\n")
+    }
     out.toString()
   }
 

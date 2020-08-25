@@ -4,6 +4,7 @@ import java.io.BufferedReader
 import java.io.PrintStream
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.Clock
 import java.{util => ju}
 
 import scala.collection.JavaConverters._
@@ -14,6 +15,7 @@ final case class Environment(
     dataDirectory: Path,
     cacheDirectory: Path,
     preferencesDirectory: Path,
+    // TODO(olafur): Make sure these system props don't get linked at build time.
     workingDirectory: Path = Paths.get(System.getProperty("user.dir")),
     homeDirectory: Path = Paths.get(System.getProperty("user.home")),
     standardOutput: PrintStream = Console.out,
@@ -21,7 +23,8 @@ final case class Environment(
     standardInput: BufferedReader = Console.in,
     systemProperties: ju.Properties = System.getProperties(),
     environmentVariables: collection.Map[String, String] =
-      System.getenv().asScala
+      System.getenv().asScala,
+    clock: Clock = Clock.systemDefaultZone()
 ) {
   def isColorEnabled: Boolean =
     environmentVariables.get("NO_COLOR").exists(_.equalsIgnoreCase("true"))

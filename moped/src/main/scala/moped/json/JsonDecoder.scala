@@ -33,26 +33,33 @@ object JsonDecoder {
       fn: PartialFunction[JsonElement, DecodingResult[A]]
   ): JsonDecoder[A] = { context =>
     fn.applyOrElse[JsonElement, DecodingResult[A]](
+      // TODO: missing context on success
       context.json,
       _ => ErrorResult(new TypeMismatchDiagnostic(expected, context))
     )
   }
   implicit val jsonElementJsonDecoder: JsonDecoder[JsonElement] =
     context => ValueResult(context.json)
+  // TODO(olafur): T <: JsonElement decoders
+  // TODO(olafur): Position decoder
+  implicit val jsonStringDecoder: JsonDecoder[JsonString] =
+    fromJson[JsonString]("String") {
+      case j: JsonString => ValueResult(j)
+    }
   implicit val intJsonDecoder: JsonDecoder[Int] =
-    fromJson[Int]("JsonNumber") {
+    fromJson[Int]("Int") {
       case JsonNumber(value) => ValueResult(value.toInt)
     }
   implicit val doubleJsonDecoder: JsonDecoder[Double] =
-    fromJson[Double]("JsonNumber") {
+    fromJson[Double]("Double") {
       case JsonNumber(value) => ValueResult(value)
     }
   implicit val stringJsonDecoder: JsonDecoder[String] =
-    fromJson[String]("JsonString") {
+    fromJson[String]("String") {
       case JsonString(value) => ValueResult(value)
     }
   implicit val booleanJsonDecoder: JsonDecoder[Boolean] =
-    fromJson[Boolean]("JsonBoolean") {
+    fromJson[Boolean]("Boolean") {
       case JsonBoolean(value) => ValueResult(value)
     }
   implicit val unitJsonDecoder: JsonDecoder[Unit] =
@@ -86,7 +93,7 @@ object JsonDecoder {
           case None => ValueResult(successValues.result())
         }
       case _ =>
-        ErrorResult(new TypeMismatchDiagnostic("JsonArray", context))
+        ErrorResult(new TypeMismatchDiagnostic("Array", context))
     }
   }
 
@@ -111,7 +118,7 @@ object JsonDecoder {
           case None => ValueResult(successValues.result())
         }
       case _ =>
-        ErrorResult(new TypeMismatchDiagnostic("JsonObject", context))
+        ErrorResult(new TypeMismatchDiagnostic("Object", context))
     }
   }
 

@@ -18,6 +18,7 @@ abstract class Diagnostic(
     Diagnostic.fromDiagnostics(this, other :: Nil)
   }
 
+  // TODO(olafur): should we use something like Doc instead of String? Union type?
   def message: String
 
   def all: List[Diagnostic] = {
@@ -29,6 +30,8 @@ abstract class Diagnostic(
     loop(this)
     buf.result()
   }
+
+  def pretty: String = position.pretty(severity.toString(), message)
 
   def overrideSeverity(why: String, newSeverity: Severity): Unit = {
     severityOverrides += new OverrideSeverityDiagnostic(why, newSeverity)
@@ -50,7 +53,17 @@ object Diagnostic {
       case _ => new ThrowableDiagnostic(e)
     }
   def typeMismatch(expected: String, context: DecodingContext): Diagnostic =
-    new TypeMismatchDiagnostic(expected, context)
+    typeMismatch(
+      expected,
+      context.json.productPrefix.stripPrefix("Json"),
+      context
+    )
+  def typeMismatch(
+      expected: String,
+      obtained: String,
+      context: DecodingContext
+  ): Diagnostic =
+    new TypeMismatchDiagnostic(expected, obtained, context)
   def fromDiagnostics(head: Diagnostic, other: List[Diagnostic]): Diagnostic = {
     fromDiagnostics(head :: other).getOrElse(head)
   }

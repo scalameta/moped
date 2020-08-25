@@ -23,6 +23,8 @@ inThisBuild(
     scalafixCaching := true,
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
+    publishArtifact.in(Compile, packageDoc) := isCI,
+    publishArtifact.in(packageDoc) := isCI,
     scalacOptions ++= List(
       "-Ywarn-unused:imports",
       "-Yrangepos"
@@ -36,11 +38,6 @@ skip.in(publish) := true
 lazy val moped = project
   .settings(
     libraryDependencies ++= List(
-      // The GraalVM native-image dependency is necessary to avoid runtime
-      // exceptions when running native binaries. The dependency is
-      // "compile-internal" because downstream users don't need it on their
-      // compile or runtime classpaths.
-      "org.graalvm.nativeimage" % "svm" % graalvm % "compile-internal",
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "dev.dirs" % "directories" % "20",
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
@@ -103,7 +100,9 @@ lazy val jsonnet = project
   .dependsOn(moped)
 
 lazy val testkit = project
+  .in(file("moped-testkit"))
   .settings(
+    moduleName := "moped-testkit",
     libraryDependencies ++= List(
       "org.scalameta" %% "munit" % "0.7.10"
     )
@@ -119,12 +118,12 @@ lazy val tests = project
       "expectDirectory" -> sourceDirectory.in(Test).value./("expect")
     ),
     mainClass.in(Compile) := Some("tests.EchoCommand"),
-    mopedNativeImageOptions ++= List(
+    nativeImageOptions ++= List(
       "--initialize-at-build-time",
       "--report-unsupported-elements-at-runtime"
     )
   )
-  .enablePlugins(BuildInfoPlugin, MopedPlugin)
+  .enablePlugins(BuildInfoPlugin, NativeImagePlugin)
   .dependsOn(testkit, hocon, toml, yaml, dhall, jsonnet)
 
 val scalatagsVersion = Def.setting {
@@ -150,11 +149,13 @@ lazy val docs = project
   .settings(
     moduleName := "moped-docs",
     fork := isCI,
+    skip in publish := true,
     libraryDependencies ++= List(
       "com.lihaoyi" %% "scalatags" % scalatagsVersion.value
     ),
     mdocVariables := Map(
       "VERSION" -> version.value.replaceFirst("\\+.*", ""),
+      "NATIVE_IMAGE_PLUGIN" -> "???",
       "SCALA_VERSION" -> scalaVersion.value
     ),
     mdocOut :=

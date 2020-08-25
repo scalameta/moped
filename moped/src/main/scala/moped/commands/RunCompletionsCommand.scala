@@ -66,12 +66,15 @@ object RunCompletionsCommand {
 
 class RunCompletionsCommand(app: Application) extends Command {
   def run(): Int = {
+    // NOTE(olafur) the shell names are versioned like "zsh-v1" instead of "zsh"
+    // so that we can change the auto-generated completion scripts in the future
+    // and support multiple versions at the same time.
     val (format, argumentLength, arguments) = app.relativeArguments match {
-      case "zsh" :: NumberExtractor(argumentLength) :: tail =>
+      case ZshCompletion.v1 :: NumberExtractor(argumentLength) :: tail =>
         (new ZshCompletion(app), argumentLength.toInt, tail)
-      case "bash" :: NumberExtractor(argumentLength) :: tail =>
+      case BashCompletion.v1 :: NumberExtractor(argumentLength) :: tail =>
         (new BashCompletion(app), argumentLength.toInt, tail)
-      case "fish" :: tail =>
+      case FishCompletion.v1 :: tail =>
         // Fish completions pass in an empty string "" as the last argument so we
         // don't need the second argument to know `tail.length`
         (new FishCompletion(app), tail.length, tail)

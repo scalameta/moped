@@ -36,6 +36,7 @@ object Utils {
   }
 
   def filterLinesMatching(path: Path, query: String): Unit = {
+    if (!Files.isRegularFile(path)) return
     val before = Files.readAllLines(path).asScala
     val after = before.filterNot(_.contains(query))
     if (!before.sameElements(after)) {

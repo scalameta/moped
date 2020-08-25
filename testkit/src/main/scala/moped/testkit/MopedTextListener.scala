@@ -1,9 +1,10 @@
 package moped.testkit
 
+import java.io.PrintStream
+
+import munit.internal.console.AnsiColors
 import org.junit.internal.TextListener
 import org.junit.runner.notification.Failure
-import java.io.PrintStream
-import munit.internal.console.AnsiColors
 
 class MopedTextListener(writer: PrintStream = Console.out)
     extends TextListener(writer) {

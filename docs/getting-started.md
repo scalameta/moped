@@ -106,9 +106,9 @@ object EchoCommand {
       CommandParser[HelpCommand],
       CommandParser[VersionCommand],
     )
-  )
+  ).copy(isSingleCommand = true)
   def main(args: Array[String]): Unit = {
-    System.exit(app.runSingleCommand(args.toList))
+    System.exit(app.run(args.toList))
   }
 }
 ```
@@ -117,13 +117,13 @@ Let's run the application manually with a few example arguments to check that it
 works as expected.
 
 ```scala mdoc
-EchoCommand.app.runSingleCommand(List("Hello world!"))
+EchoCommand.app.run(List("Hello world!"))
 
-EchoCommand.app.runSingleCommand(List("--uppercase", "Hello world!"))
+EchoCommand.app.run(List("--uppercase", "Hello world!"))
 
-EchoCommand.app.runSingleCommand(List("--help"))
+EchoCommand.app.run(List("--help"))
 
-EchoCommand.app.runSingleCommand(List("--version"))
+EchoCommand.app.run(List("--version"))
 ```
 
 ### Write tests for `echo` command

@@ -7,7 +7,7 @@ class RunCompletionsCommandSuite extends BaseSuite {
       name: TestOptions,
       args: List[String],
       expected: List[String],
-      format: String = "zsh"
+      format: String = "zsh-v1"
   )(implicit loc: munit.Location): Unit = {
     test(name) {
       val isEmpty = args.nonEmpty && args.last == ""

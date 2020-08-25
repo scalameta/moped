@@ -14,11 +14,11 @@ final case class Environment(
     dataDirectory: Path,
     cacheDirectory: Path,
     preferencesDirectory: Path,
+    workingDirectory: Path = Paths.get(System.getProperty("user.dir")),
+    homeDirectory: Path = Paths.get(System.getProperty("user.home")),
     standardOutput: PrintStream = Console.out,
     standardError: PrintStream = Console.err,
     standardInput: BufferedReader = Console.in,
-    workingDirectory: Path = Paths.get(System.getProperty("user.dir")),
-    homeDirectory: Path = Paths.get(System.getProperty("user.home")),
     systemProperties: ju.Properties = System.getProperties(),
     environmentVariables: collection.Map[String, String] =
       System.getenv().asScala

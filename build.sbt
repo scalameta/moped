@@ -31,6 +31,7 @@ lazy val moped = project
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "dev.dirs" % "directories" % "20",
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
+      "com.lihaoyi" %% "os-lib" % "0.7.1",
       "com.lihaoyi" %% "ujson" % ujson,
       "com.lihaoyi" %% "pprint" % "0.5.9",
       "com.lihaoyi" %% "fansi" % "0.2.7",

@@ -1,8 +1,8 @@
 package tests.internal.console
 
+import moped.internal.console.Utils
 import moped.testkit.MopedSuite
 import tests.EchoCommand
-import moped.internal.console.Utils
 
 class UtilsSuite extends MopedSuite(EchoCommand.app) {
   test("overwriteFile") {

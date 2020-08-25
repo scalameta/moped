@@ -62,7 +62,7 @@ standard output.
 
 Next, write a case class for your user configuration.
 
-```scala mdoc
+```scala mdoc:reset-object
 import moped.annotations._
 import moped.cli._
 
@@ -78,13 +78,14 @@ case class EchoCommand(
   @Description("If true, prints the output in UPPERCASE")
   uppercase: Boolean = false,
   @PositionalArguments
-  arguments: List[String] = Nil
+  arguments: List[String] = Nil,
+  app: Application = Application.default
 ) extends Command {
   def run(): Int = {
     val toPrint =
       if (uppercase) arguments.map(_.toUpperCase)
       else arguments
-    println(toPrint.mkString(" "))
+    app.out.println(toPrint.mkString(" "))
     0
   }
 }
@@ -142,30 +143,57 @@ and write tests for the `echo` application.
 
 Next, add a test suite to verify the application works as expected.
 
+```scala mdoc:invisible
+import org.junit.runner._
+val junit = new JUnitCore()
+junit.addListener(new moped.testkit.MopedTextListener())
+def runTestSuite[T <: munit.Suite](implicit ev: scala.reflect.ClassTag[T]) =
+  junit.run(new munit.MUnitRunner(ev.runtimeClass.asInstanceOf[Class[munit.Suite]]))
+```
+
 ```scala mdoc
 // src/test/tests/EchoSuite.scala
 class EchoSuite extends moped.testkit.MopedSuite(EchoCommand.app) {
   checkOutput(
     "echo prints arguments unchanged to output",
-    List("echo", "Hello World"),
-    "Hello World"
+    arguments = List("echo", "Hello World"),
+    expectedOutput = "Hello World"
   )
   checkOutput(
     "--uppercase prints output in upper-case",
-    List("echo", "--uppercase", "Hello World"),
-    "HELLO WORLD"
+    arguments = List("echo", "--uppercase", "Hello World"),
+    expectedOutput = "HELLO WORLD"
   )
   checkErrorOutput(
     "--upper does not exist",
     List("echo", "--upper", "Hello World"),
-    """|error: found argument '--upper' which wasn't expected, or isn't valid in this context.
-       |	Did you mean '--uppercase'?
-       |""".stripMargin
+    expectedOutput =
+     """|error: found argument '--upper' which wasn't expected, or isn't valid in this context.
+        |	Did you mean '--uppercase'?
+        |""".stripMargin
   )
 }
+
+runTestSuite[EchoSuite]
 ```
 
 Run `sbt echo/test` to verify that the tests pass.
+
+Failing test are reported with diffs comparing the expected output with the
+obtained output.
+
+```scala mdoc
+// src/test/tests/FailingSuite.scala
+class FailingSuite extends moped.testkit.MopedSuite(EchoCommand.app) {
+  checkOutput(
+    "echo prints arguments unchanged to output",
+    arguments = List("echo", "Hello World"),
+    expectedOutput = "Goodbye World"
+  )
+}
+
+runTestSuite[FailingSuite]
+```
 
 ### Build `echo` native-image
 

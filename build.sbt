@@ -4,6 +4,19 @@ def ujson = "1.2.0"
 def isCI = "true".equalsIgnoreCase(System.getenv("CI"))
 inThisBuild(
   List(
+    organization := "org.scalameta",
+    homepage := Some(url("https://github.com/scalameta/moped")),
+    licenses := List(
+      "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
+    ),
+    developers := List(
+      Developer(
+        "olafurpg",
+        "Ólafur Páll Geirsson",
+        "olafurpg@gmail.com",
+        url("https://geirsson.com")
+      )
+    ),
     useSuperShell := false,
     scalaVersion := scala212,
     scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0",

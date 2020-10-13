@@ -1,5 +1,9 @@
 package moped.reporters
 
+import moped.json.DecodingResult
+import moped.json.ErrorResult
+import moped.json.ValueResult
+
 abstract class Reporter {
   def log(diag: Diagnostic): Unit
   final def debug(message: String): Unit = log(Diagnostic.debug(message))
@@ -10,6 +14,15 @@ abstract class Reporter {
   def warningCount(): Int
   def reset(): Unit
 
+  final def exit(result: DecodingResult[Unit]): Int = {
+    result match {
+      case ValueResult(()) => exitCode()
+      case ErrorResult(error) =>
+        log(error)
+        1
+    }
+  }
+  final def exitCode(): Int = if (hasErrors()) 1 else 0
   final def hasErrors(): Boolean = errorCount > 0
   final def hasWarnings(): Boolean = warningCount > 0
 }

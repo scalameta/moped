@@ -40,7 +40,8 @@ class InteractiveProgressBar(
     renderer: ProgressRenderer,
     intervalDuration: Duration = Duration.ofMillis(16),
     terminal: Terminals = new Terminals(Tput.system),
-    reportFailure: Throwable => Unit = e => e.printStackTrace(System.out)
+    reportFailure: Throwable => Unit = e => e.printStackTrace(System.out),
+    isDynamicPartEnabled: Boolean = true
 ) extends ProgressBar {
 
   // The `renderStep()` part runs on this single thread while the
@@ -101,10 +102,12 @@ class InteractiveProgressBar(
   private def emitNow(step: ProgressStep): Unit = {
     val size = terminal.screenSize()
     val static = step.static.renderTrim(size.width)
-    val active = step.active.renderTrim(size.width)
     clearActivePart()
     writeStaticPart(static)
-    writeActivePart(active, size)
+    if (isDynamicPartEnabled) {
+      val dynamic = step.dynamic.renderTrim(size.width)
+      writeDynamicPart(dynamic, size)
+    }
   }
 
   private def writeStaticPart(static: String): Unit = {
@@ -115,7 +118,8 @@ class InteractiveProgressBar(
     out.flush()
   }
 
-  private def writeActivePart(active: String, size: ScreenSize): Unit = {
+  private def writeDynamicPart(active: String, size: ScreenSize): Unit = {
+    if (!isDynamicPartEnabled) return
     if (!isActive()) return
     var i, w, h = 0
     def isHeightOk = h < (size.height - 3)

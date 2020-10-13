@@ -32,7 +32,7 @@ class InteractiveProgressBarSuite extends FunSuite {
         val list = JsonArray(1.to(i).map(i => JsonNumber(i)).toList).toDoc
         ProgressStep(
           static = Doc.empty, //Doc.text(i.toString()),
-          active = bar + Doc.line + list
+          dynamic = bar + Doc.line + list
         )
       }
     }

@@ -9,9 +9,9 @@ import scala.util.control.NonFatal
 import dev.dirs.ProjectDirectories
 import fansi.Color
 import fansi.Str
-import moped.annotations.CatchInvalidFlags
 import moped.annotations.CommandName
 import moped.annotations.PositionalArguments
+import moped.annotations.TreatInvalidFlagAsPositional
 import moped.commands._
 import moped.internal.console.CommandLineParser
 import moped.internal.diagnostics.AggregateDiagnostic
@@ -47,6 +47,7 @@ case class Application(
     description: Doc = Doc.empty,
     usage: String = s"{BINARY_NAME} COMMAND [OPTIONS]",
     examples: Doc = Doc.empty,
+    fatalUnknownFields: Boolean = false,
     relativeCommands: List[CommandParser[_]] = Nil,
     arguments: List[String] = Nil,
     relativeArguments: List[String] = Nil,
@@ -203,7 +204,10 @@ object Application {
                   new ParameterShape(
                     "arguments",
                     "List[String]",
-                    List(new PositionalArguments(), new CatchInvalidFlags()),
+                    List(
+                      new PositionalArguments(),
+                      new TreatInvalidFlagAsPositional()
+                    ),
                     None
                   )
                 )
@@ -246,6 +250,7 @@ object Application {
             case Some(parser) =>
               parser.decodeCommand(
                 DecodingContext(JsonObject(Nil), app)
+                  .withFatalUnknownFields(app.fatalUnknownFields)
               ) match {
                 case ValueResult(cmd) =>
                   cmd.runAsFuture()
@@ -274,7 +279,10 @@ object Application {
                   configs = DecodingResult.fromResults(conf :: parsedConfig)
                   mergedConfig = configs.map(JsonElement.merge)
                   configured = mergedConfig.flatMap(elem =>
-                    command.decodeCommand(DecodingContext(elem, app))
+                    command.decodeCommand(
+                      DecodingContext(elem, app)
+                        .withFatalUnknownFields(app.fatalUnknownFields)
+                    )
                   )
                   exit <- configured match {
                     case ValueResult(value) =>

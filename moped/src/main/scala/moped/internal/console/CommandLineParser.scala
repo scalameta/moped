@@ -1,145 +1,240 @@
 package moped.internal.console
 
+import scala.collection.immutable.Nil
+import scala.collection.mutable
 import scala.util.Try
 
-import moped.annotations.Inline
 import moped.internal.console.CommandLineParser._
 import moped.internal.reporters.Levenshtein
 import moped.json._
 import moped.macros.ClassShaper
-import moped.macros.ParameterShape
 import moped.reporters._
 
 class CommandLineParser[T](
     settings: ClassShaper[T],
-    toInline: Map[String, ParameterShape]
+    toInline: Map[String, List[InlinedFlag]]
 ) {
-  def loop(
-      curr: JsonObject,
+  private val pendingMembers = mutable.ListBuffer.empty[JsonElement]
+  private val pendingArrays =
+    mutable.Map.empty[List[String], mutable.ListBuffer[JsonElement]]
+  private val errors = mutable.ListBuffer.empty[Diagnostic]
+  private def flushArrays(): Unit = {
+    pendingArrays.foreach {
+      case (keys, values) =>
+        pushMember(newMember(keys, JsonArray(values.toList)))
+    }
+    pendingArrays.clear()
+  }
+  private def pushMember(member: JsonMember): Unit = {
+    pendingMembers += JsonObject(List(member))
+  }
+  def parseArgs(args: List[String]): DecodingResult[JsonObject] = {
+    loop(args, NoFlag)
+    flushArrays()
+    Diagnostic.fromDiagnostics(errors.toList) match {
+      case Some(d) => ErrorResult(d)
+      case None =>
+        JsonElement.merge(pendingMembers) match {
+          case o: JsonObject =>
+            ValueResult(o)
+          case e =>
+            ErrorResult(Diagnostic.typeMismatch("Object", DecodingContext(e)))
+        }
+    }
+  }
+  private[this] def loop(
       xs: List[String],
       s: State
-  ): DecodingResult[JsonObject] = {
+  ): Unit = {
     (xs, s) match {
-      case (Nil, NoFlag) => ValueResult(curr)
-      case (Nil, Flag(flag, setting)) =>
-        if (setting.isBoolean) ValueResult(add(curr, flag, JsonBoolean(true)))
-        else {
-          ErrorResult(
-            Diagnostic.error(
-              s"the argument '--${Cases.camelToKebab(flag)}' requires a value but none was supplied"
-            )
+      case (Nil, NoFlag) => ()
+      case (Nil, Flag(settings)) =>
+        settings.foreach { setting =>
+          errors += Diagnostic.error(
+            s"the argument '--${Cases.camelToKebab(setting.shape.name)}' requires a value but none was supplied"
           )
         }
       case ("--" :: tail, NoFlag) =>
-        val trailingArguments = appendValues(
-          curr,
+        appendValues(
           TrailingArgument,
           tail.map(JsonString(_))
         )
-        loop(add(curr, TrailingArgument, trailingArguments), Nil, NoFlag)
       case (head :: tail, NoFlag) =>
         val equal = head.indexOf('=')
         if (equal >= 0) { // split "--key=value" into ["--key", "value"]
           val key = head.substring(0, equal)
           val value = head.substring(equal + 1)
-          loop(curr, key :: value :: tail, NoFlag)
+          loop(key :: value :: tail, NoFlag)
         } else if (head.startsWith("-")) {
-          tryFlag(curr, head, tail, defaultBooleanValue = true) match {
-            case nok: ErrorResult if head.startsWith("--") =>
-              val fallbackFlag =
-                if (head.startsWith(noPrefix)) {
-                  "--" + head.stripPrefix(noPrefix)
-                } else {
-                  noPrefix + head.stripPrefix("--")
-                }
-              val fallback =
-                tryFlag(
-                  curr,
-                  fallbackFlag,
-                  tail,
-                  defaultBooleanValue = false
-                )
-              fallback.orElse(nok)
-            case ok => ok
+          loopFlag(head, tail)
+        } else {
+          appendValues(
+            PositionalArgument,
+            List(JsonString(head))
+          )
+          loop(tail, NoFlag)
+        }
+      case (head :: tail, Flag(flags)) =>
+        flags.foreach { setting =>
+          val value: JsonElement =
+            if (setting.shape.isNumber)
+              Try(JsonNumber(head.toDouble)).getOrElse(JsonString(head))
+            else JsonString(head)
+          if (setting.shape.isRepeated) {
+            appendValues(setting.keys, List(value))
+          } else {
+            addMember(setting.keys, value)
+          }
+        }
+        loop(tail, NoFlag)
+    }
+  }
+
+  private def loopFlag(
+      flag: String,
+      tail: List[String]
+  ): Unit = {
+    tryFlag(flag) match {
+      case Left(error) =>
+        if (flag.startsWith(negatedPrefix)) {
+          // Try to parse flag with "--no-" prefix removed.
+          val negatedHead = "--" + flag.stripPrefix(negatedPrefix)
+          tryFlag(negatedHead) match {
+            case Left(_) =>
+              errors += error
+            case Right(Nil) => loop(tail, NoFlag)
+            case Right(settings) =>
+              // --no prefix succeeded, default boolean value is false.
+              loopSettings(tail, settings, defaultBooleanValue = false)
           }
         } else {
-          val positionalArgs =
-            appendValues(
-              curr,
-              PositionalArgument,
-              List(JsonString(head))
-            )
-          loop(add(curr, PositionalArgument, positionalArgs), tail, NoFlag)
+          errors += error
         }
-      case (head :: tail, Flag(flag, setting)) =>
-        val value =
-          if (setting.isNumber)
-            Try(JsonNumber(head.toDouble)).getOrElse(JsonString(head))
-          else JsonString(head)
-        val newCurr =
-          if (setting.isRepeated) {
-            appendValues(curr, flag, List(value))
-          } else {
-            value
-          }
-        loop(add(curr, flag, newCurr), tail, NoFlag)
+      case Right(Nil) => loop(tail, NoFlag)
+      case Right(settings) =>
+        loopSettings(tail, settings, defaultBooleanValue = true)
     }
   }
 
   private def tryFlag(
-      curr: JsonObject,
-      head: String,
-      tail: List[String],
-      defaultBooleanValue: Boolean
-  ): DecodingResult[JsonObject] = {
-    val camel = Cases.kebabToCamel(dash.replaceFirstIn(head, ""))
+      kebabFlag: String
+  ): Either[Diagnostic, List[InlinedFlag]] = {
+    val camel = Cases.kebabToCamel(dash.replaceFirstIn(kebabFlag, ""))
     camel.split("\\.").toList match {
       case Nil =>
-        ErrorResult(Diagnostic.error(s"Flag '$head' must not be empty"))
-      case flag :: flags =>
-        val (key, keys) = toInline.get(flag) match {
-          case Some(setting) => setting.name -> (flag :: flags)
-          case _ => flag -> flags
-        }
-        settings.get(key, keys) match {
+        Left(Diagnostic.error(s"Flag '$kebabFlag' must not be empty"))
+      case singleCamel :: Nil =>
+        toInline.get(singleCamel) match {
           case None =>
-            settings.parametersFlat.find(_.isCatchInvalidFlags) match {
-              case None =>
-                val closestCandidate =
-                  Levenshtein.closestCandidate(camel, settings.nonHiddenNames)
-                val didYouMean = closestCandidate match {
-                  case None =>
-                    ""
-                  case Some(candidate) =>
-                    val kebab = Cases.camelToKebab(candidate)
-                    s"\n\tDid you mean '--$kebab'?"
-                }
-                val kebabFlag = Cases.camelToKebab(flag)
-                ErrorResult(
-                  Diagnostic.error(
-                    s"found argument '--$kebabFlag' which wasn't expected, or isn't valid in this context.$didYouMean"
-                  )
-                )
-              case Some(_) =>
-                val values = appendValues(
-                  curr,
+            settings.parametersFlat.find(
+              _.isTreatInvalidFlagAsPositional
+            ) match {
+              case Some(param) =>
+                appendValues(
                   PositionalArgument,
-                  (head :: tail).map(JsonString(_))
+                  List(JsonString(kebabFlag))
                 )
-                ValueResult(add(curr, PositionalArgument, values))
+                Right(Nil)
+              case None =>
+                Left(didYouMean(kebabFlag, camel))
             }
-          case Some(setting) =>
-            val prefix = toInline.get(flag).fold("")(_.name + ".")
-            val toAdd = prefix + camel
-            if (setting.isBoolean) {
-              val newCurr =
-                add(curr, toAdd, JsonBoolean(defaultBooleanValue))
-              loop(newCurr, tail, NoFlag)
-            } else {
-              loop(curr, tail, Flag(toAdd, setting))
-            }
+          case Some(settings) =>
+            Right(settings)
+        }
+      case camelHead :: camelTail =>
+        settings.get(camelHead, camelTail) match {
+          case Some(value) =>
+            Right(List(InlinedFlag(camelHead :: camelTail, value)))
+          case None =>
+            Left(didYouMean(kebabFlag, camel))
         }
     }
+  }
+
+  def didYouMean(kebabFlag: String, camel: String): Diagnostic = {
+    val closestCandidate =
+      Levenshtein.closestCandidate(camel, toInline.keysIterator.toList)
+    val didYouMean = closestCandidate match {
+      case None =>
+        ""
+      case Some(candidate) =>
+        val kebab = Cases.camelToKebab(candidate)
+        s"\n\tDid you mean '--$kebab'?"
+    }
+    Diagnostic.error(
+      s"found argument '$kebabFlag' which wasn't expected, or isn't valid in this context.$didYouMean"
+    )
+  }
+
+  def loopSettings(
+      tail: List[String],
+      settings: List[InlinedFlag],
+      defaultBooleanValue: Boolean
+  ): Unit = {
+    require(settings.nonEmpty)
+    val hasBoolean = settings.exists(_.shape.isBoolean)
+    val isOnlyBoolean = settings.forall(_.shape.isBoolean)
+    if (isOnlyBoolean) {
+      settings.map { setting =>
+        addMember(setting.keys, JsonBoolean(defaultBooleanValue))
+      }
+      loop(tail, NoFlag)
+    } else {
+      if (hasBoolean) {
+        val name = settings.head.shape.name
+        val names =
+          settings.map(s => s.keys.mkString(".")).mkString("{", ",", "}")
+        errors += Diagnostic.error(
+          s"""
+             |invalid usage of @Inline. The field name '$name' inlines to conflicting nested parameters $names, which mix boolean and non-boolean parameters.
+             |You can only fix this problem by changing the source code of this command-line tool.
+             |To fix this problem, you can try one of the following.
+             |  1) change the types of the parameters to be only boolean or non-boolean
+             |  2) remove the @Inline annotation for one of the nested parameters
+             |""".stripMargin
+        )
+      } else {
+        loop(tail, Flag(settings))
+      }
+    }
+  }
+
+  private def addMember(
+      key: String,
+      value: JsonElement
+  ): Unit = {
+    addMember(List(key), value)
+  }
+
+  private def addMember(
+      keys: List[String],
+      value: JsonElement
+  ): Unit = {
+    pushMember(newMember(keys, value))
+  }
+
+  private def newMember(keys: List[String], value: JsonElement): JsonMember = {
+    keys match {
+      case Nil => throw new IllegalArgumentException("Nil")
+      case head :: Nil =>
+        JsonMember(JsonString(head), value)
+      case head :: tail =>
+        JsonMember(JsonString(head), JsonObject(List(newMember(tail, value))))
+    }
+  }
+
+  def appendValues(
+      key: String,
+      values: List[JsonElement]
+  ): Unit = {
+    appendValues(List(key), values)
+  }
+  def appendValues(
+      keys: List[String],
+      values: List[JsonElement]
+  ): Unit = {
+    val buf = pendingArrays.getOrElseUpdate(keys, mutable.ListBuffer.empty)
+    buf ++= values
   }
 }
 
@@ -152,56 +247,45 @@ object CommandLineParser {
   )(implicit settings: ClassShaper[T]): DecodingResult[JsonObject] = {
     val toInline = inlinedSettings(settings)
     val parser = new CommandLineParser[T](settings, toInline)
-    parser.loop(JsonObject(Nil), args, NoFlag)
+    parser.parseArgs(args)
   }
 
-  private def add(
-      curr: JsonObject,
-      key: String,
-      value: JsonElement
-  ): JsonObject = {
-    val values = curr.members.filterNot {
-      case JsonMember(k, _) => k.value == key
-    }
-    JsonObject(JsonMember(JsonString(key), value) :: values)
-  }
-
-  val noPrefix = "--no-"
-  def isNegatedBoolean(flag: String): Boolean = flag.startsWith(noPrefix)
-
-  def appendValues(
-      obj: JsonObject,
-      key: String,
-      values: List[JsonElement]
-  ): JsonArray = {
-    obj.getMember(key) match {
-      case Some(JsonArray(oldValues)) => JsonArray(oldValues ++ values)
-      case _ => JsonArray(values)
-    }
-  }
+  val negatedPrefix = "--no-"
+  def isNegatedBoolean(flag: String): Boolean = flag.startsWith(negatedPrefix)
 
   def inlinedSettings(
       settings: ClassShaper[_]
-  ): Map[String, ParameterShape] =
-    settings.parametersFlat.iterator.flatMap { setting =>
-      if (setting.annotations.exists(_.isInstanceOf[Inline])) {
-        for {
-          underlying <- setting.underlying.toList
-          name <- underlying.names
-        } yield name -> setting
-      } else {
-        Nil
+  ): Map[String, List[InlinedFlag]] = {
+    val buf = mutable.Map.empty[String, mutable.ListBuffer[InlinedFlag]]
+    def loop(prefix: List[String], s: ClassShaper[_]): Unit = {
+      s.parametersFlat.foreach { param =>
+        val lst = buf.getOrElseUpdate(param.name, mutable.ListBuffer.empty)
+        lst += InlinedFlag(prefix :+ param.name, param)
       }
-    }.toMap
+      for {
+        params <- s.parameters
+        param <- params
+        if param.isInline
+        underlying <- param.underlying.toList
+      } {
+        loop(prefix :+ param.name, underlying)
+      }
+    }
+    loop(Nil, settings)
+    buf.mapValues(_.toList).toMap
+  }
+
+  private sealed trait State
+  private case class Flag(flags: List[InlinedFlag]) extends State {
+    require(flags.nonEmpty)
+  }
+  private case object NoFlag extends State
+  private val dash = "--?".r
 
   def allSettings(
       settings: ClassShaper[_]
-  ): Map[String, ParameterShape] =
-    inlinedSettings(settings) ++ settings.parametersFlat.map(s => s.name -> s)
-
-  private sealed trait State
-  private case class Flag(flag: String, setting: ParameterShape) extends State
-  private case object NoFlag extends State
-  private val dash = "--?".r
+  ): Map[String, List[InlinedFlag]] =
+    inlinedSettings(settings) ++
+      settings.parametersFlat.iterator.map(s => s.name -> List(InlinedFlag(s)))
 
 }

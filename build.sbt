@@ -1,6 +1,4 @@
-def scala212 = "2.12.12"
-def graalvm = "20.1.0"
-def ujson = "1.2.0"
+def scala212 = "2.12.11"
 def isCI = "true".equalsIgnoreCase(System.getenv("CI"))
 inThisBuild(
   List(
@@ -42,7 +40,7 @@ lazy val moped = project
       "dev.dirs" % "directories" % "20",
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
       "com.lihaoyi" %% "os-lib" % "0.7.1",
-      "com.lihaoyi" %% "ujson" % ujson,
+      "com.lihaoyi" %% "ujson" % "1.2.0",
       "com.lihaoyi" %% "pprint" % "0.5.9",
       "com.lihaoyi" %% "fansi" % "0.2.7",
       "org.typelevel" %% "paiges-core" % "0.3.1"

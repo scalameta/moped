@@ -1,5 +1,6 @@
 package moped.cli
 
+import moped.internal.console.InlinedFlag
 import moped.macros.ParameterShape
 
 final case class TabCompletionContext(
@@ -8,6 +9,6 @@ final case class TabCompletionContext(
     last: String,
     secondLast: Option[String],
     setting: Option[ParameterShape],
-    allSettings: Map[String, ParameterShape],
+    allSettings: Map[String, List[InlinedFlag]],
     app: Application
 )

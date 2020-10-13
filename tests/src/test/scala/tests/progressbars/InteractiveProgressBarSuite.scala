@@ -11,7 +11,7 @@ import munit.FunSuite
 import org.typelevel.paiges.Doc
 
 class InteractiveProgressBarSuite extends FunSuite {
-  test("basic") {
+  test("basic".ignore) {
     val renderer = new ProgressRenderer() {
       var i = 0
       override def renderStart(): Doc = {

@@ -11,7 +11,8 @@ case class InlineConfig(
 )
 
 object InlineConfig {
-  implicit val codec: JsonCodec[InlineConfig] = moped.macros.deriveCodec(InlineConfig())
+  implicit val codec: JsonCodec[InlineConfig] =
+    moped.macros.deriveCodec(InlineConfig())
 }
 
 case class ConfigCommand(
@@ -22,7 +23,6 @@ case class ConfigCommand(
   def run(): Int = {
     if (foobar) app.out.println("foobar")
     else app.out.println("no foobar")
-    pprint.log(in.useSuperShell)
     if (!in.useSuperShell) app.out.println("--no-use-super-shell")
     0
   }

@@ -58,8 +58,9 @@ EXAMPLES
 
 $ tests config --help
 OPTIONS
-  --help: Boolean           Print this help message
+  --help: Boolean                   Print this help message
   --foobar: Boolean = false
+  --use-super-shell: Boolean = true
 
 $ tests man install --help
 DESCRIPTION

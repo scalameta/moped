@@ -269,7 +269,6 @@ object Application {
                   CommandLineParser.parseArgs[command.Value](tail)(
                     command.asClassShaper
                   )
-                pprint.log(conf)
                 for {
                   parsedConfig <- app.searcher.findAsync(app)
                   configs = DecodingResult.fromResults(conf :: parsedConfig)

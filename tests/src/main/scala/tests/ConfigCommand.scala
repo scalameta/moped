@@ -1,16 +1,17 @@
 package tests
 
+import moped.annotations.Inline
 import moped.cli.Application
 import moped.cli.Command
 import moped.cli.CommandParser
-import moped.annotations.Inline
+import moped.json.JsonCodec
 
 case class InlineConfig(
     useSuperShell: Boolean = true
 )
 
 object InlineConfig {
-  implicit val codec = moped.macros.deriveCodec(InlineConfig())
+  implicit val codec: JsonCodec[InlineConfig] = moped.macros.deriveCodec(InlineConfig())
 }
 
 case class ConfigCommand(

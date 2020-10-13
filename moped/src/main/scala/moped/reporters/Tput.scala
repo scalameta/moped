@@ -1,9 +1,9 @@
 package moped.reporters
 
-import scala.util.Try
-
 import java.nio.file.Files
 import java.nio.file.Paths
+
+import scala.util.Try
 import scala.util.control.NonFatal
 
 abstract class Tput {

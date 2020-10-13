@@ -14,7 +14,8 @@ case class NestedList(
     a: String = ""
 )
 object NestedList {
-  implicit val codec: JsonCodec[NestedList] = moped.macros.deriveCodec(NestedList())
+  implicit val codec: JsonCodec[NestedList] =
+    moped.macros.deriveCodec(NestedList())
 }
 
 case class MyClass(

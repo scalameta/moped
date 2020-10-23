@@ -29,6 +29,7 @@ sealed abstract class JsonElement extends Product with Serializable {
   def isNull: Boolean = this.isInstanceOf[JsonNull]
   def isPrimitive: Boolean = this.isInstanceOf[JsonPrimitive]
 
+  final override def toString(): String = toDoc.render(80)
   final def toDoc: Doc =
     this match {
       case JsonNull() => Doc.text("null")

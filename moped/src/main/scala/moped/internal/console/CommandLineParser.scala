@@ -120,34 +120,22 @@ class CommandLineParser[T](
       kebabFlag: String
   ): Either[Diagnostic, List[InlinedFlag]] = {
     val camel = Cases.kebabToCamel(dash.replaceFirstIn(kebabFlag, ""))
-    camel.split("\\.").toList match {
-      case Nil =>
-        Left(Diagnostic.error(s"Flag '$kebabFlag' must not be empty"))
-      case singleCamel :: Nil =>
-        toInline.get(singleCamel) match {
-          case None =>
-            settings.parametersFlat.find(
-              _.isTreatInvalidFlagAsPositional
-            ) match {
-              case Some(param) =>
-                appendValues(
-                  PositionalArgument,
-                  List(JsonString(kebabFlag))
-                )
-                Right(Nil)
-              case None =>
-                Left(didYouMean(kebabFlag, camel))
-            }
-          case Some(settings) =>
-            Right(settings)
-        }
-      case camelHead :: camelTail =>
-        settings.get(camelHead, camelTail) match {
-          case Some(value) =>
-            Right(List(InlinedFlag(camelHead :: camelTail, value)))
+    toInline.get(camel) match {
+      case None =>
+        settings.parametersFlat.find(
+          _.isTreatInvalidFlagAsPositional
+        ) match {
+          case Some(param) =>
+            appendValues(
+              PositionalArgument,
+              List(JsonString(kebabFlag))
+            )
+            Right(Nil)
           case None =>
             Left(didYouMean(kebabFlag, camel))
         }
+      case Some(settings) =>
+        Right(settings)
     }
   }
 
@@ -257,21 +245,15 @@ object CommandLineParser {
       settings: ClassShaper[_]
   ): Map[String, List[InlinedFlag]] = {
     val buf = mutable.Map.empty[String, mutable.ListBuffer[InlinedFlag]]
-    def loop(prefix: List[String], s: ClassShaper[_]): Unit = {
-      s.parametersFlat.foreach { param =>
-        val lst = buf.getOrElseUpdate(param.name, mutable.ListBuffer.empty)
-        lst += InlinedFlag(prefix :+ param.name, param)
-      }
-      for {
-        params <- s.parameters
-        param <- params
-        if param.isInline
-        underlying <- param.underlying.toList
-      } {
-        loop(prefix :+ param.name, underlying)
+    settings.allNestedParameters.foreach { nested =>
+      val param = nested.last
+      val keys = nested.map(_.name)
+      val name = nested.dropWhile(_.isInline).map(_.name).mkString(".")
+      if (name.nonEmpty) {
+        val lst = buf.getOrElseUpdate(name, mutable.ListBuffer.empty)
+        lst += InlinedFlag(keys, param)
       }
     }
-    loop(Nil, settings)
     buf.mapValues(_.toList).toMap
   }
 
@@ -281,11 +263,5 @@ object CommandLineParser {
   }
   private case object NoFlag extends State
   private val dash = "--?".r
-
-  def allSettings(
-      settings: ClassShaper[_]
-  ): Map[String, List[InlinedFlag]] =
-    inlinedSettings(settings) ++
-      settings.parametersFlat.iterator.map(s => s.name -> List(InlinedFlag(s)))
 
 }

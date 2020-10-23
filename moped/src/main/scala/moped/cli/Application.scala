@@ -11,9 +11,11 @@ import fansi.Color
 import fansi.Str
 import moped.annotations.CommandName
 import moped.annotations.PositionalArguments
+import moped.annotations.TabCompleter
 import moped.annotations.TreatInvalidFlagAsPositional
 import moped.commands._
 import moped.internal.console.CommandLineParser
+import moped.internal.console.PathCompleter
 import moped.internal.diagnostics.AggregateDiagnostic
 import moped.json.AlwaysDerivedParameter
 import moped.json.AlwaysHiddenParameter
@@ -26,6 +28,7 @@ import moped.json.JsonEncoder
 import moped.json.JsonObject
 import moped.json.ValueResult
 import moped.macros.ClassShape
+import moped.macros.ClassShaper
 import moped.macros.ParameterShape
 import moped.parsers.ConfigurationParser
 import moped.parsers.JsonParser
@@ -144,11 +147,30 @@ case class Application(
 }
 
 object Application {
+  implicit val shape: ClassShaper[Application] = ClassShaper[Application](
+    new ClassShape(
+      "Application",
+      "moped.cli.Application",
+      parameters = List(
+        List(
+          new ParameterShape(
+            "cwd",
+            "Path",
+            List(TabCompleter(PathCompleter)),
+            None
+          )
+        ),
+        List()
+      ),
+      List()
+    )
+  )
   val default: Application = Application.fromName(
     "moped-default-application-please-change-me",
     "moped-default-version-please-change-me",
     List()
   )
+
   def fromName(
       binaryName: String,
       version: String,

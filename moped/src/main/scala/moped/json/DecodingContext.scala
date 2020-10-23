@@ -17,6 +17,11 @@ final class DecodingContext private (
   def withFatalUnknownFields(value: Boolean): DecodingContext =
     copy(fatalUnknownFields = value)
 
+  def withSelectMemberCursor(value: String): DecodingContext =
+    withCursor(cursor.selectMember(value))
+  def withSelectIndexCursor(value: Int): DecodingContext =
+    withCursor(cursor.selectIndex(value))
+
   private[this] def copy(
       json: JsonElement = this.json,
       cursor: Cursor = this.cursor,

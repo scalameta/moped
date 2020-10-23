@@ -142,7 +142,7 @@ class RunCompletionsCommand(app: Application) extends Command {
   ): List[TabCompletionItem] = {
     val last = tail.lastOption.getOrElse(head)
     val inlined = CommandLineParser
-      .allSettings(subcommand)
+      .inlinedSettings(subcommand)
       .filter {
         case (_, params) =>
           params.exists { param =>

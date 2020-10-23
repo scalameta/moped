@@ -34,6 +34,15 @@ trait ClassShaper[T] extends Product {
       name <- setting.allNames
     } yield name
 
+  def allNestedParameters: List[List[ParameterShape]] = {
+    val direct = parametersFlat
+    // TODO(olafur): turn this into high-perf stack-safe implementation.
+    val recursive = direct.flatMap(p =>
+      p.underlying.toList.flatMap(u => u.allNestedParameters.map(n => p :: n))
+    )
+    direct.map(List(_)) ::: recursive
+  }
+
   def get(name: String): Option[ParameterShape] =
     parametersFlat.find(_.matchesLowercase(name))
 

@@ -6,6 +6,15 @@ import moped.json._
 import moped.macros.ParameterShape
 
 object DrillIntoJson {
+  def decodeKey[T](key: String, context: DecodingContext)(implicit
+      ev: JsonDecoder[T]
+  ): DecodingResult[T] = {
+    ev.decode(
+      context
+        .withJson(getKey(context.json, List(key)).getOrElse(JsonNull()))
+        .withCursor(SelectMemberCursor(key).withParent(context.cursor))
+    )
+  }
   def getKey(obj: JsonElement, keys: Seq[String]): Option[JsonElement] =
     if (keys.isEmpty) None
     else {
@@ -21,6 +30,18 @@ object DrillIntoJson {
       }
     }
 
+  def decodeMember[T](
+      context: DecodingContext,
+      member: String,
+      default: T
+  )(implicit ev: JsonDecoder[T]): DecodingResult[T] = {
+    getKey(context.json, List(member)) match {
+      case Some(value) =>
+        ev.decode(context.withJson(value).withSelectMemberCursor(member))
+      case None =>
+        ValueResult(default)
+    }
+  }
   def getOrElse[T](
       conf: JsonElement,
       default: T,

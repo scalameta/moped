@@ -27,6 +27,7 @@ object TestsApplication {
         CommandParser[ConfigCommand],
         CommandParser[ExampleNestedCommand],
         CommandParser[ExampleFallbackCommand],
+        CommandParser[ExampleCwdCommand],
         CommandParser[ManCommand]
       )
     )

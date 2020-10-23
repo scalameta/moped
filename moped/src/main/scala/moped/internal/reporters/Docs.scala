@@ -12,4 +12,12 @@ object Docs {
   val PP: Doc = Doc.text(".PP ")
   val RS: Doc = Doc.line + Doc.text(".RS 4 ") + Doc.line
   val RE: Doc = Doc.text(".RE ")
+
+  val error: Doc = Doc.text("❗")
+  val success: Doc = green + Doc.text("✔ ") + reset
+  def successMessage(message: String): Doc =
+    success + Doc.text(message)
+  val bold: Doc = Doc.zeroWidth(Console.BOLD)
+  val green: Doc = Doc.zeroWidth(Console.GREEN)
+  val reset: Doc = Doc.zeroWidth(Console.RESET)
 }

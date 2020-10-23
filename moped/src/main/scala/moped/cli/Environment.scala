@@ -12,10 +12,10 @@ import scala.collection.JavaConverters._
 import dev.dirs.ProjectDirectories
 
 final case class Environment(
+    console: java.io.Console = System.console(),
     dataDirectory: Path,
     cacheDirectory: Path,
     preferencesDirectory: Path,
-    // TODO(olafur): Make sure these system props don't get linked at build time.
     workingDirectory: Path = Paths.get(System.getProperty("user.dir")),
     homeDirectory: Path = Paths.get(System.getProperty("user.home")),
     standardOutput: PrintStream = Console.out,
@@ -26,8 +26,26 @@ final case class Environment(
       System.getenv().asScala,
     clock: Clock = Clock.systemDefaultZone()
 ) {
-  def isColorEnabled: Boolean =
-    environmentVariables.get("NO_COLOR").exists(_.equalsIgnoreCase("true"))
+
+  /** Returns true if the key has is equal to "true" in environment variables or system properties. */
+  def isSettingTrue(key: String): Boolean =
+    "true".equalsIgnoreCase(environmentVariables.getOrElse(key, "false")) ||
+      "true".equalsIgnoreCase(systemProperties.getProperty(key, "false"))
+
+  /** Returns true if the key is defined in the environment variables or system properties, regardless of value. */
+  def isSettingPresent(key: String): Boolean =
+    environmentVariables.contains(key) ||
+      systemProperties.contains(key)
+
+  val isCI: Boolean =
+    isSettingTrue("CI")
+  val isColorEnabled: Boolean =
+    !isSettingPresent("NO_COLOR") &&
+      !isSettingPresent("INSIDE_EMACS")
+  val isProgressBarEnabled: Boolean =
+    isColorEnabled &&
+      !isCI &&
+      !isSettingPresent("NO_PROGRESS_BAR")
   def withProjectDirectories(dirs: ProjectDirectories): Environment =
     copy(
       dataDirectory = Paths.get(dirs.dataDir),

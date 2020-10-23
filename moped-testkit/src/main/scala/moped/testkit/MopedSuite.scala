@@ -25,6 +25,7 @@ import munit.TestOptions
 import munit.internal.console.AnsiColors
 
 abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
+  def fatalUnknownFields = false
   val reporter: ConsoleReporter = ConsoleReporter(System.out)
   val temporaryDirectory = new DirectoryFixture
   def clock: Clock =
@@ -75,6 +76,7 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
           environmentVariables = environmentVariables,
           clock = clock
         ),
+        fatalUnknownFields = fatalUnknownFields,
         tput = tput,
         reporter = reporter,
         mockedProcesses = app.mockedProcesses.map(
@@ -148,7 +150,8 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
         else ""
       val out = new StringBuilder()
       def loop(prefix: List[String], c: CommandParser[_]): Unit =
-        if (c.nestedCommands.nonEmpty) {
+        if (c.isHidden) ()
+        else if (c.nestedCommands.nonEmpty) {
           c.nestedCommands.foreach { n =>
             loop(prefix :+ c.subcommandName, n)
           }

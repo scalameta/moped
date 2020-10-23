@@ -4,8 +4,7 @@ import org.typelevel.paiges.Doc
 
 final case class ProgressStep(
     static: Doc = Doc.empty,
-    // Rename "active" into something more self-explanatory.
-    active: Doc = Doc.empty
+    dynamic: Doc = Doc.empty
 )
 
 object ProgressStep {

@@ -8,6 +8,9 @@ import java.{util => ju}
 class ObjectMergerTraverser extends JsonTraverser {
   val stack = new ju.ArrayDeque[JsonBuilder]
   private var isReuseBuilder: Boolean = true
+  def mergeMember(member: JsonMember): Unit = {
+    mergeElement(JsonObject(List(member)))
+  }
   def mergeElement(elem: JsonElement): Unit = {
     isReuseBuilder = !stack.isEmpty() &&
       elem.isObject &&
@@ -19,6 +22,7 @@ class ObjectMergerTraverser extends JsonTraverser {
     else stack.pop().result()
   }
   override def traversePrimitive(e: JsonPrimitive, cursor: Cursor): Unit = {
+    while (!stack.isEmpty() && stack.peek().isPrimitiveBuilder) stack.pop()
     stack.push(new PrimitiveBuilder(e))
   }
   override def traverseObject(e: JsonObject, cursor: Cursor): Unit = {
@@ -48,7 +52,7 @@ class ObjectMergerTraverser extends JsonTraverser {
     val current = stack.pop()
     if (stack.isEmpty()) {
       stack.push(current)
-    } else {
+    } else if (stack.peek().isArrayBuilder) {
       stack.peek.addArrayValue(current.result())
     }
   }

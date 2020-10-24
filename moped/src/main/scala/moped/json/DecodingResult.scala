@@ -40,7 +40,6 @@ object DecodingResult {
     }
 }
 
-// TODO(olafur): consider renaming this class to support non-decoding results.
 sealed abstract class DecodingResult[+A] extends Product with Serializable {
 
   def isError: Boolean = this.isInstanceOf[ErrorResult]

@@ -9,24 +9,18 @@ import moped.reporters.NoPosition
 class AggregateDiagnostic(head: Diagnostic, tail: List[Diagnostic])
     extends Diagnostic(ErrorSeverity, "", NoPosition, None, head :: tail) {
   def message: String =
-    causes match {
+    tail match {
       case Nil =>
-        "AggregateDiagnostic(Nil)"
-      case head :: Nil =>
         head.pretty
       case _ =>
-        val count = causes.size
-        val summary =
-          if (count > 1)
-            s"\n$count errors"
-          else
-            ""
-        causes
+        val all = head :: tail
+        val count = all.size
+        val summary = s"\n$count errors"
+        all
           .zipWithIndex
           .map { case (d, i) =>
             s"[E${i + 1}] ${d.pretty}"
           }
-          // TODO(olafur): Tests output of aggregate error
           .mkString("", "\n", summary)
     }
 }

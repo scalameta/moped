@@ -66,7 +66,6 @@ class AggregateSearcher(
     val ec: ExecutionContext
 ) extends ConfigurationSearcher {
   def this(underlying: List[ConfigurationSearcher]) =
-    // TODO(olafur): use parasitic execution context here by default.
     this(underlying, EagerExecutionContext)
   def findAsync(app: Application): Future[List[DecodingResult[JsonElement]]] = {
     implicit val e = ec

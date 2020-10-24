@@ -25,8 +25,6 @@ object ManCommand {
               Description("Manage man page installation and uninstallation"),
               moped.annotations.Subcommand(InstallManCommand.parser),
               moped.annotations.Subcommand(UninstallManCommand.parser),
-              // TODO(olafur): remove help command and fix failing tests. The
-              // error message is cryptic when the help command is missing.
               moped.annotations.Subcommand(HelpCommand.parser)
             )
           )

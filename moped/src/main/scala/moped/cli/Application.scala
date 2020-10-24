@@ -87,7 +87,6 @@ case class Application(
   }
 
   def process(command: Shellable*): SpawnableProcess =
-    // TODO(olafur): support automatic logging of process
     new SpawnableProcess(command, env, mockedProcesses)
 
   def consumedArguments: List[String] =
@@ -124,11 +123,11 @@ case class Application(
     }
   }
 
+  // TODO(olafur): avoid this hacky replace.
   def usageDoc: Doc = Doc.text(usage.replace("{BINARY_NAME}", binaryName))
 
   def documentation: List[(String, Doc)] =
     List[(String, Doc)](
-      // TODO(olafur): avoid this hacky replace.
       "USAGE" -> usageDoc,
       "DESCRIPTION" -> description,
       "COMMANDS" -> {

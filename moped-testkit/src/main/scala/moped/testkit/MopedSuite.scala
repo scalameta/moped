@@ -159,7 +159,7 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
           app.reset()
           val commands: List[String] = prefix :+ c.subcommandName :+ "--help"
           val exit = app().run(commands)
-          assertEquals(exit, 0, app.capturedOutput)
+          assertEquals(exit, 0, clues(commands, app.capturedOutput))
           out
             .append("$ ")
             .append((app().binaryName :: commands).mkString(" "))

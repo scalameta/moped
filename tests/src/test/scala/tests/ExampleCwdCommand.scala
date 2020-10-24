@@ -7,7 +7,10 @@ import moped.cli.Command
 import moped.cli.CommandParser
 import moped.json.JsonCodec
 
-case class SharedCwdOptions(app: Application = Application.default)
+case class SharedCwdOptions(
+    @Inline
+    app: Application = Application.default
+)
 
 object SharedCwdOptions {
   implicit val codec: JsonCodec[SharedCwdOptions] = moped

@@ -141,7 +141,9 @@ class RunCompletionsCommand(app: Application) extends Command {
       .inlinedSettings(subcommand)
       .filter { case (_, params) =>
         params.exists { param =>
-          !param.shape.isHidden || !param.shape.isPositionalArgument
+          param.isCanonical && {
+            !param.shape.isHidden || !param.shape.isPositionalArgument
+          }
         }
       }
     val secondLast = (head :: tail).takeRight(2) match {

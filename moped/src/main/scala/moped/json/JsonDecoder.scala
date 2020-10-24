@@ -27,6 +27,9 @@ trait JsonDecoder[A] {
 object JsonDecoder {
 
   def apply[A](implicit ev: JsonDecoder[A]): JsonDecoder[A] = ev
+  def decode[A](context: DecodingContext)(implicit
+      ev: JsonDecoder[A]
+  ): Result[A] = ev.decode(context)
   def constant[A](value: A): JsonDecoder[A] = _ => ValueResult(value)
 
   def fromJson[A](

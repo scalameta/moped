@@ -6,7 +6,7 @@ import moped.reporters.Diagnostic
 import moped.reporters.ErrorSeverity
 import moped.reporters.NoPosition
 
-class AggregateDiagnostic(head: Diagnostic, tail: List[Diagnostic])
+case class AggregateDiagnostic(head: Diagnostic, tail: List[Diagnostic])
     extends Diagnostic(ErrorSeverity, "", NoPosition, None, head :: tail) {
   def message: String =
     tail match {

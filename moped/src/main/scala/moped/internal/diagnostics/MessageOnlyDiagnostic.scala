@@ -4,13 +4,13 @@ import moped.reporters.NoPosition
 import moped.reporters.Position
 import moped.reporters.Severity
 
-class MessageOnlyDiagnostic(
-    val message: String,
-    severity: Severity,
-    pos: Position = NoPosition,
-    throwable: Option[Throwable] = None
+case class MessageOnlyDiagnostic(
+    override val message: String,
+    override val severity: Severity,
+    override val position: Position = NoPosition,
+    override val throwable: Option[Throwable] = None
 ) extends moped.reporters.Diagnostic(
       severity,
-      position = pos,
+      position = position,
       throwable = throwable
     )

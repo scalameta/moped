@@ -10,10 +10,8 @@ final class DecodingContext private (
     val fatalUnknownFields: Boolean
 ) {
   def environment: Environment = app.env
-  def withJson(value: JsonElement): DecodingContext =
-    copy(json = value)
-  def withCursor(value: Cursor): DecodingContext =
-    copy(cursor = value)
+  def withJson(value: JsonElement): DecodingContext = copy(json = value)
+  def withCursor(value: Cursor): DecodingContext = copy(cursor = value)
   def withFatalUnknownFields(value: Boolean): DecodingContext =
     copy(fatalUnknownFields = value)
 
@@ -28,12 +26,7 @@ final class DecodingContext private (
       app: Application = this.app,
       fatalUnknownFields: Boolean = this.fatalUnknownFields
   ): DecodingContext = {
-    new DecodingContext(
-      json,
-      cursor,
-      app,
-      fatalUnknownFields
-    )
+    new DecodingContext(json, cursor, app, fatalUnknownFields)
   }
   override def toString(): String =
     s"DecodingContext(json=${pprint.PPrinter.BlackWhite.tokenize(json).mkString}, cursor=$cursor)",
@@ -51,11 +44,6 @@ object DecodingContext {
       app: Application,
       cursor: Cursor
   ): DecodingContext = {
-    new DecodingContext(
-      json,
-      cursor,
-      app,
-      fatalUnknownFields = false
-    )
+    new DecodingContext(json, cursor, app, fatalUnknownFields = false)
   }
 }

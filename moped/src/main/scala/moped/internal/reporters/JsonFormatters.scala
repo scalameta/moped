@@ -5,12 +5,18 @@ object JsonFormatters {
     val out = new java.lang.StringBuilder()
     var i = 0
     while (i < str.length()) {
-      out.append(str.charAt(i) match {
-        case '\\' => "\\\\"
-        case '\n' => "\\n"
-        case '"' => "\""
-        case other => other
-      })
+      out.append(
+        str.charAt(i) match {
+          case '\\' =>
+            "\\\\"
+          case '\n' =>
+            "\\n"
+          case '"' =>
+            "\""
+          case other =>
+            other
+        }
+      )
       i += 1
     }
     out.toString()

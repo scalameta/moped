@@ -1,6 +1,7 @@
 package moped.reporters
 
-sealed abstract class Position { pos =>
+sealed abstract class Position {
+  pos =>
   def input: Input
   def start: Int
   def startLine: Int
@@ -14,27 +15,22 @@ sealed abstract class Position { pos =>
 
   /** Returns true if this position encloses the other position */
   final def encloses(other: Position): Boolean =
-    pos.start <= other.start &&
-      pos.end > other.end
+    pos.start <= other.start && pos.end > other.end
 
-  /** Returns a formatted string of this position including filename/line/caret. */
+  /**
+   * Returns a formatted string of this position including filename/line/caret.
+   */
   final def pretty(severity: String, message: String): String = {
     // Predef.augmentString = work around scala/bug#11125 on JDK 11
     val content = augmentString(lineContent).lines
     val sb = new StringBuilder()
     // TODO(olafur): check error when column number is huge like in auto-generated JSON
-    sb.append(lineInput(severity, message))
-      .append("\n")
+    sb.append(lineInput(severity, message)).append("\n")
     if (content.hasNext) {
-      sb
-        .append(content.next())
-        .append("\n")
-        .append(lineCaret)
-        .append("\n")
+      sb.append(content.next()).append("\n").append(lineCaret).append("\n")
     }
     content.foreach { line =>
-      sb.append(line)
-        .append("\n")
+      sb.append(line).append("\n")
     }
     // TODO(olafur): trim away last newline
     sb.toString()
@@ -43,14 +39,14 @@ sealed abstract class Position { pos =>
   final def lineInput(severity: String, message: String): String = {
     val out = new StringBuilder()
     if (!pos.isNone) {
-      val path = pos.input.path match {
-        case Some(path) => path.toString()
-        case None => pos.input.filename
-      }
-      out
-        .append(path)
-        .append(":")
-        .append(pos.startLine + 1)
+      val path =
+        pos.input.path match {
+          case Some(path) =>
+            path.toString()
+          case None =>
+            pos.input.filename
+        }
+      out.append(path).append(":").append(pos.startLine + 1)
       if (pos.startColumn > 0) {
         out.append(":").append(pos.startColumn)
       }
@@ -58,42 +54,41 @@ sealed abstract class Position { pos =>
 
     if (!severity.isEmpty) {
       out
-      // TODO(olafur): out can be empty
-        .append(" ")
-        .append(severity)
-        .append(":")
+        // TODO(olafur): out can be empty
+        .append(" ").append(severity).append(":")
     }
     if (!message.isEmpty) {
-      out
-        .append(" ")
-        .append(message)
+      out.append(" ").append(message)
     }
     out.toString()
   }
 
   final def lineCaret: String =
     pos match {
-      case NoPosition => ""
+      case NoPosition =>
+        ""
       case range: RangePosition =>
         if (isEndOfFile(range)) {
           endOfFileOffset.lineCaret
         } else {
           val caret =
-            if (pos.startLine == pos.endLine) "^" * (pos.end - pos.start + 1)
-            else "^"
+            if (pos.startLine == pos.endLine)
+              "^" * (pos.end - pos.start + 1)
+            else
+              "^"
           " " * pos.startColumn + caret
         }
     }
 
   final def lineContent: String =
     pos match {
-      case NoPosition => ""
+      case NoPosition =>
+        ""
       case range: RangePosition =>
         if (isEndOfFile(range)) {
           endOfFileOffset.lineContent
         } else {
-          val start =
-            range.start - range.startColumn
+          val start = range.start - range.startColumn
           val endLine = math.min(range.input.lineCount - 1, range.endLine + 1)
           val end = math.max(start, range.input.lineToOffset(endLine) - 1)
           RangePosition(range.input, start, end).text
@@ -106,9 +101,7 @@ sealed abstract class Position { pos =>
   }
   private def isEndOfFile(range: RangePosition): Boolean = {
     val size = range.input.chars.length
-    range.start == size &&
-    range.end == size &&
-    range.input.chars.last == '\n'
+    range.start == size && range.end == size && range.input.chars.last == '\n'
   }
 }
 object Position {
@@ -119,15 +112,18 @@ object Position {
       endLine: Int,
       endColumn: Int
   ): Position =
-    if (input.isEmpty) NoPosition
+    if (input.isEmpty)
+      NoPosition
     else {
       val start = input.lineToOffset(startLine) + startColumn
       val end = input.lineToOffset(endLine) + endColumn
       RangePosition(input, start, end)
     }
   def offset(input: Input, offset: Int): Position =
-    if (offset < 0 || input.isEmpty) NoPosition
-    else RangePosition(input, offset, offset)
+    if (offset < 0 || input.isEmpty)
+      NoPosition
+    else
+      RangePosition(input, offset, offset)
 }
 
 case object NoPosition extends Position {

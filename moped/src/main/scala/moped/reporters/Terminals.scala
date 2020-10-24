@@ -3,9 +3,7 @@ package moped.reporters
 // TODO(olafur): can we replace this with jline terminal? at least rename to something else.
 class Terminals(tput: Tput) {
   def screenSize(): ScreenSize = {
-    tput
-      .size()
-      .getOrElse(ScreenSize.default)
+    tput.size().getOrElse(ScreenSize.default)
   }
   def screenHeigth(): Int = screenSize().width
   def screenWidth(): Int = {

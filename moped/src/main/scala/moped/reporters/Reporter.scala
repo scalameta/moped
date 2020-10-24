@@ -16,13 +16,18 @@ abstract class Reporter {
 
   final def exit(result: DecodingResult[Unit]): Int = {
     result match {
-      case ValueResult(()) => exitCode()
+      case ValueResult(()) =>
+        exitCode()
       case ErrorResult(error) =>
         log(error)
         1
     }
   }
-  final def exitCode(): Int = if (hasErrors()) 1 else 0
+  final def exitCode(): Int =
+    if (hasErrors())
+      1
+    else
+      0
   final def hasErrors(): Boolean = errorCount > 0
   final def hasWarnings(): Boolean = warningCount > 0
 }

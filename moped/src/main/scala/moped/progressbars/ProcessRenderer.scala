@@ -21,16 +21,25 @@ class ProcessRenderer(
     minimumDuration: Duration = Duration.ofSeconds(1)
 ) extends ProgressRenderer {
   val lines = new ConcurrentLinkedDeque[String]()
-  val output: ProcessOutput.Readlines =
-    os.ProcessOutput.Readlines(line => lines.addLast(line))
+  val output: ProcessOutput.Readlines = os
+    .ProcessOutput
+    .Readlines(line => lines.addLast(line))
   lazy val timer = new PrettyTimer
   private def prettyPrintCommand(c: List[String]) =
-    c.map(arg => if (arg.contains(" ")) s"'$arg'" else arg).mkString(" ")
+    c.map(arg =>
+        if (arg.contains(" "))
+          s"'$arg'"
+        else
+          arg
+      )
+      .mkString(" ")
   val commandString: String = prettyPrintCommand(command)
   val prettyCommandString: String = prettyPrintCommand(prettyCommand)
   private def shortCommandString =
-    if (commandString.length() > 60) commandString.take(60) + "..."
-    else commandString
+    if (commandString.length() > 60)
+      commandString.take(60) + "..."
+    else
+      commandString
   def asErrorResult(exitCode: Int): ErrorResult = {
     lines.addFirst(
       s"Command failed with exit code '${exitCode}', to reproduce:\n  $$ ${commandString}"
@@ -50,11 +59,15 @@ class ProcessRenderer(
     if (elapsed > minimumDuration && lastLine != null) {
       // Strip out ANSI escape codes since they mess up with the progress bar.
       val lastLineClean = Str(lastLine, errorMode = ErrorMode.Strip).plainText
-      val endLine = if (lastLineClean.isEmpty()) Doc.empty else Doc.line
+      val endLine =
+        if (lastLineClean.isEmpty())
+          Doc.empty
+        else
+          Doc.line
       val dynamic =
         Doc.text(timer.formatPadded()) + Doc.space +
-          Doc.text(prettyCommandString) + Doc.line +
-          Doc.text(lastLineClean) + endLine
+          Doc.text(prettyCommandString) + Doc.line + Doc.text(lastLineClean) +
+          endLine
       ProgressStep(dynamic = dynamic)
     } else {
       ProgressStep.empty

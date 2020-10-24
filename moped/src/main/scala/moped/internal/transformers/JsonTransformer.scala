@@ -17,13 +17,20 @@ class JsonTransformer(input: Input)
   def pos(index: Int): Position = Position.offset(input, index)
   def transform[T](j: JsonElement, f: Visitor[_, T]): T =
     j match {
-      case JsonNull() => f.visitNull(-1)
-      case JsonNumber(value) => f.visitFloat64(value, -1)
-      case JsonBoolean(true) => f.visitTrue(-1)
-      case JsonBoolean(false) => f.visitFalse(-1)
-      case JsonString(value) => f.visitString(value, -1)
-      case JsonArray(elements) => transformArray(f, elements)
-      case obj @ JsonObject(members) => transformObject(f, obj.value)
+      case JsonNull() =>
+        f.visitNull(-1)
+      case JsonNumber(value) =>
+        f.visitFloat64(value, -1)
+      case JsonBoolean(true) =>
+        f.visitTrue(-1)
+      case JsonBoolean(false) =>
+        f.visitFalse(-1)
+      case JsonString(value) =>
+        f.visitString(value, -1)
+      case JsonArray(elements) =>
+        transformArray(f, elements)
+      case obj @ JsonObject(members) =>
+        transformObject(f, obj.value)
     }
   def visitArray(
       length: Int,
@@ -39,9 +46,14 @@ class JsonTransformer(input: Input)
   ): ObjVisitor[JsonElement, JsonElement] =
     new AstMopedObjectVisitor[mutable.ListBuffer[(JsonString, JsonElement)]](
       buf =>
-        JsonObject(buf.iterator.map {
-          case (key, value) => JsonMember(key, value)
-        }.toList).withPosition(pos(index))
+        JsonObject(
+          buf
+            .iterator
+            .map { case (key, value) =>
+              JsonMember(key, value)
+            }
+            .toList
+        ).withPosition(pos(index))
     )
   def visitNull(index: Int): JsonElement = JsonNull().withPosition(pos(index))
   def visitFalse(index: Int): JsonElement =
@@ -54,9 +66,8 @@ class JsonTransformer(input: Input)
       expIndex: Int,
       index: Int
   ): JsonElement =
-    JsonNumber(
-      parseFloat64StringParts(s, decIndex, expIndex, index)
-    ).withPosition(pos(index))
+    JsonNumber(parseFloat64StringParts(s, decIndex, expIndex, index))
+      .withPosition(pos(index))
   def visitString(s: CharSequence, index: Int): JsonElement =
     JsonString(s.toString()).withPosition(pos(index))
 }

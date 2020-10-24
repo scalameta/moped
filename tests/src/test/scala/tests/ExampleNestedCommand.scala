@@ -16,8 +16,9 @@ final case class NestedOptions(
     g: Boolean = true
 )
 object NestedOptions {
-  implicit val codec: JsonCodec[NestedOptions] =
-    moped.macros.deriveCodec(NestedOptions())
+  implicit val codec: JsonCodec[NestedOptions] = moped
+    .macros
+    .deriveCodec(NestedOptions())
 }
 
 final case class InlinedOptions(
@@ -33,8 +34,9 @@ final case class InlinedOptions(
 )
 
 object InlinedOptions {
-  implicit val codec: JsonCodec[InlinedOptions] =
-    moped.macros.deriveCodec(InlinedOptions())
+  implicit val codec: JsonCodec[InlinedOptions] = moped
+    .macros
+    .deriveCodec(InlinedOptions())
 }
 
 final case class Inlined2Options(
@@ -43,15 +45,18 @@ final case class Inlined2Options(
     ij: Boolean = false
 )
 object Inlined2Options {
-  implicit val codec: JsonCodec[Inlined2Options] =
-    moped.macros.deriveCodec(Inlined2Options())
+  implicit val codec: JsonCodec[Inlined2Options] = moped
+    .macros
+    .deriveCodec(Inlined2Options())
 }
 
 @Hidden
 final case class ExampleNestedCommand(
     nested: NestedOptions = NestedOptions(),
-    @Inline inlined: InlinedOptions = InlinedOptions(),
-    @Inline inlined2: Inlined2Options = Inlined2Options(),
+    @Inline
+    inlined: InlinedOptions = InlinedOptions(),
+    @Inline
+    inlined2: Inlined2Options = Inlined2Options(),
     app: Application = Application.default
 ) extends Command {
   def run(): Int = {
@@ -97,6 +102,6 @@ final case class ExampleNestedCommand(
   }
 }
 object ExampleNestedCommand {
-  implicit val parser: CommandParser[ExampleNestedCommand] =
-    CommandParser.derive(ExampleNestedCommand())
+  implicit val parser: CommandParser[ExampleNestedCommand] = CommandParser
+    .derive(ExampleNestedCommand())
 }

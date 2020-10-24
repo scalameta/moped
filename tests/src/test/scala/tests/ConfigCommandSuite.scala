@@ -1,17 +1,9 @@
 package tests
 
 class ConfigCommandSuite extends BaseSuite {
-  checkOutput(
-    "basic",
-    List("config", "--foobar"),
-    "foobar"
-  )
+  checkOutput("basic", List("config", "--foobar"), "foobar")
 
-  checkOutput(
-    "basic",
-    List("config"),
-    "no foobar"
-  )
+  checkOutput("basic", List("config"), "no foobar")
 
   checkOutput(
     "negative-inline",
@@ -25,9 +17,10 @@ class ConfigCommandSuite extends BaseSuite {
     "json",
     List("config"),
     "foobar",
-    workingDirectoryLayout = """|/.tests.json
-                                |{"foobar": true}
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.json
+         |{"foobar": true}
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -37,9 +30,10 @@ class ConfigCommandSuite extends BaseSuite {
        |{
        | ^
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.json
-                                |{
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.json
+         |{
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -51,20 +45,22 @@ class ConfigCommandSuite extends BaseSuite {
        |  "foobar": "message"
        |            ^
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.json
-                                |{
-                                |  "foobar": "message"
-                                |}
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.json
+         |{
+         |  "foobar": "message"
+         |}
+         |""".stripMargin
   )
 
   checkOutput(
     "hocon",
     List("config"),
     "foobar",
-    workingDirectoryLayout = """|/.tests.conf
-                                |foobar = true
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.conf
+         |foobar = true
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -74,9 +70,10 @@ class ConfigCommandSuite extends BaseSuite {
        |foobar =
        |        ^
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.conf
-                                |foobar =
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.conf
+         |foobar =
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -88,18 +85,20 @@ class ConfigCommandSuite extends BaseSuite {
        |foobar = message
        |^
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.conf
-                                |foobar = message
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.conf
+         |foobar = message
+         |""".stripMargin
   )
 
   checkOutput(
     "toml",
     List("config"),
     "foobar",
-    workingDirectoryLayout = """|/.tests.toml
-                                |foobar = true
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.toml
+         |foobar = true
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -109,9 +108,10 @@ class ConfigCommandSuite extends BaseSuite {
        |foobar =
        |        ^
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.toml
-                                |foobar =
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.toml
+         |foobar =
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -121,18 +121,20 @@ class ConfigCommandSuite extends BaseSuite {
        |  found    : String
        |  expected : Boolean
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.toml
-                                |foobar = "message"
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.toml
+         |foobar = "message"
+         |""".stripMargin
   )
 
   checkOutput(
     "yaml",
     List("config"),
     "foobar",
-    workingDirectoryLayout = """|/.tests.yaml
-                                |foobar: true
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.yaml
+         |foobar: true
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -142,9 +144,10 @@ class ConfigCommandSuite extends BaseSuite {
        |foobar: "
        |         ^
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.yaml
-                                |foobar: "
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.yaml
+         |foobar: "
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -156,9 +159,10 @@ class ConfigCommandSuite extends BaseSuite {
        |foobar: "message"
        |        ^
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.yaml
-                                |foobar: "message"
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.yaml
+         |foobar: "message"
+         |""".stripMargin
   )
 
   // TODO: handle unknown fields in YAML
@@ -180,10 +184,11 @@ class ConfigCommandSuite extends BaseSuite {
     "dhall",
     List("config"),
     "foobar",
-    workingDirectoryLayout = """|/.tests.dhall
-                                |let hello = True in
-                                |{ foobar = hello }
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.dhall
+         |let hello = True in
+         |{ foobar = hello }
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -193,10 +198,11 @@ class ConfigCommandSuite extends BaseSuite {
        |{ foobar = hel
        |              ^
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.dhall
-                                |let hello = True in
-                                |{ foobar = hel
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.dhall
+         |let hello = True in
+         |{ foobar = hel
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -206,30 +212,33 @@ class ConfigCommandSuite extends BaseSuite {
        |  found    : String
        |  expected : Boolean
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.dhall
-                                |let hello = "message" in
-                                |{ foobar = hello }
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.dhall
+         |let hello = "message" in
+         |{ foobar = hello }
+         |""".stripMargin
   )
 
   checkOutput(
     "jsonnet",
     List("config"),
     "foobar",
-    workingDirectoryLayout = """|/.tests.jsonnet
-                                |local hello(enabled) = {foobar: enabled};
-                                |hello(true)
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.jsonnet
+         |local hello(enabled) = {foobar: enabled};
+         |hello(true)
+         |""".stripMargin
   )
 
   checkOutput(
     "jsonnet",
     List("config"),
     "foobar",
-    workingDirectoryLayout = """|/.tests.jsonnet
-                                |local hello(enabled) = {foobar: enabled};
-                                |hello(true)
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.jsonnet
+         |local hello(enabled) = {foobar: enabled};
+         |hello(true)
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -239,10 +248,11 @@ class ConfigCommandSuite extends BaseSuite {
        |local hello(enabled) = {foobar enabled};
        |                               ^
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.jsonnet
-                                |local hello(enabled) = {foobar enabled};
-                                |hello(true)
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.jsonnet
+         |local hello(enabled) = {foobar enabled};
+         |hello(true)
+         |""".stripMargin
   )
 
   checkErrorOutput(
@@ -252,10 +262,11 @@ class ConfigCommandSuite extends BaseSuite {
        |  found    : String
        |  expected : Boolean
        |""".stripMargin,
-    workingDirectoryLayout = """|/.tests.jsonnet
-                                |local hello(enabled) = {foobar: enabled};
-                                |hello("message")
-                                |""".stripMargin
+    workingDirectoryLayout =
+      """|/.tests.jsonnet
+         |local hello(enabled) = {foobar: enabled};
+         |hello("message")
+         |""".stripMargin
   )
 
 }

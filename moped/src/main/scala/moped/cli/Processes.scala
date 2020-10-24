@@ -18,30 +18,40 @@ final class SpawnableProcess(
 ) {
 
   /**
-   * Invokes the given subprocess like a function, passing in input and returning a
-   * [[CommandResult]]. You can then call `result.exitCode` to see how it exited, or
-   * `result.out.bytes` or `result.err.string` to access the aggregated stdout and
-   * stderr of the subprocess in a number of convenient ways. If a non-zero exit code
-   * is returned, this throws a [[os.SubprocessException]] containing the
-   * [[CommandResult]], unless you pass in `check = false`.
+   * Invokes the given subprocess like a function, passing in input and
+   * returning a [[CommandResult]]. You can then call `result.exitCode` to see
+   * how it exited, or `result.out.bytes` or `result.err.string` to access the
+   * aggregated stdout and stderr of the subprocess in a number of convenient
+   * ways. If a non-zero exit code is returned, this throws a
+   * [[os.SubprocessException]] containing the [[CommandResult]], unless you
+   * pass in `check = false`.
    *
    * If you want to spawn an interactive subprocess, such as `vim`, `less`, or a
    * `python` shell, set all of `stdin`/`stdout`/`stderr` to [[os.Inherit]]
    *
-   * `call` provides a number of parameters that let you configure how the subprocess
-   * is run:
+   * `call` provides a number of parameters that let you configure how the
+   * subprocess is run:
    *
-   * @param cwd             the working directory of the subprocess
-   * @param env             any additional environment variables you wish to set in the subprocess
-   * @param stdin           any data you wish to pass to the subprocess's standard input
-   * @param stdout          How the process's output stream is configured.
-   * @param stderr          How the process's error stream is configured.
-   * @param mergeErrIntoOut merges the subprocess's stderr stream into it's stdout
-   * @param timeout         how long to wait for the subprocess to complete
-   * @param check           disable this to avoid throwing an exception if the subprocess
-   *                        fails with a non-zero exit code
-   * @param propagateEnv    disable this to avoid passing in this parent process's
-   *                        environment variables to the subprocess
+   * @param cwd
+   *   the working directory of the subprocess
+   * @param env
+   *   any additional environment variables you wish to set in the subprocess
+   * @param stdin
+   *   any data you wish to pass to the subprocess's standard input
+   * @param stdout
+   *   How the process's output stream is configured.
+   * @param stderr
+   *   How the process's error stream is configured.
+   * @param mergeErrIntoOut
+   *   merges the subprocess's stderr stream into it's stdout
+   * @param timeout
+   *   how long to wait for the subprocess to complete
+   * @param check
+   *   disable this to avoid throwing an exception if the subprocess fails with
+   *   a non-zero exit code
+   * @param propagateEnv
+   *   disable this to avoid passing in this parent process's environment
+   *   variables to the subprocess
    */
   def call(
       cwd: java.nio.file.Path = null,
@@ -61,16 +71,20 @@ final class SpawnableProcess(
       cwd,
       env,
       stdin,
-      if (stdout ne os.Pipe) stdout
+      if (stdout ne os.Pipe)
+        stdout
       else
-        os.ProcessOutput.ReadBytes((buf, n) =>
-          chunks.add(Left(new geny.Bytes(java.util.Arrays.copyOf(buf, n))))
-        ),
-      if (stderr ne os.Pipe) stderr
+        os.ProcessOutput
+          .ReadBytes((buf, n) =>
+            chunks.add(Left(new geny.Bytes(java.util.Arrays.copyOf(buf, n))))
+          ),
+      if (stderr ne os.Pipe)
+        stderr
       else
-        os.ProcessOutput.ReadBytes((buf, n) =>
-          chunks.add(Right(new geny.Bytes(java.util.Arrays.copyOf(buf, n))))
-        ),
+        os.ProcessOutput
+          .ReadBytes((buf, n) =>
+            chunks.add(Right(new geny.Bytes(java.util.Arrays.copyOf(buf, n))))
+          ),
       mergeErrIntoOut,
       propagateEnv
     )
@@ -80,14 +94,16 @@ final class SpawnableProcess(
 
     val chunksArr = chunks.iterator.asScala.toArray
     val res = CommandResult(sub.exitCode(), chunksArr)
-    if (res.exitCode == 0 || !check) res
-    else throw SubprocessException(res)
+    if (res.exitCode == 0 || !check)
+      res
+    else
+      throw SubprocessException(res)
   }
 
   /**
-   * The most flexible of the [[os.proc]] calls, `os.proc.spawn` simply configures
-   * and starts a subprocess, and returns it as a `java.lang.Process` for you to
-   * interact with however you like.
+   * The most flexible of the [[os.proc]] calls, `os.proc.spawn` simply
+   * configures and starts a subprocess, and returns it as a `java.lang.Process`
+   * for you to interact with however you like.
    *
    * To implement pipes, you can spawn a process, take it's stdout, and pass it
    * as the stdin of a second spawned process.
@@ -106,13 +122,14 @@ final class SpawnableProcess(
       mergeErrIntoOut: Boolean = false,
       propagateEnv: Boolean = true
   ): SubProcess = {
-    val mockedApplication = for {
-      binaryName <- command.headOption.flatMap(_.value.headOption).toList
-      app <- mocked
-      if app.binaryName == binaryName
-    } yield app
-    val actualWorkingDirectory =
-      Option(cwd).getOrElse(this.env.workingDirectory)
+    val mockedApplication =
+      for {
+        binaryName <- command.headOption.flatMap(_.value.headOption).toList
+        app <- mocked
+        if app.binaryName == binaryName
+      } yield app
+    val actualWorkingDirectory = Option(cwd)
+      .getOrElse(this.env.workingDirectory)
 
     val actualEnvironment = Map.newBuilder[String, String]
     if (propagateEnv) {
@@ -161,49 +178,55 @@ final class SpawnableProcess(
     val in = new PipedInputStream()
     val out = new PipedOutputStream()
     val err = new PipedOutputStream()
-    val app = toMock.copy(
-      env = this.env.copy(
-        workingDirectory = cwd,
-        standardInput = new BufferedReader(new InputStreamReader(in)),
-        standardOutput = new PrintStream(out),
-        standardError = new PrintStream(err)
-      )
+    val app = toMock.copy(env =
+      this
+        .env
+        .copy(
+          workingDirectory = cwd,
+          standardInput = new BufferedReader(new InputStreamReader(in)),
+          standardOutput = new PrintStream(out),
+          standardError = new PrintStream(err)
+        )
     )
-    @volatile var exit = -1
-    val thread = new Thread("Mocked " + app.binaryName) {
-      override def run(): Unit = {
-        try {
-          exit = app.run(arguments.toList)
-        } finally {
-          out.close()
-          err.close()
-          in.close()
+    @volatile
+    var exit = -1
+    val thread =
+      new Thread("Mocked " + app.binaryName) {
+        override def run(): Unit = {
+          try {
+            exit = app.run(arguments.toList)
+          } finally {
+            out.close()
+            err.close()
+            in.close()
+          }
         }
       }
-    }
-    val mockedProcess: Process = new Process {
-      override def getOutputStream(): OutputStream = new PipedOutputStream(in)
-      override def getInputStream(): InputStream = new PipedInputStream(out)
-      override def getErrorStream(): InputStream = new PipedInputStream(err)
-      override def waitFor(): Int = exitValue()
-      override def exitValue(): Int = {
-        thread.join()
-        exit
+    val mockedProcess: Process =
+      new Process {
+        override def getOutputStream(): OutputStream = new PipedOutputStream(in)
+        override def getInputStream(): InputStream = new PipedInputStream(out)
+        override def getErrorStream(): InputStream = new PipedInputStream(err)
+        override def waitFor(): Int = exitValue()
+        override def exitValue(): Int = {
+          thread.join()
+          exit
+        }
+        override def destroy(): Unit = ()
       }
-      override def destroy(): Unit = ()
-    }
-    lazy val sub: SubProcess = new SubProcess(
-      mockedProcess,
-      stdin
-        .processInput(sub.stdin)
-        .map(new Thread(_, "Mocked " + commandStr + " stdin thread")),
-      stdout
-        .processOutput(sub.stdout)
-        .map(new Thread(_, "Mocked " + commandStr + " stdout thread")),
-      stderr
-        .processOutput(sub.stderr)
-        .map(new Thread(_, "Mocked " + commandStr + " stderr thread"))
-    )
+    lazy val sub: SubProcess =
+      new SubProcess(
+        mockedProcess,
+        stdin
+          .processInput(sub.stdin)
+          .map(new Thread(_, "Mocked " + commandStr + " stdin thread")),
+        stdout
+          .processOutput(sub.stdout)
+          .map(new Thread(_, "Mocked " + commandStr + " stdout thread")),
+        stderr
+          .processOutput(sub.stderr)
+          .map(new Thread(_, "Mocked " + commandStr + " stderr thread"))
+      )
     sub.inputPumperThread.foreach(_.start())
     sub.outputPumperThread.foreach(_.start())
     sub.errorPumperThread.foreach(_.start())

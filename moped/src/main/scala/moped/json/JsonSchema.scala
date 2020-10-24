@@ -36,9 +36,12 @@ object JsonSchema {
   )(implicit settings: ClassShaper[T]): JsonObject = {
 
     val properties = JsonElement.fromMembers(
-      settings.parametersFlat
+      settings
+        .parametersFlat
         .zip(default.members)
-        .map { case (s, JsonMember(_, v)) => fromSetting(s, v) }: _*
+        .map { case (s, JsonMember(_, v)) =>
+          fromSetting(s, v)
+        }: _*
     )
 
     JsonElement.fromMembers(
@@ -56,28 +59,34 @@ object JsonSchema {
   ): (String, JsonObject) = {
     val obj = JsonElement.fromMembers(
       "title" -> JsonString(setting.name),
-      "description" -> setting.description
-        .map(desc => JsonString(desc.render(80)))
-        .getOrElse(JsonNull()),
+      "description" ->
+        setting
+          .description
+          .map(desc => JsonString(desc.render(80)))
+          .getOrElse(JsonNull()),
       "default" -> defaultValue,
       "required" -> JsonBoolean(false),
       "type" -> toSchemaType(defaultValue)
     )
-    val withProperties: JsonObject = defaultValue match {
-      case JsonObject(values) =>
-        val properties = JsonElement.fromMembers(
-          setting.underlying
-            .map(
-              _.parametersFlat
-                .zip(values)
-                .map { case (s, JsonMember(_, v)) => fromSetting(s, v) }
-            )
-            .getOrElse(Nil): _*
-        )
-        obj + JsonMember(JsonString("properties"), properties)
-      case _ =>
-        obj
-    }
+    val withProperties: JsonObject =
+      defaultValue match {
+        case JsonObject(values) =>
+          val properties = JsonElement.fromMembers(
+            setting
+              .underlying
+              .map(
+                _.parametersFlat
+                  .zip(values)
+                  .map { case (s, JsonMember(_, v)) =>
+                    fromSetting(s, v)
+                  }
+              )
+              .getOrElse(Nil): _*
+          )
+          obj + JsonMember(JsonString("properties"), properties)
+        case _ =>
+          obj
+      }
     setting.name -> withProperties
   }
 
@@ -85,12 +94,18 @@ object JsonSchema {
     JsonString(
       conf match {
         // https://tools.ietf.org/html/draft-handrews-json-schema-01#section-4.2.1
-        case _: JsonBoolean => "boolean"
-        case _: JsonNumber => "number"
-        case _: JsonArray => "array"
-        case _: JsonString => "string"
-        case _: JsonNull => "null"
-        case _: JsonObject => "object"
+        case _: JsonBoolean =>
+          "boolean"
+        case _: JsonNumber =>
+          "number"
+        case _: JsonArray =>
+          "array"
+        case _: JsonString =>
+          "string"
+        case _: JsonNull =>
+          "null"
+        case _: JsonObject =>
+          "object"
       }
     )
 

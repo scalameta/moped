@@ -12,17 +12,20 @@ class ObjectMergerTraverser extends JsonTraverser {
     mergeElement(JsonObject(List(member)))
   }
   def mergeElement(elem: JsonElement): Unit = {
-    isReuseBuilder = !stack.isEmpty() &&
-      elem.isObject &&
-      stack.getFirst().isInstanceOf[ObjectBuilder]
+    isReuseBuilder =
+      !stack.isEmpty() && elem.isObject &&
+        stack.getFirst().isInstanceOf[ObjectBuilder]
     super.traverse(elem)
   }
   def result(): JsonElement = {
-    if (stack.isEmpty()) JsonObject(Nil)
-    else stack.pop().result()
+    if (stack.isEmpty())
+      JsonObject(Nil)
+    else
+      stack.pop().result()
   }
   override def traversePrimitive(e: JsonPrimitive, cursor: Cursor): Unit = {
-    while (!stack.isEmpty() && stack.peek().isPrimitiveBuilder) stack.pop()
+    while (!stack.isEmpty() && stack.peek().isPrimitiveBuilder)
+      stack.pop()
     stack.push(new PrimitiveBuilder(e))
   }
   override def traverseObject(e: JsonObject, cursor: Cursor): Unit = {

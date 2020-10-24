@@ -10,14 +10,12 @@ import scala.collection.mutable
 import scala.util.hashing.MurmurHash3
 
 object Input {
-  val none: Input =
-    new Input("<none>", "", None, Some(StandardCharsets.UTF_8))
+  val none: Input = new Input("<none>", "", None, Some(StandardCharsets.UTF_8))
   def string(text: String): Input =
     new Input("<string>", text, None, Some(StandardCharsets.UTF_8))
   def filename(filename: String, text: String): Input =
     new Input(filename, text, None, Some(StandardCharsets.UTF_8))
-  def path(path: Path): Input =
-    Input.path(path, StandardCharsets.UTF_8)
+  def path(path: Path): Input = Input.path(path, StandardCharsets.UTF_8)
   def path(path: Path, charset: Charset): Input =
     new Input(
       path.toString(),
@@ -87,9 +85,12 @@ final class Input private (
     var hi = a.length - 1
     while (hi - lo > 1) {
       val mid = (hi + lo) / 2
-      if (offset < a(mid)) hi = mid
-      else if (a(mid) == offset) return mid
-      else /* if (a(mid) < offset */ lo = mid
+      if (offset < a(mid))
+        hi = mid
+      else if (a(mid) == offset)
+        return mid
+      else
+        /* if (a(mid) < offset */ lo = mid
     }
     lo
   }
@@ -117,11 +118,10 @@ final class Input private (
     this.eq(obj.asInstanceOf[AnyRef]) || {
       obj match {
         case i: Input =>
-          i.filename == this.filename &&
-            i.text == this.text &&
-            i.path == this.path &&
-            i.charset == this.charset
-        case _ => false
+          i.filename == this.filename && i.text == this.text &&
+            i.path == this.path && i.charset == this.charset
+        case _ =>
+          false
       }
     }
 

@@ -15,14 +15,16 @@ case class ExampleFallbackCommand(
     app: Application = Application.default
 ) extends Command {
   def run(): Int = {
-    if (flag) app.out.println("flag=true")
-    if (args.nonEmpty) app.out.println(args)
+    if (flag)
+      app.out.println("flag=true")
+    if (args.nonEmpty)
+      app.out.println(args)
     0
   }
 
 }
 
 object ExampleFallbackCommand {
-  implicit val parser: CommandParser[ExampleFallbackCommand] =
-    CommandParser.derive(ExampleFallbackCommand())
+  implicit val parser: CommandParser[ExampleFallbackCommand] = CommandParser
+    .derive(ExampleFallbackCommand())
 }

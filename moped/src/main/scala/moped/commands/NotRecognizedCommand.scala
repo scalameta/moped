@@ -22,11 +22,13 @@ class NotRecognizedCommand(app: Application) extends Command {
       subcommand,
       app.commands.filterNot(_.isHidden).map(_.subcommandName)
     )
-    val didYouMean = closestSubcommand match {
-      case None => ""
-      case Some(candidate) =>
-        s"\n\tDid you mean '${app.binaryName} $candidate'?"
-    }
+    val didYouMean =
+      closestSubcommand match {
+        case None =>
+          ""
+        case Some(candidate) =>
+          s"\n\tDid you mean '${app.binaryName} $candidate'?"
+      }
     app.error(
       s"no such subcommand '$subcommand'.$didYouMean\n\tTry '${app.binaryName} help' for more information."
     )

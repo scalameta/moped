@@ -16,25 +16,26 @@ object DrillIntoJson {
     )
   }
   def getKey(obj: JsonElement, keys: Seq[String]): Option[JsonElement] =
-    if (keys.isEmpty) None
+    if (keys.isEmpty)
+      None
     else {
       obj match {
         case obj @ JsonObject(_) =>
-          obj.members
+          obj
+            .members
             .collectFirst {
               case JsonMember(JsonString(key), value) if key == keys.head =>
                 value
             }
             .orElse(getKey(obj, keys.tail))
-        case _ => None
+        case _ =>
+          None
       }
     }
 
-  def decodeMember[T](
-      context: DecodingContext,
-      member: String,
-      default: T
-  )(implicit ev: JsonDecoder[T]): DecodingResult[T] = {
+  def decodeMember[T](context: DecodingContext, member: String, default: T)(
+      implicit ev: JsonDecoder[T]
+  ): DecodingResult[T] = {
     getKey(context.json, List(member)) match {
       case Some(value) =>
         ev.decode(context.withJson(value).withSelectMemberCursor(member))
@@ -51,7 +52,8 @@ object DrillIntoJson {
     getKey(conf, param.allNames) match {
       case Some(value) =>
         ev.decode(context.withJson(value))
-      case None => ValueResult(default)
+      case None =>
+        ValueResult(default)
     }
   }
 
@@ -59,7 +61,8 @@ object DrillIntoJson {
       implicit ev: JsonDecoder[T]
   ): DecodingResult[T] = {
     getKey(context.json, path +: extraNames) match {
-      case Some(value) => ev.decode(context.withJson(value))
+      case Some(value) =>
+        ev.decode(context.withJson(value))
       case None =>
         context.json match {
           case JsonObject(_) =>

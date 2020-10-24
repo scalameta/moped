@@ -56,18 +56,16 @@ case class Application(
     relativeArguments: List[String] = Nil,
     preProcessClassShape: ClassShape => ClassShape = HelpCommand.insertHelpFlag,
     preProcessArguments: List[String] => List[String] = { args =>
-      HelpCommand.swapTrailingHelpFlag(
-        HelpCommand.moveFlagsBehindSubcommand(args)
-      )
+      HelpCommand
+        .swapTrailingHelpFlag(HelpCommand.moveFlagsBehindSubcommand(args))
     },
     onEmptyArguments: Application => BaseCommand = app => new HelpCommand(app),
-    onNotRecognoziedCommand: Application => BaseCommand = app =>
-      new NotRecognizedCommand(app),
+    onNotRecognoziedCommand: Application => BaseCommand =
+      app => new NotRecognizedCommand(app),
     parsers: List[ConfigurationParser] = List(JsonParser),
     executionContext: ExecutionContext = ExecutionContext.global,
-    searcher: ConfigurationSearcher = new AggregateSearcher(
-      List(ProjectSearcher, SystemSearcher)
-    ),
+    searcher: ConfigurationSearcher =
+      new AggregateSearcher(List(ProjectSearcher, SystemSearcher)),
     token: CancelToken = CancelToken.empty(),
     mockedProcesses: List[Application] = Nil,
     tput: Tput = Tput.system,
@@ -97,25 +95,26 @@ case class Application(
 
   def runAndExitIfNonZero(args: List[String]): Unit = {
     val exit = run(args)
-    if (exit != 0) System.exit(exit)
+    if (exit != 0)
+      System.exit(exit)
   }
   def run(arguments: List[String]): Int = {
-    if (isSingleCommand) runSingleCommand(arguments)
-    else Application.run(this.copy(arguments = arguments))
+    if (isSingleCommand)
+      runSingleCommand(arguments)
+    else
+      Application.run(this.copy(arguments = arguments))
   }
   private def runSingleCommand(arguments: List[String]): Int = {
     val singleCommand = commands
       .find { c =>
-        c.subcommandName != "version" &&
-        c.subcommandName != "help"
+        c.subcommandName != "version" && c.subcommandName != "help"
       }
       .orElse(commands.headOption)
     singleCommand match {
       case Some(command) =>
         val newArguments = command.subcommandName :: arguments
-        Application.run(
-          this.copy(arguments = command.subcommandName :: arguments)
-        )
+        Application
+          .run(this.copy(arguments = command.subcommandName :: arguments))
       case None =>
         this.error(
           "can't run command since the commands list is empty. " +
@@ -176,9 +175,8 @@ object Application {
       version: String,
       commands: List[CommandParser[_]]
   ): Application = {
-    val env = Environment.fromProjectDirectories(
-      ProjectDirectories.fromPath(binaryName)
-    )
+    val env = Environment
+      .fromProjectDirectories(ProjectDirectories.fromPath(binaryName))
     Application(
       binaryName,
       version,
@@ -248,11 +246,13 @@ object Application {
     val args = app.preProcessArguments(app.arguments)
     val base = app.copy(commands = app.commands.map(_.withApplication(app)))
     def onError(error: Diagnostic): Future[Int] = {
-      error.all.foreach {
-        case _: AggregateDiagnostic =>
-        case diagnostic =>
-          app.reporter.log(diagnostic)
-      }
+      error
+        .all
+        .foreach {
+          case _: AggregateDiagnostic =>
+          case diagnostic =>
+            app.reporter.log(diagnostic)
+        }
       Future.successful(1)
     }
     def loop(
@@ -293,9 +293,8 @@ object Application {
                 )
               } else {
                 val conf: DecodingResult[JsonObject] =
-                  CommandLineParser.parseArgs[command.Value](tail)(
-                    command.asClassShaper
-                  )
+                  CommandLineParser
+                    .parseArgs[command.Value](tail)(command.asClassShaper)
                 for {
                   parsedConfig <- app.searcher.findAsync(app)
                   configs = DecodingResult.fromResults(conf :: parsedConfig)
@@ -306,12 +305,13 @@ object Application {
                         .withFatalUnknownFields(app.fatalUnknownFields)
                     )
                   )
-                  exit <- configured match {
-                    case ValueResult(value) =>
-                      value.runAsFuture()
-                    case ErrorResult(error) =>
-                      onError(error)
-                  }
+                  exit <-
+                    configured match {
+                      case ValueResult(value) =>
+                        value.runAsFuture()
+                      case ErrorResult(error) =>
+                        onError(error)
+                    }
                 } yield exit
               }
             case None =>
@@ -321,10 +321,13 @@ object Application {
     }
     try {
       val future = loop(0, base.commands, None)
-      val exit = future.value match {
-        case Some(value) => value.get
-        case None => Await.result(future, Duration.Inf)
-      }
+      val exit =
+        future.value match {
+          case Some(value) =>
+            value.get
+          case None =>
+            Await.result(future, Duration.Inf)
+        }
       exit
     } catch {
       case NonFatal(e) =>

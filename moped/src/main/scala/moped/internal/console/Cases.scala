@@ -18,7 +18,11 @@ object Cases {
     val m = Camel.pattern.matcher(camel)
     val sb = new StringBuffer
     while (m.find()) {
-      val prefix = if (m.start() == 0) "" else "-"
+      val prefix =
+        if (m.start() == 0)
+          ""
+        else
+          "-"
       m.appendReplacement(sb, prefix + m.group().toLowerCase())
     }
     m.appendTail(sb)

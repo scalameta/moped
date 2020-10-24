@@ -20,14 +20,14 @@ object HoconParser extends ConfigurationParser {
   def parse(input: Input): DecodingResult[JsonElement] =
     DecodingResult.fromUnsafe { () =>
       try {
-        val options =
-          ConfigParseOptions.defaults.setOriginDescription(input.filename)
+        val options = ConfigParseOptions
+          .defaults
+          .setOriginDescription(input.filename)
         val root = ConfigFactory.parseString(input.text, options).resolve().root
         new HoconTransformer(input).transform(root, new JsonTransformer(input))
       } catch {
         case e: ConfigException.Parse
-            if e.getMessage != null &&
-              e.origin != null =>
+            if e.getMessage != null && e.origin != null =>
           val pos =
             if (e.origin.lineNumber < 0) {
               NoPosition

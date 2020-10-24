@@ -21,18 +21,18 @@ class YamlParser extends ConfigurationParser {
   def parse(input: Input): DecodingResult[JsonElement] = {
     DecodingResult.fromUnsafe { () =>
       try {
-        val composer = new Composer(
-          new ParserImpl(new StreamReader(input.text)),
-          new Resolver(),
-          new LoaderOptions()
-        )
+        val composer =
+          new Composer(
+            new ParserImpl(new StreamReader(input.text)),
+            new Resolver(),
+            new LoaderOptions()
+          )
         val node = composer.getSingleNode()
         new YamlNodeTransformer(input)
           .transform(node, new JsonTransformer(input))
       } catch {
         case e: MarkedYAMLException
-            if e.getProblem != null &&
-              e.getProblemMark != null &&
+            if e.getProblem != null && e.getProblemMark != null &&
               e.getProblemMark().getIndex() >= 0 =>
           val offset = e.getProblemMark().getIndex()
           val pos = RangePosition(input, offset, offset)

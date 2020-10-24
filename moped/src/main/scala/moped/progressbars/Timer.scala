@@ -25,8 +25,18 @@ object PrettyTimer {
     val ms = TimeUnit.NANOSECONDS.toMillis(elapsed.getNano()).toDouble / 1000
     val s = (sec % 60).toDouble + ms
     new StringBuilder()
-      .append(if (hr > 0) s"${hr}hr" else "")
-      .append(if (min > 0) s"${min}m" else "")
+      .append(
+        if (hr > 0)
+          s"${hr}hr"
+        else
+          ""
+      )
+      .append(
+        if (min > 0)
+          s"${min}m"
+        else
+          ""
+      )
       .append(f"$s%.1fs")
       .toString()
   }

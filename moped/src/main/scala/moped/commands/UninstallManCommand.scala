@@ -34,11 +34,10 @@ object UninstallManCommand {
             )
           )
         ),
-        JsonEncoder.stringJsonEncoder
-          .contramap[UninstallManCommand](_ => ""),
-        JsonDecoder.applicationJsonDecoder.map(app =>
-          new UninstallManCommand(app)
-        )
+        JsonEncoder.stringJsonEncoder.contramap[UninstallManCommand](_ => ""),
+        JsonDecoder
+          .applicationJsonDecoder
+          .map(app => new UninstallManCommand(app))
       ),
       new UninstallManCommand(Application.default)
     )

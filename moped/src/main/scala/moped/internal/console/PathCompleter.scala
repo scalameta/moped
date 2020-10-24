@@ -14,8 +14,10 @@ case object PathCompleter extends Completer[Path] {
   def complete(context: TabCompletionContext): List[TabCompletionItem] = {
     val pathOrDirectory = Paths.get(context.last)
     val absolutePathOrDirectory =
-      if (pathOrDirectory.isAbsolute()) pathOrDirectory
-      else context.app.env.workingDirectory.resolve(pathOrDirectory)
+      if (pathOrDirectory.isAbsolute())
+        pathOrDirectory
+      else
+        context.app.env.workingDirectory.resolve(pathOrDirectory)
     val path: Path =
       if (context.last.endsWith(File.separator)) {
         absolutePathOrDirectory
@@ -32,7 +34,11 @@ case object PathCompleter extends Completer[Path] {
         .iterator
         .map(_.toPath())
         .map { p =>
-          val slash = if (Files.isDirectory(p)) File.separator else ""
+          val slash =
+            if (Files.isDirectory(p))
+              File.separator
+            else
+              ""
           val prefix =
             if (pathOrDirectory.isAbsolute()) {
               p.toString()

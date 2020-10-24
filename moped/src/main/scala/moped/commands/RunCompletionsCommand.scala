@@ -55,9 +55,9 @@ object RunCompletionsCommand {
           )
         ),
         JsonEncoder.stringJsonEncoder.contramap[RunCompletionsCommand](_ => ""),
-        JsonDecoder.applicationJsonDecoder.map(app =>
-          new RunCompletionsCommand(app)
-        )
+        JsonDecoder
+          .applicationJsonDecoder
+          .map(app => new RunCompletionsCommand(app))
       ),
       default
     )
@@ -69,26 +69,28 @@ class RunCompletionsCommand(app: Application) extends Command {
     // NOTE(olafur) the shell names are versioned like "zsh-v1" instead of "zsh"
     // so that we can change the auto-generated completion scripts in the future
     // and support multiple versions at the same time.
-    val (format, argumentLength, arguments) = app.relativeArguments match {
-      case ZshCompletion.v1 :: NumberExtractor(argumentLength) :: tail =>
-        (new ZshCompletion(app), argumentLength.toInt, tail)
-      case BashCompletion.v1 :: NumberExtractor(argumentLength) :: tail =>
-        (new BashCompletion(app), argumentLength.toInt, tail)
-      case FishCompletion.v1 :: tail =>
-        // Fish completions pass in an empty string "" as the last argument so we
-        // don't need the second argument to know `tail.length`
-        (new FishCompletion(app), tail.length, tail)
-      case els =>
-        app.error(
-          s"invalid arguments $els, to fix this problem pass in '${app.consumedArguments.mkString(" ")} $$SHELL $$ARGUMENTS_LENGTH $$ARGUMENTS'. "
-        )
-        return 1
-    }
-    val isMissingTrailingEmptyString =
-      argumentLength == arguments.length + 1
+    val (format, argumentLength, arguments) =
+      app.relativeArguments match {
+        case ZshCompletion.v1 :: NumberExtractor(argumentLength) :: tail =>
+          (new ZshCompletion(app), argumentLength.toInt, tail)
+        case BashCompletion.v1 :: NumberExtractor(argumentLength) :: tail =>
+          (new BashCompletion(app), argumentLength.toInt, tail)
+        case FishCompletion.v1 :: tail =>
+          // Fish completions pass in an empty string "" as the last argument so we
+          // don't need the second argument to know `tail.length`
+          (new FishCompletion(app), tail.length, tail)
+        case els =>
+          app.error(
+            s"invalid arguments $els, to fix this problem pass in '${app.consumedArguments.mkString(" ")} $$SHELL $$ARGUMENTS_LENGTH $$ARGUMENTS'. "
+          )
+          return 1
+      }
+    val isMissingTrailingEmptyString = argumentLength == arguments.length + 1
     val argumentsWithTrailingEmptyString =
-      if (isMissingTrailingEmptyString) arguments :+ ""
-      else arguments
+      if (isMissingTrailingEmptyString)
+        arguments :+ ""
+      else
+        arguments
     val argumentsWithoutBinaryName = argumentsWithTrailingEmptyString.drop(1)
     val completionItems = completions(argumentsWithoutBinaryName, app, format)
     renderCompletions(completionItems, app)
@@ -115,13 +117,7 @@ class RunCompletionsCommand(app: Application) extends Command {
               if (subcommand.nestedCommands.nonEmpty) {
                 loop(head :: tail, subcommand.nestedCommands)
               } else {
-                subcommandCompletions(
-                  format,
-                  subcommand,
-                  head,
-                  tail,
-                  app
-                )
+                subcommandCompletions(format, subcommand, head, tail, app)
               }
             case None =>
               Nil
@@ -143,16 +139,16 @@ class RunCompletionsCommand(app: Application) extends Command {
     val last = tail.lastOption.getOrElse(head)
     val inlined = CommandLineParser
       .inlinedSettings(subcommand)
-      .filter {
-        case (_, params) =>
-          params.exists { param =>
-            !param.shape.isHidden ||
-            !param.shape.isPositionalArgument
-          }
+      .filter { case (_, params) =>
+        params.exists { param =>
+          !param.shape.isHidden || !param.shape.isPositionalArgument
+        }
       }
     val secondLast = (head :: tail).takeRight(2) match {
-      case flag :: _ :: Nil => Some(flag)
-      case _ => None
+      case flag :: _ :: Nil =>
+        Some(flag)
+      case _ =>
+        None
     }
     val setting = secondLast.flatMap(flag =>
       inlined
@@ -182,9 +178,11 @@ class RunCompletionsCommand(app: Application) extends Command {
       context.setting match {
         case Some(setting) =>
           if (setting.isTabCompleteOneOf) {
-            setting.tabCompleteOneOf.toList.flatten.map(oneof =>
-              TabCompletionItem(oneof)
-            )
+            setting
+              .tabCompleteOneOf
+              .toList
+              .flatten
+              .map(oneof => TabCompletionItem(oneof))
           } else if (setting.isTabComplete) {
             setting.tabCompleter.toList.flatMap(_.complete(context))
           } else {
@@ -199,13 +197,12 @@ class RunCompletionsCommand(app: Application) extends Command {
   private def flagCompletions(
       context: TabCompletionContext
   ): List[TabCompletionItem] = {
-    context.allSettings
-      .filterNot {
-        case (_, settings) =>
-          settings.exists { setting =>
-            setting.shape.isPositionalArgument ||
-            setting.shape.isHidden
-          }
+    context
+      .allSettings
+      .filterNot { case (_, settings) =>
+        settings.exists { setting =>
+          setting.shape.isPositionalArgument || setting.shape.isHidden
+        }
       }
       .keys
       .toList

@@ -49,8 +49,10 @@ object Diagnostic {
     new MessageOnlyDiagnostic(value, ErrorSeverity, pos)
   def exception(e: Throwable): Diagnostic =
     e match {
-      case d: DiagnosticException => d.d
-      case _ => new ThrowableDiagnostic(e)
+      case d: DiagnosticException =>
+        d.d
+      case _ =>
+        new ThrowableDiagnostic(e)
     }
   def typeMismatch(expected: String, context: DecodingContext): Diagnostic =
     typeMismatch(
@@ -62,20 +64,24 @@ object Diagnostic {
       expected: String,
       obtained: String,
       context: DecodingContext
-  ): Diagnostic =
-    new TypeMismatchDiagnostic(expected, obtained, context)
+  ): Diagnostic = new TypeMismatchDiagnostic(expected, obtained, context)
   def fromDiagnostics(head: Diagnostic, other: List[Diagnostic]): Diagnostic = {
     fromDiagnostics(head :: other).getOrElse(head)
   }
   def fromDiagnostics(diagnostics: List[Diagnostic]): Option[Diagnostic] = {
     val flatDiagnostics = diagnostics.flatMap {
-      case a: AggregateDiagnostic => a.causes
-      case d => List(d)
+      case a: AggregateDiagnostic =>
+        a.causes
+      case d =>
+        List(d)
     }
     flatDiagnostics match {
-      case Nil => None
-      case head :: Nil => Some(head)
-      case head :: tail => Some(new AggregateDiagnostic(head, tail))
+      case Nil =>
+        None
+      case head :: Nil =>
+        Some(head)
+      case head :: tail =>
+        Some(new AggregateDiagnostic(head, tail))
     }
   }
 }

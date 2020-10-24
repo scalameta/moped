@@ -20,7 +20,8 @@ object JsonBuilder {
         val result = new ObjectBuilder()
         e.members.foreach(result.addObjectMember(_))
         result
-      case e: JsonPrimitive => new PrimitiveBuilder(e)
+      case e: JsonPrimitive =>
+        new PrimitiveBuilder(e)
       case e: JsonArray =>
         val result = new ArrayBuilder()
         e.elements.foreach(result.addArrayValue(_))
@@ -49,9 +50,11 @@ final class ObjectBuilder() extends JsonBuilder {
   def addObjectMember(member: JsonMember): Unit = {
     (buf.get(member.key), member.value) match {
       case (Some(builder: ObjectBuilder), obj: JsonObject) =>
-        obj.members.foreach { m =>
-          builder.addObjectMember(m)
-        }
+        obj
+          .members
+          .foreach { m =>
+            builder.addObjectMember(m)
+          }
       case _ =>
         buf(member.key) = JsonBuilder(member.value)
     }
@@ -59,9 +62,12 @@ final class ObjectBuilder() extends JsonBuilder {
   def addArrayValue(value: JsonElement): Unit = ()
   def result(): JsonElement =
     JsonObject(
-      buf.iterator.map {
-        case (k, v) => JsonMember(k, v.result())
-      }.toList
+      buf
+        .iterator
+        .map { case (k, v) =>
+          JsonMember(k, v.result())
+        }
+        .toList
     )
 }
 

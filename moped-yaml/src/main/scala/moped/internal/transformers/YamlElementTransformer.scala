@@ -21,32 +21,40 @@ class YamlElementTransformer(input: Input) extends AstTransformer[YamlElement] {
       case c: ju.Map[_, _] =>
         transformObject(
           f,
-          c.asScala.collect {
-            case (k: String, v) => k -> new YamlElement(v)
-          }
+          c.asScala
+            .collect { case (k: String, v) =>
+              k -> new YamlElement(v)
+            }
         )
       case c: ju.List[_] =>
-        transformArray(
-          f,
-          c.asScala.map(v => new YamlElement(v))
-        )
-      case java.lang.Boolean.TRUE => f.visitTrue(-1)
-      case java.lang.Boolean.FALSE => f.visitFalse(-1)
-      case c: java.lang.String => f.visitString(c, -1)
-      case c: java.lang.Integer => f.visitInt32(c, -1)
-      case c: java.lang.Double => f.visitFloat64(c, -1)
-      case c: java.lang.Float => f.visitFloat32(c, -1)
-      case c: java.lang.Long => f.visitInt64(c, -1)
+        transformArray(f, c.asScala.map(v => new YamlElement(v)))
+      case java.lang.Boolean.TRUE =>
+        f.visitTrue(-1)
+      case java.lang.Boolean.FALSE =>
+        f.visitFalse(-1)
+      case c: java.lang.String =>
+        f.visitString(c, -1)
+      case c: java.lang.Integer =>
+        f.visitInt32(c, -1)
+      case c: java.lang.Double =>
+        f.visitFloat64(c, -1)
+      case c: java.lang.Float =>
+        f.visitFloat32(c, -1)
+      case c: java.lang.Long =>
+        f.visitInt64(c, -1)
       case c: Array[Byte] =>
         f.visitString(
           new String(ju.Base64.getEncoder().encode(c), StandardCharsets.UTF_8),
           -1
         )
-      case c: java.math.BigInteger => f.visitFloat64(c.doubleValue(), -1)
+      case c: java.math.BigInteger =>
+        f.visitFloat64(c.doubleValue(), -1)
       case c @ (_: java.util.Date | _: java.sql.Timestamp | _: java.sql.Date) =>
         f.visitString(c.toString(), -1)
-      case null => f.visitNull(-1)
-      case x => throw new IllegalArgumentException(s"Unexpected value $x")
+      case null =>
+        f.visitNull(-1)
+      case x =>
+        throw new IllegalArgumentException(s"Unexpected value $x")
     }
   }
   override def visitArray(
@@ -73,8 +81,10 @@ class YamlElementTransformer(input: Input) extends AstTransformer[YamlElement] {
       index: Int
   ): YamlElement =
     new YamlElement(
-      if (decIndex != -1 || expIndex != -1) s.toString.toDouble
-      else Util.parseIntegralNum(s, decIndex, expIndex, index)
+      if (decIndex != -1 || expIndex != -1)
+        s.toString.toDouble
+      else
+        Util.parseIntegralNum(s, decIndex, expIndex, index)
     )
   override def visitString(s: CharSequence, index: Int): YamlElement =
     new YamlElement(s.toString())

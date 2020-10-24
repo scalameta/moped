@@ -12,7 +12,8 @@ sealed abstract class JsonElement extends Product with Serializable {
   def position = myPosition
   type ThisType <: JsonElement
   def withPosition(newPosition: Position): ThisType = {
-    if (myPosition.isNone && newPosition.isNone) this.asInstanceOf[ThisType]
+    if (myPosition.isNone && newPosition.isNone)
+      this.asInstanceOf[ThisType]
     else {
       val copy = copyThis()
       copy.myPosition = newPosition
@@ -32,28 +33,28 @@ sealed abstract class JsonElement extends Product with Serializable {
   final override def toString(): String = toDoc.render(80)
   final def toDoc: Doc =
     this match {
-      case JsonNull() => Doc.text("null")
+      case JsonNull() =>
+        Doc.text("null")
       case JsonNumber(value) =>
         Doc.text(JsonTransformer.transform(this, StringRenderer()).toString())
-      case JsonBoolean(value) => Doc.text(value.toString())
+      case JsonBoolean(value) =>
+        Doc.text(value.toString())
       case JsonString(value) =>
         Doc.text(JsonTransformer.transform(this, StringRenderer()).toString())
       case JsonArray(elements) =>
         if (elements.isEmpty) {
           Doc.text("[]")
         } else {
-          val parts = Doc.intercalate(
-            Doc.comma + Doc.lineOrSpace,
-            elements.map(_.toDoc)
-          )
+          val parts = Doc
+            .intercalate(Doc.comma + Doc.lineOrSpace, elements.map(_.toDoc))
           parts.tightBracketBy(Doc.text("["), Doc.text("]"))
         }
       case obj @ JsonObject(members) =>
-        val keyValues = obj.value.map {
-          case (s, j) =>
-            JsonString(s).toDoc + Doc.text(":") +
-              Doc.space + j.toDoc
-        }
+        val keyValues = obj
+          .value
+          .map { case (s, j) =>
+            JsonString(s).toDoc + Doc.text(":") + Doc.space + j.toDoc
+          }
         val parts = Doc.intercalate(Doc.comma + Doc.line, keyValues)
         parts.tightBracketBy(Doc.text("{"), Doc.text("}"))
     }
@@ -62,9 +63,12 @@ sealed abstract class JsonElement extends Product with Serializable {
 object JsonElement {
   def fromMembers(members: (String, JsonElement)*): JsonObject =
     JsonObject(
-      members.iterator.map {
-        case (key, value) => JsonMember(JsonString(key), value)
-      }.toList
+      members
+        .iterator
+        .map { case (key, value) =>
+          JsonMember(JsonString(key), value)
+        }
+        .toList
     )
   def merge(elements: Iterable[JsonElement]): JsonElement = {
     if (elements.hasDefiniteSize && elements.size == 1) {
@@ -103,10 +107,10 @@ final case class JsonArray(elements: List[JsonElement]) extends JsonElement {
 final case class JsonObject(members: List[JsonMember]) extends JsonElement {
   type ThisType = JsonObject
   protected def copyThis(): JsonObject = JsonObject(members)
-  val value: ListMap[String, JsonElement] =
-    ListMap(members.map(m => m.key.value -> m.value): _*)
-  def +(member: JsonMember): JsonObject =
-    JsonObject(members :+ member)
+  val value: ListMap[String, JsonElement] = ListMap(
+    members.map(m => m.key.value -> m.value): _*
+  )
+  def +(member: JsonMember): JsonObject = JsonObject(members :+ member)
   def -(key: String): JsonObject =
     JsonObject(members.filterNot(_.key.value == key))
   def getMember(key: String): Option[JsonElement] = {

@@ -6,11 +6,7 @@ import moped.reporters.Diagnostic
 import moped.reporters.ErrorSeverity
 
 class UnknownFieldDiagnostic(member: JsonMember)
-    extends Diagnostic(
-      ErrorSeverity,
-      "",
-      member.key.position
-    ) {
+    extends Diagnostic(ErrorSeverity, "", member.key.position) {
   def fieldName = member.key.value
   def value: String = member.value.toDoc.render(10000)
   def message: String = {

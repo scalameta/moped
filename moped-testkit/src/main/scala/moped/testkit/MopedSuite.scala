@@ -41,9 +41,7 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
   def binDirectory: Path = temporaryDirectory().resolve("bin")
   def manDirectory: Path = temporaryDirectory().resolve("man1")
   def environmentVariables: Map[String, String] =
-    Map(
-      "PATH" -> binDirectory.toString()
-    )
+    Map("PATH" -> binDirectory.toString())
   val app = new ApplicationFixture(applicationToTest)
 
   class DirectoryFixture extends Fixture[Path]("Directory") {
@@ -65,23 +63,25 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
     private val reporter = ConsoleReporter(ps, isColorEnabled = false)
     private def instrumentedApp =
       app.copy(
-        env = app.env.copy(
-          dataDirectory = dataDirectory,
-          cacheDirectory = cacheDirectory,
-          preferencesDirectory = preferencesDirectory,
-          workingDirectory = workingDirectory,
-          homeDirectory = homeDirectory,
-          standardOutput = ps,
-          standardError = ps,
-          environmentVariables = environmentVariables,
-          clock = clock
-        ),
+        env = app
+          .env
+          .copy(
+            dataDirectory = dataDirectory,
+            cacheDirectory = cacheDirectory,
+            preferencesDirectory = preferencesDirectory,
+            workingDirectory = workingDirectory,
+            homeDirectory = homeDirectory,
+            standardOutput = ps,
+            standardError = ps,
+            environmentVariables = environmentVariables,
+            clock = clock
+          ),
         fatalUnknownFields = fatalUnknownFields,
         tput = tput,
         reporter = reporter,
-        mockedProcesses = app.mockedProcesses.map(
-          _.copy(tput = tput, reporter = reporter)
-        )
+        mockedProcesses = app
+          .mockedProcesses
+          .map(_.copy(tput = tput, reporter = reporter))
       )
     def apply(): Application = instrumentedApp
     def reset(): Unit = {
@@ -98,10 +98,7 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
   }
 
   override def munitFixtures: Seq[Fixture[_]] =
-    super.munitFixtures ++ List(
-      temporaryDirectory,
-      app
-    )
+    super.munitFixtures ++ List(temporaryDirectory, app)
 
   def checkErrorOutput(
       name: TestOptions,
@@ -140,25 +137,27 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
     assertEquals(exit, 0, clues(app.capturedOutput))
   }
 
-  def checkHelpMessage(
-      expectFile: Path,
-      writeExpectOutput: Boolean = false
-  )(implicit loc: munit.Location): Unit = {
+  def checkHelpMessage(expectFile: Path, writeExpectOutput: Boolean = false)(
+      implicit loc: munit.Location
+  ): Unit = {
     test("help") {
       val expected =
-        if (Files.isRegularFile(expectFile)) Utils.readFile(expectFile)
-        else ""
+        if (Files.isRegularFile(expectFile))
+          Utils.readFile(expectFile)
+        else
+          ""
       val out = new StringBuilder()
       def loop(prefix: List[String], c: CommandParser[_]): Unit =
-        if (c.isHidden) ()
+        if (c.isHidden)
+          ()
         else if (c.nestedCommands.nonEmpty) {
-          c.nestedCommands.foreach { n =>
-            loop(prefix :+ c.subcommandName, n)
-          }
+          c.nestedCommands
+            .foreach { n =>
+              loop(prefix :+ c.subcommandName, n)
+            }
         } else {
           app.reset()
-          val commands: List[String] =
-            prefix :+ c.subcommandName :+ "--help"
+          val commands: List[String] = prefix :+ c.subcommandName :+ "--help"
           val exit = app().run(commands)
           assertEquals(exit, 0, app.capturedOutput)
           out
@@ -188,7 +187,10 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
     val obtained2 = obtained.replace(temporaryDirectory().toString(), "")
     super.assertNoDiff(
       // NOTE(olafur) workaround for https://github.com/scalameta/munit/issues/179
-      if (obtained2 == "\n") "" else obtained2,
+      if (obtained2 == "\n")
+        ""
+      else
+        obtained2,
       expected,
       clue
     )

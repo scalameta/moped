@@ -18,18 +18,13 @@ class ObjectMergerTraverserSuite extends BaseSuite {
 
   check(
     "single",
-    List(
-      parseJson("""{"a": {"b": 42}}""")
-    ),
+    List(parseJson("""{"a": {"b": 42}}""")),
     parseJson("""{"a": {"b": 42}}""")
   )
 
   check(
     "object-object",
-    List(
-      parseJson("""{"a": {"b": 42}}"""),
-      parseJson("""{"a": {"c": 43}}""")
-    ),
+    List(parseJson("""{"a": {"b": 42}}"""), parseJson("""{"a": {"c": 43}}""")),
     parseJson("""{"a": {"b": 42, "c": 43}}""")
   )
 
@@ -54,90 +49,61 @@ class ObjectMergerTraverserSuite extends BaseSuite {
 
   check(
     "array-object",
-    List(
-      parseJson("""{"a": [41]}"""),
-      parseJson("""{"a": {"b": 42}}""")
-    ),
+    List(parseJson("""{"a": [41]}"""), parseJson("""{"a": {"b": 42}}""")),
     parseJson("""{"a": {"b": 42}}""")
   )
 
   check(
     "array-object",
-    List(
-      parseJson("""[41]"""),
-      parseJson("""{"a": 42}""")
-    ),
+    List(parseJson("""[41]"""), parseJson("""{"a": 42}""")),
     parseJson("""{"a": 42}""")
   )
 
   check(
     "array-array",
-    List(
-      parseJson("""{"a": [41]}"""),
-      parseJson("""{"a": [42]}""")
-    ),
+    List(parseJson("""{"a": [41]}"""), parseJson("""{"a": [42]}""")),
     parseJson("""{"a": [42]}""")
   )
 
   check(
     "object-element",
-    List(
-      parseJson("""{"a": [41]}"""),
-      parseJson("""42""")
-    ),
+    List(parseJson("""{"a": [41]}"""), parseJson("""42""")),
     parseJson("""42""")
   )
 
   check(
     "array-element",
-    List(
-      parseJson("""[41]"""),
-      parseJson("""42""")
-    ),
+    List(parseJson("""[41]"""), parseJson("""42""")),
     parseJson("""42""")
   )
 
   check(
     "array-array",
-    List(
-      parseJson("""[41]"""),
-      parseJson("""[42]""")
-    ),
+    List(parseJson("""[41]"""), parseJson("""[42]""")),
     parseJson("""[42]""")
   )
 
   check(
     "element-object",
-    List(
-      parseJson("""42"""),
-      parseJson("""{"a": [41]}""")
-    ),
+    List(parseJson("""42"""), parseJson("""{"a": [41]}""")),
     parseJson("""{"a": [41]}""")
   )
 
   check(
     "element-element",
-    List(
-      parseJson("""42"""),
-      parseJson("""41""")
-    ),
+    List(parseJson("""42"""), parseJson("""41""")),
     parseJson("""41""")
   )
 
   check(
     "number-boolean",
-    List(
-      parseJson("""{"a": 42}"""),
-      parseJson("""{"a": true}""")
-    ),
+    List(parseJson("""{"a": 42}"""), parseJson("""{"a": true}""")),
     parseJson("""{"a": true}""")
   )
 
   check(
     "single-object",
-    List(
-      parseJson("""{"a": 42}""")
-    ),
+    List(parseJson("""{"a": 42}""")),
     parseJson("""{"a": 42}""")
   )
 
@@ -147,13 +113,11 @@ class ObjectMergerTraverserSuite extends BaseSuite {
       parseJson("""{"flag": true}"""),
       parseJson("""{"moped@positional": ["a", "b"]}""")
     ),
-    parseJson(
-      """|{
-         |  "flag": true,
-         |  "moped@positional": ["a", "b"]
-         |}
-         |""".stripMargin
-    )
+    parseJson("""|{
+                 |  "flag": true,
+                 |  "moped@positional": ["a", "b"]
+                 |}
+                 |""".stripMargin)
   )
 
 }

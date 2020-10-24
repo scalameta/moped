@@ -15,22 +15,16 @@ class JsonSchemaSuite extends FunSuite {
       expected: String
   ): Unit = {
     test(name) {
-      val schema = JsonSchema.generate[T](
-        "title",
-        "description",
-        Some("url"),
-        default
-      )
+      val schema = JsonSchema
+        .generate[T]("title", "description", Some("url"), default)
       val obtained = schema.get.toDoc.render(40)
       assertNoDiff(obtained, expected)
     }
   }
 
   case class Simple(
-      @Description("A simple description")
-      value: String = "default",
-      @Description("A repeated field")
-      repeated: Seq[Int] = Nil
+      @Description("A simple description") value: String = "default",
+      @Description("A repeated field") repeated: Seq[Int] = Nil
   )
   object Simple {
     implicit val codec: JsonCodec[Simple] = moped.macros.deriveCodec(Simple())
@@ -65,18 +59,11 @@ class JsonSchemaSuite extends FunSuite {
     """.stripMargin
   )
 
-  case class B(
-      @Description("My value field")
-      value: String = "b"
-  )
+  case class B(@Description("My value field") value: String = "b")
   object B {
     implicit val parser: JsonCodec[B] = moped.macros.deriveCodec(B())
   }
-  case class A(
-      value: Int = 42,
-      @Description("Nested field")
-      b: B = B()
-  )
+  case class A(value: Int = 42, @Description("Nested field") b: B = B())
   object A {
     implicit val parser: JsonCodec[A] = moped.macros.deriveCodec(A())
   }

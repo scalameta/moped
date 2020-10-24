@@ -15,13 +15,13 @@ class CommandLineParser[T](
     toInline: Map[String, List[InlinedFlag]]
 ) {
   private val pendingMembers = mutable.ListBuffer.empty[JsonElement]
-  private val pendingArrays =
-    mutable.Map.empty[List[String], mutable.ListBuffer[JsonElement]]
+  private val pendingArrays = mutable
+    .Map
+    .empty[List[String], mutable.ListBuffer[JsonElement]]
   private val errors = mutable.ListBuffer.empty[Diagnostic]
   private def flushArrays(): Unit = {
-    pendingArrays.foreach {
-      case (keys, values) =>
-        pushMember(newMember(keys, JsonArray(values.toList)))
+    pendingArrays.foreach { case (keys, values) =>
+      pushMember(newMember(keys, JsonArray(values.toList)))
     }
     pendingArrays.clear()
   }
@@ -32,7 +32,8 @@ class CommandLineParser[T](
     loop(args, NoFlag)
     flushArrays()
     Diagnostic.fromDiagnostics(errors.toList) match {
-      case Some(d) => ErrorResult(d)
+      case Some(d) =>
+        ErrorResult(d)
       case None =>
         JsonElement.merge(pendingMembers) match {
           case o: JsonObject =>
@@ -42,23 +43,19 @@ class CommandLineParser[T](
         }
     }
   }
-  private[this] def loop(
-      xs: List[String],
-      s: State
-  ): Unit = {
+  private[this] def loop(xs: List[String], s: State): Unit = {
     (xs, s) match {
-      case (Nil, NoFlag) => ()
+      case (Nil, NoFlag) =>
+        ()
       case (Nil, Flag(settings)) =>
         settings.foreach { setting =>
-          errors += Diagnostic.error(
-            s"the argument '--${Cases.camelToKebab(setting.shape.name)}' requires a value but none was supplied"
-          )
+          errors +=
+            Diagnostic.error(
+              s"the argument '--${Cases.camelToKebab(setting.shape.name)}' requires a value but none was supplied"
+            )
         }
       case ("--" :: tail, NoFlag) =>
-        appendValues(
-          TrailingArgument,
-          tail.map(JsonString(_))
-        )
+        appendValues(TrailingArgument, tail.map(JsonString(_)))
       case (head :: tail, NoFlag) =>
         val equal = head.indexOf('=')
         if (equal >= 0) { // split "--key=value" into ["--key", "value"]
@@ -68,10 +65,7 @@ class CommandLineParser[T](
         } else if (head.startsWith("-")) {
           loopFlag(head, tail)
         } else {
-          appendValues(
-            PositionalArgument,
-            List(JsonString(head))
-          )
+          appendValues(PositionalArgument, List(JsonString(head)))
           loop(tail, NoFlag)
         }
       case (head :: tail, Flag(flags)) =>
@@ -79,7 +73,8 @@ class CommandLineParser[T](
           val value: JsonElement =
             if (setting.shape.isNumber)
               Try(JsonNumber(head.toDouble)).getOrElse(JsonString(head))
-            else JsonString(head)
+            else
+              JsonString(head)
           if (setting.shape.isRepeated) {
             appendValues(setting.keys, List(value))
           } else {
@@ -90,10 +85,7 @@ class CommandLineParser[T](
     }
   }
 
-  private def loopFlag(
-      flag: String,
-      tail: List[String]
-  ): Unit = {
+  private def loopFlag(flag: String, tail: List[String]): Unit = {
     tryFlag(flag) match {
       case Left(error) =>
         if (flag.startsWith(negatedPrefix)) {
@@ -102,7 +94,8 @@ class CommandLineParser[T](
           tryFlag(negatedHead) match {
             case Left(_) =>
               errors += error
-            case Right(Nil) => loop(tail, NoFlag)
+            case Right(Nil) =>
+              loop(tail, NoFlag)
             case Right(settings) =>
               // --no prefix succeeded, default boolean value is false.
               loopSettings(tail, settings, defaultBooleanValue = false)
@@ -110,7 +103,8 @@ class CommandLineParser[T](
         } else {
           errors += error
         }
-      case Right(Nil) => loop(tail, NoFlag)
+      case Right(Nil) =>
+        loop(tail, NoFlag)
       case Right(settings) =>
         loopSettings(tail, settings, defaultBooleanValue = true)
     }
@@ -122,14 +116,9 @@ class CommandLineParser[T](
     val camel = Cases.kebabToCamel(dash.replaceFirstIn(kebabFlag, ""))
     toInline.get(camel) match {
       case None =>
-        settings.parametersFlat.find(
-          _.isTreatInvalidFlagAsPositional
-        ) match {
+        settings.parametersFlat.find(_.isTreatInvalidFlagAsPositional) match {
           case Some(param) =>
-            appendValues(
-              PositionalArgument,
-              List(JsonString(kebabFlag))
-            )
+            appendValues(PositionalArgument, List(JsonString(kebabFlag)))
             Right(Nil)
           case None =>
             Left(didYouMean(kebabFlag, camel))
@@ -140,15 +129,16 @@ class CommandLineParser[T](
   }
 
   def didYouMean(kebabFlag: String, camel: String): Diagnostic = {
-    val closestCandidate =
-      Levenshtein.closestCandidate(camel, toInline.keysIterator.toList)
-    val didYouMean = closestCandidate match {
-      case None =>
-        ""
-      case Some(candidate) =>
-        val kebab = Cases.camelToKebab(candidate)
-        s"\n\tDid you mean '--$kebab'?"
-    }
+    val closestCandidate = Levenshtein
+      .closestCandidate(camel, toInline.keysIterator.toList)
+    val didYouMean =
+      closestCandidate match {
+        case None =>
+          ""
+        case Some(candidate) =>
+          val kebab = Cases.camelToKebab(candidate)
+          s"\n\tDid you mean '--$kebab'?"
+      }
     Diagnostic.error(
       s"found argument '$kebabFlag' which wasn't expected, or isn't valid in this context.$didYouMean"
     )
@@ -170,40 +160,34 @@ class CommandLineParser[T](
     } else {
       if (hasBoolean) {
         val name = settings.head.shape.name
-        val names =
-          settings.map(s => s.keys.mkString(".")).mkString("{", ",", "}")
-        errors += Diagnostic.error(
-          s"""
-             |invalid usage of @Inline. The field name '$name' inlines to conflicting nested parameters $names, which mix boolean and non-boolean parameters.
-             |You can only fix this problem by changing the source code of this command-line tool.
-             |To fix this problem, you can try one of the following.
-             |  1) change the types of the parameters to be only boolean or non-boolean
-             |  2) remove the @Inline annotation for one of the nested parameters
-             |""".stripMargin
-        )
+        val names = settings
+          .map(s => s.keys.mkString("."))
+          .mkString("{", ",", "}")
+        errors += Diagnostic.error(s"""
+                                      |invalid usage of @Inline. The field name '$name' inlines to conflicting nested parameters $names, which mix boolean and non-boolean parameters.
+                                      |You can only fix this problem by changing the source code of this command-line tool.
+                                      |To fix this problem, you can try one of the following.
+                                      |  1) change the types of the parameters to be only boolean or non-boolean
+                                      |  2) remove the @Inline annotation for one of the nested parameters
+                                      |""".stripMargin)
       } else {
         loop(tail, Flag(settings))
       }
     }
   }
 
-  private def addMember(
-      key: String,
-      value: JsonElement
-  ): Unit = {
+  private def addMember(key: String, value: JsonElement): Unit = {
     addMember(List(key), value)
   }
 
-  private def addMember(
-      keys: List[String],
-      value: JsonElement
-  ): Unit = {
+  private def addMember(keys: List[String], value: JsonElement): Unit = {
     pushMember(newMember(keys, value))
   }
 
   private def newMember(keys: List[String], value: JsonElement): JsonMember = {
     keys match {
-      case Nil => throw new IllegalArgumentException("Nil")
+      case Nil =>
+        throw new IllegalArgumentException("Nil")
       case head :: Nil =>
         JsonMember(JsonString(head), value)
       case head :: tail =>
@@ -211,16 +195,10 @@ class CommandLineParser[T](
     }
   }
 
-  def appendValues(
-      key: String,
-      values: List[JsonElement]
-  ): Unit = {
+  def appendValues(key: String, values: List[JsonElement]): Unit = {
     appendValues(List(key), values)
   }
-  def appendValues(
-      keys: List[String],
-      values: List[JsonElement]
-  ): Unit = {
+  def appendValues(keys: List[String], values: List[JsonElement]): Unit = {
     val buf = pendingArrays.getOrElseUpdate(keys, mutable.ListBuffer.empty)
     buf ++= values
   }
@@ -245,15 +223,17 @@ object CommandLineParser {
       settings: ClassShaper[_]
   ): Map[String, List[InlinedFlag]] = {
     val buf = mutable.Map.empty[String, mutable.ListBuffer[InlinedFlag]]
-    settings.allNestedParameters.foreach { nested =>
-      val param = nested.last
-      val keys = nested.map(_.name)
-      val name = nested.dropWhile(_.isInline).map(_.name).mkString(".")
-      if (name.nonEmpty) {
-        val lst = buf.getOrElseUpdate(name, mutable.ListBuffer.empty)
-        lst += InlinedFlag(keys, param)
+    settings
+      .allNestedParameters
+      .foreach { nested =>
+        val param = nested.last
+        val keys = nested.map(_.name)
+        val name = nested.dropWhile(_.isInline).map(_.name).mkString(".")
+        if (name.nonEmpty) {
+          val lst = buf.getOrElseUpdate(name, mutable.ListBuffer.empty)
+          lst += InlinedFlag(keys, param)
+        }
       }
-    }
     buf.mapValues(_.toList).toMap
   }
 

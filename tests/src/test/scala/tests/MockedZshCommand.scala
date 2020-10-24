@@ -9,9 +9,8 @@ import moped.cli.ZshCompletion
 class MockedZshCommand(app: Application) extends Command {
   def run(): Int = {
     if (app.relativeArguments == ZshCompletion.printFunctionPath.tail) {
-      val functions = Files.createDirectories(
-        app.env.dataDirectory.resolve("zsh-functions")
-      )
+      val functions = Files
+        .createDirectories(app.env.dataDirectory.resolve("zsh-functions"))
       app.out.println(functions.toString())
       0
     } else {

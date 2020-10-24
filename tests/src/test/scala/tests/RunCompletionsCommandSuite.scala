@@ -11,8 +11,16 @@ class RunCompletionsCommandSuite extends BaseSuite {
   )(implicit loc: munit.Location): Unit = {
     test(name) {
       val isEmpty = args.nonEmpty && args.last == ""
-      val completeArgs = if (isEmpty) args.init else args
-      val current = if (isEmpty) args.length + 1 else args.length
+      val completeArgs =
+        if (isEmpty)
+          args.init
+        else
+          args
+      val current =
+        if (isEmpty)
+          args.length + 1
+        else
+          args.length
       val exit = app().run(
         List(
           "completions",
@@ -38,62 +46,29 @@ class RunCompletionsCommandSuite extends BaseSuite {
       "man"
     )
 
-  checkCompletions(
-    "empty",
-    List(),
-    List()
+  checkCompletions("empty", List(), List())
+
+  checkCompletions("subcommands", List(""), publicCommandNames)
+
+  checkCompletions("echo-empty", List("echo", ""), List())
+
+  val allFlags: List[String] = List(
+    "--app.cwd",
+    "--help",
+    "--lowercase",
+    "--trailing",
+    "--unchanged",
+    "--uppercase"
   )
 
-  checkCompletions(
-    "subcommands",
-    List(""),
-    publicCommandNames
-  )
+  checkCompletions("echo-flag", List("echo", "-"), allFlags)
 
-  checkCompletions(
-    "echo-empty",
-    List("echo", ""),
-    List()
-  )
+  checkCompletions("echo-uppercase", List("echo", "--uppercase"), allFlags)
 
-  val allFlags: List[String] =
-    List(
-      "--app.cwd",
-      "--help",
-      "--lowercase",
-      "--trailing",
-      "--unchanged",
-      "--uppercase"
-    )
+  checkCompletions("echo-uppercase", List("echo", "--uppercase", ""), List())
+  checkCompletions("help-subcommand", List("help", ""), publicCommandNames)
 
-  checkCompletions(
-    "echo-flag",
-    List("echo", "-"),
-    allFlags
-  )
-
-  checkCompletions(
-    "echo-uppercase",
-    List("echo", "--uppercase"),
-    allFlags
-  )
-
-  checkCompletions(
-    "echo-uppercase",
-    List("echo", "--uppercase", ""),
-    List()
-  )
-  checkCompletions(
-    "help-subcommand",
-    List("help", ""),
-    publicCommandNames
-  )
-
-  checkCompletions(
-    "help-subcommand",
-    List("help", "e"),
-    publicCommandNames
-  )
+  checkCompletions("help-subcommand", List("help", "e"), publicCommandNames)
 
   checkCompletions(
     "completions-subcommand",
@@ -101,15 +76,7 @@ class RunCompletionsCommandSuite extends BaseSuite {
     List("help", "install", "uninstall", "run")
   )
 
-  checkCompletions(
-    "help-subcommand-repeat",
-    List("help", "echo", ""),
-    List()
-  )
+  checkCompletions("help-subcommand-repeat", List("help", "echo", ""), List())
 
-  checkCompletions(
-    "path",
-    List("help", "echo", ""),
-    List()
-  )
+  checkCompletions("path", List("help", "echo", ""), List())
 }

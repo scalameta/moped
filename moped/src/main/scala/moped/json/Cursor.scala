@@ -23,9 +23,12 @@ sealed abstract class Cursor {
   }
   def syntax: String =
     this match {
-      case NoCursor() => ""
-      case SelectMemberCursor(value) => s".$value"
-      case SelectIndexCursor(value) => s"[$value]"
+      case NoCursor() =>
+        ""
+      case SelectMemberCursor(value) =>
+        s".$value"
+      case SelectIndexCursor(value) =>
+        s"[$value]"
     }
   def withParent(newParent: Cursor): Cursor = {
     val result = copyThis()
@@ -38,16 +41,18 @@ sealed abstract class Cursor {
     SelectIndexCursor(value).withParent(this)
   def copyThis(): Cursor =
     this match {
-      case NoCursor() => NoCursor()
-      case SelectMemberCursor(value) => SelectMemberCursor(value)
-      case SelectIndexCursor(value) => SelectIndexCursor(value)
+      case NoCursor() =>
+        NoCursor()
+      case SelectMemberCursor(value) =>
+        SelectMemberCursor(value)
+      case SelectIndexCursor(value) =>
+        SelectIndexCursor(value)
     }
 }
 object Cursor {
   def fromPath(members: List[String]): Cursor = {
-    members.foldLeft(NoCursor(): Cursor) {
-      case (parent, c) =>
-        SelectMemberCursor(c).withParent(parent)
+    members.foldLeft(NoCursor(): Cursor) { case (parent, c) =>
+      SelectMemberCursor(c).withParent(parent)
     }
   }
 }

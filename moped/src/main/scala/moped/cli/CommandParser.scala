@@ -23,7 +23,7 @@ final case class CommandParser[A <: BaseCommand](
 ) extends JsonCodec[A] {
   def this(codec: JsonCodec[A], default: A) =
     this(codec, codec, default, codec.shape)
-  override def decode(context: DecodingContext): DecodingResult[A] =
+  override def decode(context: DecodingContext): Result[A] =
     decoder.decode(context)
   override def encode(value: A): JsonElement = encoder.encode(value)
   type Value = A
@@ -98,9 +98,9 @@ final case class CommandParser[A <: BaseCommand](
   }
   private def fallbackSubcommandName =
     Cases.camelToKebab(shape.name).stripSuffix("-command").toLowerCase()
-  def decodeCommand(context: DecodingContext): DecodingResult[BaseCommand] =
+  def decodeCommand(context: DecodingContext): Result[BaseCommand] =
     this.decode(context)
-  // def parseCommand(arguments: List[String]): DecodingResult[BaseCommand] =
+  // def parseCommand(arguments: List[String]): Result[BaseCommand] =
   //   CommandLineParser
   //     .parseArgs[A](arguments)(this)
   //     .flatMap(elem => decodeCommand(DecodingContext(elem)))

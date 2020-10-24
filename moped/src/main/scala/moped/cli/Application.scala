@@ -20,7 +20,7 @@ import moped.internal.diagnostics.AggregateDiagnostic
 import moped.json.AlwaysDerivedParameter
 import moped.json.AlwaysHiddenParameter
 import moped.json.DecodingContext
-import moped.json.DecodingResult
+import moped.json.Result
 import moped.json.ErrorResult
 import moped.json.JsonDecoder
 import moped.json.JsonElement
@@ -291,12 +291,12 @@ object Application {
                   Some[CommandParser[_]](command)
                 )
               } else {
-                val conf: DecodingResult[JsonObject] =
+                val conf: Result[JsonObject] =
                   CommandLineParser
                     .parseArgs[command.Value](tail)(command.asClassShaper)
                 for {
                   parsedConfig <- app.searcher.findAsync(app)
-                  configs = DecodingResult.fromResults(conf :: parsedConfig)
+                  configs = Result.fromResults(conf :: parsedConfig)
                   mergedConfig = configs.map(JsonElement.merge)
                   configured = mergedConfig.flatMap(elem =>
                     command.decodeCommand(

@@ -12,7 +12,7 @@ object JsonSchema {
       description: String,
       url: Option[String],
       default: T
-  )(implicit settings: ClassShaper[T]): DecodingResult[JsonObject] = {
+  )(implicit settings: ClassShaper[T]): Result[JsonObject] = {
     JsonEncoder[T].encode(default) match {
       case obj: JsonObject =>
         ValueResult(generate[T](title, description, url, obj))

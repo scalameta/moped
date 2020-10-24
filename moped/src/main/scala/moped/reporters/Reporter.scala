@@ -1,6 +1,6 @@
 package moped.reporters
 
-import moped.json.DecodingResult
+import moped.json.Result
 import moped.json.ErrorResult
 import moped.json.ValueResult
 
@@ -14,7 +14,7 @@ abstract class Reporter {
   def warningCount(): Int
   def reset(): Unit
 
-  final def exit(result: DecodingResult[Unit]): Int = {
+  final def exit(result: Result[Unit]): Int = {
     result match {
       case ValueResult(()) =>
         exitCode()

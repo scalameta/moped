@@ -5,7 +5,7 @@ import scala.util.control.NonFatal
 import moped.internal.diagnostics.DiagnosticException
 import moped.internal.transformers.HoconTransformer
 import moped.internal.transformers.JsonTransformer
-import moped.json.DecodingResult
+import moped.json.Result
 import moped.json.JsonElement
 import moped.reporters.Diagnostic
 import moped.reporters.Input
@@ -17,8 +17,8 @@ import org.ekrich.config.ConfigParseOptions
 
 object HoconParser extends ConfigurationParser {
   def supportedFileExtensions: List[String] = List("conf")
-  def parse(input: Input): DecodingResult[JsonElement] =
-    DecodingResult.fromUnsafe { () =>
+  def parse(input: Input): Result[JsonElement] =
+    Result.fromUnsafe { () =>
       try {
         val options = ConfigParseOptions
           .defaults

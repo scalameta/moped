@@ -8,7 +8,7 @@ import moped.macros.ParameterShape
 object DrillIntoJson {
   def decodeKey[T](key: String, context: DecodingContext)(implicit
       ev: JsonDecoder[T]
-  ): DecodingResult[T] = {
+  ): Result[T] = {
     ev.decode(
       context
         .withJson(getKey(context.json, List(key)).getOrElse(JsonNull()))
@@ -35,7 +35,7 @@ object DrillIntoJson {
 
   def decodeMember[T](context: DecodingContext, member: String, default: T)(
       implicit ev: JsonDecoder[T]
-  ): DecodingResult[T] = {
+  ): Result[T] = {
     getKey(context.json, List(member)) match {
       case Some(value) =>
         ev.decode(context.withJson(value).withSelectMemberCursor(member))
@@ -48,7 +48,7 @@ object DrillIntoJson {
       default: T,
       param: ParameterShape,
       context: DecodingContext
-  )(implicit ev: JsonDecoder[T]): DecodingResult[T] = {
+  )(implicit ev: JsonDecoder[T]): Result[T] = {
     getKey(conf, param.allNames) match {
       case Some(value) =>
         ev.decode(context.withJson(value))
@@ -59,7 +59,7 @@ object DrillIntoJson {
 
   def get[T](context: DecodingContext, path: String, extraNames: String*)(
       implicit ev: JsonDecoder[T]
-  ): DecodingResult[T] = {
+  ): Result[T] = {
     getKey(context.json, path +: extraNames) match {
       case Some(value) =>
         ev.decode(context.withJson(value))

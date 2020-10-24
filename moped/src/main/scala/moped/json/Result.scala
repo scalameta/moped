@@ -6,15 +6,13 @@ import scala.util.control.NonFatal
 import moped.internal.diagnostics.WithFilterDiagnostic
 import moped.reporters.Diagnostic
 
-final case class ValueResult[+A](value: A) extends DecodingResult[A]
-final case class ErrorResult(error: Diagnostic) extends DecodingResult[Nothing]
+final case class ValueResult[+A](value: A) extends Result[A]
+final case class ErrorResult(error: Diagnostic) extends Result[Nothing]
 
-object DecodingResult {
-  def value[A](a: A): DecodingResult[A] = ValueResult(a)
-  def error[A](d: Diagnostic): DecodingResult[A] = ErrorResult(d)
-  def fromResults[A](
-      results: Iterable[DecodingResult[A]]
-  ): DecodingResult[List[A]] = {
+object Result {
+  def value[A](a: A): Result[A] = ValueResult(a)
+  def error[A](d: Diagnostic): Result[A] = ErrorResult(d)
+  def fromResults[A](results: Iterable[Result[A]]): Result[List[A]] = {
     val buf = mutable.ListBuffer.empty[A]
     val errors = mutable.ListBuffer.empty[Diagnostic]
     results
@@ -32,7 +30,7 @@ object DecodingResult {
         ValueResult(buf.toList)
     }
   }
-  def fromUnsafe[A](thunk: () => A): DecodingResult[A] =
+  def fromUnsafe[A](thunk: () => A): Result[A] =
     try ValueResult(thunk())
     catch {
       case NonFatal(e) =>
@@ -40,14 +38,14 @@ object DecodingResult {
     }
 }
 
-sealed abstract class DecodingResult[+A] extends Product with Serializable {
+sealed abstract class Result[+A] extends Product with Serializable {
 
   def isError: Boolean = this.isInstanceOf[ErrorResult]
   def isValue: Boolean = this.isInstanceOf[ValueResult[_]]
 
   def get: A = fold(identity, d => throw new NoSuchElementException(d.pretty))
   def getOrElse[B >: A](other: => B): B = fold(identity, _ => other)
-  def orElse[B >: A](other: => DecodingResult[B]): DecodingResult[B] =
+  def orElse[B >: A](other: => Result[B]): Result[B] =
     fold(ValueResult(_), _ => other)
 
   def toOption: Option[A] = fold(Some(_), _ => None)
@@ -56,13 +54,13 @@ sealed abstract class DecodingResult[+A] extends Product with Serializable {
   def iterator(): Iterator[A] = fold(Iterator(_), _ => Iterator())
 
   def foreach[B](fn: A => B): Unit = fold(a => fn(a), _ => ())
-  def map[B](fn: A => B): DecodingResult[B] =
+  def map[B](fn: A => B): Result[B] =
     fold(a => ValueResult(fn(a)), ErrorResult(_))
-  def flatMap[B](fn: A => DecodingResult[B]): DecodingResult[B] =
+  def flatMap[B](fn: A => Result[B]): Result[B] =
     fold(a => fn(a), ErrorResult(_))
 
-  def filter(fn: A => Boolean): DecodingResult[A] = withFilter(fn)
-  def withFilter(fn: A => Boolean): DecodingResult[A] =
+  def filter(fn: A => Boolean): Result[A] = withFilter(fn)
+  def withFilter(fn: A => Boolean): Result[A] =
     fold(
       a => {
         if (fn(a))
@@ -75,13 +73,13 @@ sealed abstract class DecodingResult[+A] extends Product with Serializable {
 
   /**
    * Use this method to upcast this type from `ErrorResult` or `ValueResult`
-   * into `DecodingResult[A]`
+   * into `Result[A]`
    *
    * @return
    *   this instance unchanged, this method is only used to influence type
    *   checking.
    */
-  def upcast: DecodingResult[A] = this
+  def upcast: Result[A] = this
 
   def fold[B](onValue: A => B, onError: Diagnostic => B): B =
     this match {
@@ -91,7 +89,7 @@ sealed abstract class DecodingResult[+A] extends Product with Serializable {
         onError(error)
     }
 
-  def product[B](other: DecodingResult[B]): DecodingResult[(A, B)] =
+  def product[B](other: Result[B]): Result[(A, B)] =
     (this, other) match {
       case (ErrorResult(a), ErrorResult(b)) =>
         ErrorResult(a.mergeWith(b))

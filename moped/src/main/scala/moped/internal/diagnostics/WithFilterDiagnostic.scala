@@ -9,5 +9,5 @@ class WithFilterDiagnostic[A](val value: A, val filter: A => Boolean)
       NoPosition,
       Some(new NoSuchElementException())
     ) {
-  def message: String = "DecodingResult.filter predicate is not satisfied"
+  def message: String = "Result.filter predicate is not satisfied"
 }

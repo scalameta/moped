@@ -13,7 +13,7 @@ trait JsonCodec[A]
     new JsonCodec[B] {
       override def shape: ClassShape = self.shape
       override def encode(value: B): JsonElement = self.encode(in(value))
-      override def decode(conf: DecodingContext): DecodingResult[B] =
+      override def decode(conf: DecodingContext): Result[B] =
         self.decode(conf).map(out)
     }
 }
@@ -28,8 +28,7 @@ object JsonCodec {
     new JsonCodec[A] {
       override def shape: ClassShape = c.shape
       override def encode(value: A): JsonElement = e.encode(value)
-      override def decode(conf: DecodingContext): DecodingResult[A] =
-        d.decode(conf)
+      override def decode(conf: DecodingContext): Result[A] = d.decode(conf)
     }
 
 }

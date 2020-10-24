@@ -58,6 +58,7 @@ class RunCompletionsCommandSuite extends BaseSuite {
 
   val allFlags: List[String] =
     List(
+      "--app.cwd",
       "--help",
       "--lowercase",
       "--trailing",

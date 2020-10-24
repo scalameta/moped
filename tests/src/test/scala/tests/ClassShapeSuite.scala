@@ -55,4 +55,18 @@ class ClassShapeSuite extends FunSuite {
   checkCompleter("workingDirectory", PathCompleter)
   checkCompleter("custom", CustomCompleter.completer)
 
+  test("all-nested") {
+    val shaper = implicitly[ClassShaper[VeryNestedOptions]]
+    val obtained =
+      shaper.allNestedParameters.map(_.map(_.name).mkString(".")).mkString("\n")
+    assertNoDiff(
+      obtained,
+      """|nested
+         |nested.nested
+         |nested.nested.nested
+         |nested.nested.nested.a
+         |""".stripMargin
+    )
+
+  }
 }

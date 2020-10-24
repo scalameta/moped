@@ -89,20 +89,19 @@ class Macros(val c: blackbox.Context) {
 
     val (head :: params) :: Nil = paramss
     def next(param: Symbol): Tree = {
+      val P = param.info.resultType
+      val name = param.name.decodedName.toString
+      val getter = T.member(param.name)
+      val fallback = q"tmp.$getter"
       if (param.info <:< typeOf[AlwaysDerivedParameter]) {
-        q"_root_.moped.json.ValueResult(context.app)"
+        q"""_root_.moped.internal.json.DrillIntoJson.decodeKey[$P]($name, context)"""
       } else {
-        val P = param.info.resultType
-        val name = param.name.decodedName.toString
-        val getter = T.member(param.name)
-        val fallback = q"tmp.$getter"
-        val next = q"""_root_.moped.internal.json.DrillIntoJson.getOrElse[$P](
+        q"""_root_.moped.internal.json.DrillIntoJson.getOrElse[$P](
            conf,
            $fallback,
            settings.get($name).get,
            context.withCursor(_root_.moped.json.SelectMemberCursor($name).withParent(context.cursor))
         )"""
-        next
       }
     }
     val product = params.foldLeft(next(head)) {

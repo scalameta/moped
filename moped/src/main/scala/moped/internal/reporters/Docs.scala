@@ -14,10 +14,10 @@ object Docs {
   val RE: Doc = Doc.text(".RE ")
 
   val error: Doc = Doc.text("❗")
-  val success: Doc = green + Doc.text("✔ ") + reset
   def successMessage(message: String): Doc =
     success + Doc.text(message)
   val bold: Doc = Doc.zeroWidth(Console.BOLD)
   val green: Doc = Doc.zeroWidth(Console.GREEN)
   val reset: Doc = Doc.zeroWidth(Console.RESET)
+  val success: Doc = green + Doc.text("✔ ") + reset
 }

@@ -8,6 +8,7 @@ import scala.collection.mutable
 
 import moped.cli.Application
 import moped.internal.diagnostics.TypeMismatchDiagnostic
+import moped.internal.json.DrillIntoJson
 import moped.reporters.Diagnostic
 
 trait JsonDecoder[A] { self =>
@@ -69,7 +70,20 @@ object JsonDecoder {
       DecodingResult.fromUnsafe(() => Paths.get(path))
     )
   implicit val applicationJsonDecoder: JsonDecoder[Application] =
-    context => ValueResult(context.app)
+    new JsonDecoder[Application] {
+      def decode(context: DecodingContext): DecodingResult[Application] = {
+        val app = context.app
+        if (context.json.isObject) {
+          DrillIntoJson
+            .decodeMember[Path](context, "cwd", app.env.workingDirectory)
+            .map(cwd => app.copy(env = app.env.copy(workingDirectory = cwd)))
+        } else if (context.json.isNull) {
+          ValueResult(context.app)
+        } else {
+          ErrorResult(Diagnostic.typeMismatch("Object", context))
+        }
+      }
+    }
 
   implicit def arrayJsonDecoder[C[_], A](implicit
       ev: JsonDecoder[A],

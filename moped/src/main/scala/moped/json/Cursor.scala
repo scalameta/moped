@@ -32,6 +32,10 @@ sealed abstract class Cursor {
     result.myParent = Some(newParent)
     result
   }
+  def selectMember(value: String): Cursor =
+    SelectMemberCursor(value).withParent(this)
+  def selectIndex(value: Int): Cursor =
+    SelectIndexCursor(value).withParent(this)
   def copyThis(): Cursor =
     this match {
       case NoCursor() => NoCursor()

@@ -45,4 +45,10 @@ class ApplicationSuite extends BaseSuite {
     List("echo", "hello", "--uppercase", "--", "world", "--uppercase", "--"),
     "HELLO\n-- world --uppercase --"
   )
+
+  checkOutput(
+    "app.cwd",
+    List("example-cwd", "--app.cwd", "custom-working-directory"),
+    "cwd=custom-working-directory"
+  )
 }

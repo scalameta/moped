@@ -9,35 +9,6 @@ import moped.reporters.Diagnostic
 final case class ValueResult[+A](value: A) extends Result[A]
 final case class ErrorResult(error: Diagnostic) extends Result[Nothing]
 
-object Result {
-  def value[A](a: A): Result[A] = ValueResult(a)
-  def error[A](d: Diagnostic): Result[A] = ErrorResult(d)
-  def fromResults[A](results: Iterable[Result[A]]): Result[List[A]] = {
-    val buf = mutable.ListBuffer.empty[A]
-    val errors = mutable.ListBuffer.empty[Diagnostic]
-    results
-      .iterator
-      .foreach {
-        case ErrorResult(error) =>
-          errors += error
-        case ValueResult(value) =>
-          buf += value
-      }
-    Diagnostic.fromDiagnostics(errors.toList) match {
-      case Some(diagnostic) =>
-        ErrorResult(diagnostic)
-      case None =>
-        ValueResult(buf.toList)
-    }
-  }
-  def fromUnsafe[A](thunk: () => A): Result[A] =
-    try ValueResult(thunk())
-    catch {
-      case NonFatal(e) =>
-        ErrorResult(Diagnostic.exception(e))
-    }
-}
-
 sealed abstract class Result[+A] extends Product with Serializable {
 
   def isError: Boolean = this.isInstanceOf[ErrorResult]
@@ -101,4 +72,47 @@ sealed abstract class Result[+A] extends Product with Serializable {
         ValueResult((a, b))
     }
 
+}
+
+object Result {
+  def value[A](a: A): Result[A] = ValueResult(a)
+  def error[A](d: Diagnostic): Result[A] = ErrorResult(d)
+  def fromUnsafe[A](thunk: () => A): Result[A] =
+    try ValueResult(thunk())
+    catch {
+      case NonFatal(e) =>
+        ErrorResult(Diagnostic.exception(e))
+    }
+  def fromEither[A](either: Either[Diagnostic, A]): Result[A] = {
+    either match {
+      case Left(value) =>
+        ErrorResult(value)
+      case Right(value) =>
+        ValueResult(value)
+    }
+  }
+  def fromValues[A](
+      values: List[A],
+      errors: List[Diagnostic]
+  ): Result[List[A]] = {
+    Diagnostic.fromDiagnostics(errors.toList) match {
+      case Some(diagnostic) =>
+        ErrorResult(diagnostic)
+      case None =>
+        ValueResult(values)
+    }
+  }
+  def fromResults[A](results: Iterable[Result[A]]): Result[List[A]] = {
+    val values = mutable.ListBuffer.empty[A]
+    val errors = mutable.ListBuffer.empty[Diagnostic]
+    results
+      .iterator
+      .foreach {
+        case ErrorResult(error) =>
+          errors += error
+        case ValueResult(value) =>
+          values += value
+      }
+    fromValues(values.toList, errors.toList)
+  }
 }

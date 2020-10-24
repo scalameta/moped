@@ -12,8 +12,10 @@ abstract class BaseCommand {
 abstract class Command extends BaseCommand {
   final override def runAsFuture(): Future[Int] =
     Try(run()) match {
-      case Failure(exception) => Future.failed(exception)
-      case Success(value) => Future.successful(value)
+      case Failure(exception) =>
+        Future.failed(exception)
+      case Success(value) =>
+        Future.successful(value)
     }
   def run(): Int
 }

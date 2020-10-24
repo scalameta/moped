@@ -10,20 +10,15 @@ class TypeMismatchDiagnostic(
     cursor: Cursor
 ) extends Diagnostic(ErrorSeverity, "TypeMismatch", pos) {
   def this(expected: String, obtained: String, context: DecodingContext) =
-    this(
-      expected,
-      obtained,
-      context.json.position,
-      context.cursor
-    )
+    this(expected, obtained, context.json.position, context.cursor)
   def this(expected: String, context: DecodingContext) =
-    this(
-      expected,
-      context.json.productPrefix.stripPrefix("Json"),
-      context
-    )
+    this(expected, context.json.productPrefix.stripPrefix("Json"), context)
   override def message: String = {
-    val pathSuffix = if (cursor.isEmpty) "" else s" at '${cursor.path}'"
+    val pathSuffix =
+      if (cursor.isEmpty)
+        ""
+      else
+        s" at '${cursor.path}'"
     s"""Type mismatch$pathSuffix;
        |  found    : $obtained
        |  expected : $expected""".stripMargin

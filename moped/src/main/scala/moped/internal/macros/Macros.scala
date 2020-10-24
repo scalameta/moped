@@ -58,7 +58,8 @@ class Macros(val c: blackbox.Context) {
         q"_root_.scala.Predef.implicitly[_root_.moped.json.JsonEncoder[${param.info}]]"
       q"_root_.moped.json.JsonMember(_root_.moped.json.JsonString($name), $encoder.encode($select))"
     }
-    val result = q"""
+    val result =
+      q"""
        new ${weakTypeOf[JsonEncoder[T]]} {
          override def encode(value: ${weakTypeOf[T]}): _root_.moped.json.JsonObject = {
            new _root_.moped.json.JsonObject(
@@ -104,29 +105,37 @@ class Macros(val c: blackbox.Context) {
         )"""
       }
     }
-    val product = params.foldLeft(next(head)) {
-      case (accum, param) => q"$accum.product(${next(param)})"
-    }
-    val tupleExtract = 1.to(params.length).foldLeft(q"t": Tree) {
-      case (accum, _) => q"$accum._1"
-    }
-    var curr = tupleExtract
-    val args = 0.to(params.length).map { _ =>
-      val old = curr
-      curr = curr match {
-        case q"$qual._1" =>
-          q"$qual._2"
-        case q"$qual._1._2" =>
-          q"$qual._2"
-        case q"$qual._2" =>
-          q"$qual"
-        case q"t" => q"t"
+    val product =
+      params.foldLeft(next(head)) { case (accum, param) =>
+        q"$accum.product(${next(param)})"
       }
-      old
-    }
+    val tupleExtract =
+      1.to(params.length)
+        .foldLeft(q"t": Tree) { case (accum, _) =>
+          q"$accum._1"
+        }
+    var curr = tupleExtract
+    val args = 0
+      .to(params.length)
+      .map { _ =>
+        val old = curr
+        curr =
+          curr match {
+            case q"$qual._1" =>
+              q"$qual._2"
+            case q"$qual._1._2" =>
+              q"$qual._2"
+            case q"$qual._2" =>
+              q"$qual"
+            case q"t" =>
+              q"t"
+          }
+        old
+      }
     val ctor = q"new $T(..$args)"
 
-    val result = q"""
+    val result =
+      q"""
        new ${weakTypeOf[JsonDecoder[T]]} {
          override def decode(
              context: ${weakTypeOf[DecodingContext]}
@@ -158,92 +167,107 @@ class Macros(val c: blackbox.Context) {
       c.abort(c.enclosingPosition, s"$T must be a case class")
     val Tclass = T.typeSymbol.asClass
     val ctor = Tclass.primaryConstructor.asMethod
-    val argss = ctor.paramLists.map { params =>
-      val fields = params.map { param =>
-        val paramTpe = param.info.resultType
-        val baseAnnots = param.annotations.collect {
-          case annot if annot.tree.tpe <:< typeOf[StaticAnnotation] =>
-            annot.tree
-        }
-        val isMap = paramTpe <:< typeOf[Map[_, _]]
-        val isConf = paramTpe <:< typeOf[JsonElement]
-        val isIterable = paramTpe <:< typeOf[Iterable[_]] && !isMap
-        val repeated =
-          if (isIterable) {
-            q"new _root_.moped.annotations.Repeated" :: Nil
-          } else {
-            Nil
-          }
-        val dynamic =
-          if (isMap || isConf) {
-            q"new _root_.moped.annotations.Dynamic" :: Nil
-          } else {
-            Nil
-          }
-        val flag =
-          if (paramTpe <:< typeOf[Boolean]) {
-            q"new _root_.moped.annotations.Flag" :: Nil
-          } else {
-            Nil
-          }
-        val hidden =
-          if (paramTpe <:< typeOf[AlwaysHiddenParameter]) {
-            q"new _root_.moped.annotations.Hidden" :: Nil
-          } else {
-            Nil
-          }
+    val argss = ctor
+      .paramLists
+      .map { params =>
+        val fields = params.map { param =>
+          val paramTpe = param.info.resultType
+          val baseAnnots = param
+            .annotations
+            .collect {
+              case annot if annot.tree.tpe <:< typeOf[StaticAnnotation] =>
+                annot.tree
+            }
+          val isMap = paramTpe <:< typeOf[Map[_, _]]
+          val isConf = paramTpe <:< typeOf[JsonElement]
+          val isIterable = paramTpe <:< typeOf[Iterable[_]] && !isMap
+          val repeated =
+            if (isIterable) {
+              q"new _root_.moped.annotations.Repeated" :: Nil
+            } else {
+              Nil
+            }
+          val dynamic =
+            if (isMap || isConf) {
+              q"new _root_.moped.annotations.Dynamic" :: Nil
+            } else {
+              Nil
+            }
+          val flag =
+            if (paramTpe <:< typeOf[Boolean]) {
+              q"new _root_.moped.annotations.Flag" :: Nil
+            } else {
+              Nil
+            }
+          val hidden =
+            if (paramTpe <:< typeOf[AlwaysHiddenParameter]) {
+              q"new _root_.moped.annotations.Hidden" :: Nil
+            } else {
+              Nil
+            }
 
-        val completerType = c.internal.typeRef(
-          NoPrefix,
-          weakTypeOf[Completer[_]].typeSymbol,
-          paramTpe :: Nil
-        )
-        val completerInferred = c.inferImplicitValue(completerType)
+          val completerType = c
+            .internal
+            .typeRef(
+              NoPrefix,
+              weakTypeOf[Completer[_]].typeSymbol,
+              paramTpe :: Nil
+            )
+          val completerInferred = c.inferImplicitValue(completerType)
 
-        val tabCompletePath =
-          if (completerInferred == null || completerInferred.isEmpty) {
-            Nil
-          } else {
-            q"new _root_.moped.annotations.TabCompleter($completerInferred)" :: Nil
-          }
+          val tabCompletePath =
+            if (completerInferred == null || completerInferred.isEmpty) {
+              Nil
+            } else {
+              q"new _root_.moped.annotations.TabCompleter($completerInferred)" ::
+                Nil
+            }
 
-        val finalAnnots =
-          repeated ::: dynamic ::: flag ::: hidden ::: tabCompletePath ::: baseAnnots
-        val fieldsParamTpe = c.internal.typeRef(
-          NoPrefix,
-          weakTypeOf[ClassShaper[_]].typeSymbol,
-          paramTpe :: Nil
-        )
-        val underlyingInferred = c.inferImplicitValue(fieldsParamTpe)
-        val underlying =
-          if (underlyingInferred == null || underlyingInferred.isEmpty) {
-            q"_root_.scala.None"
-          } else {
-            q"_root_.scala.Some.apply($underlyingInferred)"
-          }
-        val tprint = c.internal.typeRef(
-          NoPrefix,
-          weakTypeOf[pprint.TPrint[_]].typeSymbol,
-          paramTpe :: Nil
-        )
-        val tpeString = c.inferImplicitValue(tprint)
+          val finalAnnots =
+            repeated ::: dynamic ::: flag ::: hidden ::: tabCompletePath :::
+              baseAnnots
+          val fieldsParamTpe = c
+            .internal
+            .typeRef(
+              NoPrefix,
+              weakTypeOf[ClassShaper[_]].typeSymbol,
+              paramTpe :: Nil
+            )
+          val underlyingInferred = c.inferImplicitValue(fieldsParamTpe)
+          val underlying =
+            if (underlyingInferred == null || underlyingInferred.isEmpty) {
+              q"_root_.scala.None"
+            } else {
+              q"_root_.scala.Some.apply($underlyingInferred)"
+            }
+          val tprint = c
+            .internal
+            .typeRef(
+              NoPrefix,
+              weakTypeOf[pprint.TPrint[_]].typeSymbol,
+              paramTpe :: Nil
+            )
+          val tpeString = c.inferImplicitValue(tprint)
 
-        val field = q"""new ${weakTypeOf[ParameterShape]}(
+          val field =
+            q"""new ${weakTypeOf[ParameterShape]}(
            ${param.name.decodedName.toString},
            $tpeString.render,
            _root_.scala.List.apply(..$finalAnnots),
            $underlying
          )"""
-        field
+          field
+        }
+        val args = q"_root_.scala.List.apply(..$fields)"
+        args
       }
-      val args = q"_root_.scala.List.apply(..$fields)"
-      args
-    }
     val args = q"_root_.scala.List.apply(..$argss)"
-    val classAnnotations = Tclass.annotations.collect {
-      case annot if annot.tree.tpe <:< typeOf[StaticAnnotation] =>
-        annot.tree
-    }
+    val classAnnotations = Tclass
+      .annotations
+      .collect {
+        case annot if annot.tree.tpe <:< typeOf[StaticAnnotation] =>
+          annot.tree
+      }
     val result =
       q"""_root_.moped.macros.ClassShaper.apply[${weakTypeOf[T]}](
             new ${weakTypeOf[ClassShape]}(

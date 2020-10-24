@@ -14,10 +14,12 @@ import moped.macros.ClassShaper
 
 class InstallCompletionsCommand(app: Application) extends Command {
   override def run(): Int = {
-    ShellCompletion.all(app).foreach { shell =>
-      shell.uninstall()
-      shell.install()
-    }
+    ShellCompletion
+      .all(app)
+      .foreach { shell =>
+        shell.uninstall()
+        shell.install()
+      }
     0
   }
 }
@@ -38,11 +40,12 @@ object InstallCompletionsCommand {
             )
           )
         ),
-        JsonEncoder.stringJsonEncoder
+        JsonEncoder
+          .stringJsonEncoder
           .contramap[InstallCompletionsCommand](_ => ""),
-        JsonDecoder.applicationJsonDecoder.map(app =>
-          new InstallCompletionsCommand(app)
-        )
+        JsonDecoder
+          .applicationJsonDecoder
+          .map(app => new InstallCompletionsCommand(app))
       ),
       new InstallCompletionsCommand(Application.default)
     )

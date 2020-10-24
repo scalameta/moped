@@ -13,35 +13,42 @@ import moped.json.JsonArray
 import moped.json.JsonString
 
 @Description("Write arguments to the standard output")
-@ExampleUsage(
-  """|$ echo hello world!
-     |hello world!
-     |$ echo --uppercase hello world!
-     |HELLO WORLD!
-     |""".stripMargin
-)
+@ExampleUsage("""|$ echo hello world!
+                 |hello world!
+                 |$ echo --uppercase hello world!
+                 |HELLO WORLD!
+                 |""".stripMargin)
 case class EchoCommand(
-    @Description("If true, the output will be all UPPERCASE")
-    uppercase: Boolean = false,
-    @Description("If false, the output will be changed to '--no-unchanged'")
-    unchanged: Boolean = true,
-    @Description("If false, the output will be all lowercase")
-    lowercase: Boolean = false,
+    @Description(
+      "If true, the output will be all UPPERCASE"
+    ) uppercase: Boolean = false,
+    @Description(
+      "If false, the output will be changed to '--no-unchanged'"
+    ) unchanged: Boolean = true,
+    @Description(
+      "If false, the output will be all lowercase"
+    ) lowercase: Boolean = false,
     @PositionalArguments()
-    @Description("The arguments to write out to standard output")
-    args: List[String] = Nil,
+    @Description("The arguments to write out to standard output") args: List[
+      String
+    ] = Nil,
     @TrailingArguments()
-    @Description("The arguments after `--` to write out to a separate line")
-    trailing: List[String] = Nil,
+    @Description(
+      "The arguments after `--` to write out to a separate line"
+    ) trailing: List[String] = Nil,
     app: Application = Application.default
 ) extends Command {
   def run(): Int = {
     val out = app.env.standardOutput
     val toPrint =
-      if (!unchanged) List("--no-unchanged")
-      else if (uppercase) args.map(_.toUpperCase())
-      else if (lowercase) args.map(_.toLowerCase())
-      else args
+      if (!unchanged)
+        List("--no-unchanged")
+      else if (uppercase)
+        args.map(_.toUpperCase())
+      else if (lowercase)
+        args.map(_.toLowerCase())
+      else
+        args
     out.println(toPrint.mkString(" "))
     if (trailing.nonEmpty) {
       out.println(trailing.mkString("-- ", " ", ""))
@@ -51,8 +58,8 @@ case class EchoCommand(
 }
 
 object EchoCommand {
-  implicit val parser: CommandParser[EchoCommand] =
-    CommandParser.derive(EchoCommand())
+  implicit val parser: CommandParser[EchoCommand] = CommandParser
+    .derive(EchoCommand())
   lazy val app: Application = Application.fromName(
     "tests",
     "1.0.0",

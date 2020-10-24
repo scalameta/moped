@@ -101,13 +101,7 @@ class CommandLineParserSuite extends BaseSuite {
 
   checkOutput(
     "positional-boolean",
-    List(
-      "example-fallback",
-      "--invalid",
-      "value1",
-      "--flag",
-      "value2"
-    ),
+    List("example-fallback", "--invalid", "value1", "--flag", "value2"),
     """|flag=true
        |List(--invalid, value1, value2)
        |""".stripMargin
@@ -115,11 +109,7 @@ class CommandLineParserSuite extends BaseSuite {
 
   checkErrorOutput(
     "type-mismatch-object",
-    List(
-      "example-nested",
-      "--nested",
-      "value"
-    ),
+    List("example-nested", "--nested", "value"),
     """|error: Type mismatch at '.nested';
        |  found    : String
        |  expected : Object
@@ -128,10 +118,7 @@ class CommandLineParserSuite extends BaseSuite {
 
   checkErrorOutput(
     "dym-boolean",
-    List(
-      "example-nested",
-      "--iii"
-    ),
+    List("example-nested", "--iii"),
     """|error: found argument '--iii' which wasn't expected, or isn't valid in this context.
        |	Did you mean '--ii'?
        |""".stripMargin

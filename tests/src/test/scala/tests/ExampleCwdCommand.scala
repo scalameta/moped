@@ -7,18 +7,18 @@ import moped.cli.Command
 import moped.cli.CommandParser
 import moped.json.JsonCodec
 
-case class SharedCwdOptions(
-    app: Application = Application.default
-)
+case class SharedCwdOptions(app: Application = Application.default)
 
 object SharedCwdOptions {
-  implicit val codec: JsonCodec[SharedCwdOptions] =
-    moped.macros.deriveCodec(SharedCwdOptions())
+  implicit val codec: JsonCodec[SharedCwdOptions] = moped
+    .macros
+    .deriveCodec(SharedCwdOptions())
 }
 
 @Hidden
 final case class ExampleCwdCommand(
-    @Inline shared: SharedCwdOptions = SharedCwdOptions()
+    @Inline
+    shared: SharedCwdOptions = SharedCwdOptions()
 ) extends Command {
   def app = shared.app
   def run(): Int = {
@@ -28,6 +28,6 @@ final case class ExampleCwdCommand(
 }
 
 object ExampleCwdCommand {
-  implicit val parser: CommandParser[ExampleCwdCommand] =
-    CommandParser.derive(ExampleCwdCommand())
+  implicit val parser: CommandParser[ExampleCwdCommand] = CommandParser
+    .derive(ExampleCwdCommand())
 }

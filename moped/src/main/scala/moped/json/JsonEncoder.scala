@@ -7,18 +7,14 @@ import moped.cli.Application
 trait JsonEncoder[A] {
   def encode(value: A): JsonElement
 
-  final def contramap[B](f: B => A): JsonEncoder[B] =
-    value => encode(f(value))
+  final def contramap[B](f: B => A): JsonEncoder[B] = value => encode(f(value))
 }
 
 object JsonEncoder {
-  def empty[A]: JsonEncoder[A] =
-    _ => JsonNull()
-  def apply[A](implicit ev: JsonEncoder[A]): JsonEncoder[A] =
-    ev
+  def empty[A]: JsonEncoder[A] = _ => JsonNull()
+  def apply[A](implicit ev: JsonEncoder[A]): JsonEncoder[A] = ev
 
-  private val anyElementJsonEncoder: JsonEncoder[JsonElement] =
-    elem => elem
+  private val anyElementJsonEncoder: JsonEncoder[JsonElement] = elem => elem
   implicit def jsonElementEncoder[A <: JsonElement]: JsonEncoder[A] =
     anyElementJsonEncoder.asInstanceOf[JsonEncoder[A]]
 
@@ -32,8 +28,7 @@ object JsonEncoder {
     value => JsonNumber(value.toDouble)
   implicit val doubleJsonEncoder: JsonEncoder[Double] =
     value => JsonNumber(value)
-  implicit val unitJsonEncoder: JsonEncoder[Unit] =
-    _ => JsonNull()
+  implicit val unitJsonEncoder: JsonEncoder[Unit] = _ => JsonNull()
   implicit val pathJsonEncoder: JsonEncoder[Path] =
     value => JsonString(value.toString())
   implicit val applicationJsonEncoder: JsonEncoder[Application] =
@@ -48,17 +43,23 @@ object JsonEncoder {
       ev: JsonEncoder[A]
   ): JsonEncoder[Map[String, A]] =
     value => {
-      JsonObject(value.iterator.map {
-        case (key, value) =>
-          JsonMember(JsonString(key), ev.encode(value))
-      }.toList)
+      JsonObject(
+        value
+          .iterator
+          .map { case (key, value) =>
+            JsonMember(JsonString(key), ev.encode(value))
+          }
+          .toList
+      )
     }
 
   implicit def optionJsonEncoder[A](implicit
       ev: JsonEncoder[A]
   ): JsonEncoder[Option[A]] = {
-    case Some(value) => ev.encode(value)
-    case None => JsonNull()
+    case Some(value) =>
+      ev.encode(value)
+    case None =>
+      JsonNull()
   }
 
 }

@@ -59,7 +59,8 @@ final class InputTransformer[J](input: Input)
           case _ =>
             i
         }
-      case _ => i
+      case _ =>
+        i
     }
 
   private def comment(i: Int): Int =
@@ -80,18 +81,26 @@ final class InputTransformer[J](input: Input)
     }
 
   def column(i: Int): Int = i
-  def newline(i: Int): Unit = { line += 1 }
+  def newline(i: Int): Unit = {
+    line += 1
+  }
   def reset(i: Int): Int = {
     if (atEof(i)) {
       i
     } else {
-      val next = at(i) match {
-        case '/' => comment(i)
-        case ',' => trailingComma(i)
-        case _ => i
-      }
-      if (next == i) i
-      else reset(next)
+      val next =
+        at(i) match {
+          case '/' =>
+            comment(i)
+          case ',' =>
+            trailingComma(i)
+          case _ =>
+            i
+        }
+      if (next == i)
+        i
+      else
+        reset(next)
     }
   }
 
@@ -100,8 +109,7 @@ final class InputTransformer[J](input: Input)
       i: Int,
       stack: List[ObjArrVisitor[_, J]],
       path: List[Any]
-  ): Unit =
-    ()
+  ): Unit = ()
 
   def at(i: Int): Char = {
     if (i >= chars.length)

@@ -25,7 +25,10 @@ import org.typelevel.paiges.Doc
 object HelpCommand {
   val completer: Completer[List[String]] = { context =>
     if (context.arguments.length == 1) {
-      context.app.commands.iterator
+      context
+        .app
+        .commands
+        .iterator
         .filterNot(_.isHidden)
         .map(c => TabCompletionItem(c.subcommandName))
         .toList
@@ -35,8 +38,8 @@ object HelpCommand {
   }
 
   def insertHelpFlag(shape: ClassShape): ClassShape = {
-    shape.copy(
-      parameters = List(
+    shape.copy(parameters =
+      List(
         new ParameterShape(
           "help",
           "Boolean",
@@ -55,7 +58,8 @@ object HelpCommand {
     val flagsToMoveBehindSubcommand = mutable.ListBuffer.empty[String]
     def loop(args: List[String]): List[String] =
       args match {
-        case Nil => flagsToMoveBehindSubcommand.toList
+        case Nil =>
+          flagsToMoveBehindSubcommand.toList
         case head :: tail =>
           if (head.startsWith("-")) {
             flagsToMoveBehindSubcommand += head
@@ -73,7 +77,8 @@ object HelpCommand {
           "help" :: command :: Nil
         case command :: ("--version" | "-v" | "-version") :: Nil =>
           "version" :: command :: Nil
-        case Nil => Nil
+        case Nil =>
+          Nil
         case head :: tail =>
           head :: loop(tail)
       }
@@ -112,18 +117,21 @@ object HelpCommand {
       ),
       help(Application.default)
     )
-  implicit lazy val parser: CommandParser[HelpCommand] =
-    parser(app => new HelpCommand(app))
+  implicit lazy val parser: CommandParser[HelpCommand] = parser(app =>
+    new HelpCommand(app)
+  )
 }
 
 class HelpCommand(app: Application) extends Command {
   override def run(): Int = {
     app.relativeArguments match {
       case Nil =>
-        val sections = app.documentation.collect {
-          case (key, value) if value.nonEmpty =>
-            Doc.text(key) + Doc.line + value.indent(2)
-        }
+        val sections = app
+          .documentation
+          .collect {
+            case (key, value) if value.nonEmpty =>
+              Doc.text(key) + Doc.line + value.indent(2)
+          }
         val help = Doc.intercalate(Doc.line + Doc.line, sections)
         app.out.println(help.renderTrim(app.terminal.screenWidth()))
         0

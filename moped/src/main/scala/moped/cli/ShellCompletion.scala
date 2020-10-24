@@ -76,7 +76,8 @@ final class ZshCompletion(app: Application) extends ShellCompletion(app) {
        |function _BINARY_NAME {
        |    compadd -- $(BINARY_NAME completions run SHELL_VERSION $CURRENT $words[@] 2> /dev/null)
        |}
-       |""".stripMargin
+       |"""
+      .stripMargin
       .replace("BINARY_NAME", app.binaryName)
       .replace("SHELL_VERSION", ZshCompletion.v1)
 }
@@ -113,7 +114,8 @@ final class BashCompletion(app: Application) extends ShellCompletion(app) {
        |  return 0
        |}
        |complete -F _tests tests
-       |""".stripMargin
+       |"""
+      .stripMargin
       .replace("BINARY_NAME", app.binaryName)
       .replace("SHELL_VERSION", BashCompletion.v1)
 }
@@ -132,7 +134,9 @@ final class FishCompletion(app: Application) extends ShellCompletion(app) {
     Files.deleteIfExists(completionFile)
   }
   private def completionFile: Path =
-    app.env.homeDirectory
+    app
+      .env
+      .homeDirectory
       .resolve(".config")
       .resolve("fish")
       .resolve("functions")
@@ -145,7 +149,8 @@ final class FishCompletion(app: Application) extends ShellCompletion(app) {
        |   BINARY_NAME completions run SHELL_VERSION $arguments $current 2> /dev/null
        |end
        |complete -f -c BINARY_NAME -a "(_BINARY_NAME)"
-       |""".stripMargin
+       |"""
+      .stripMargin
       .replace("BINARY_NAME", app.binaryName)
       .replace("SHELL_VERSION", FishCompletion.v1)
 }

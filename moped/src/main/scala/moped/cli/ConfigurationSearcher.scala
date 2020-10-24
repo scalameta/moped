@@ -44,11 +44,8 @@ object EmptySearcher extends BlockingConfigurationSearcher {
 
 object SystemSearcher extends BlockingConfigurationSearcher {
   def find(app: Application): List[DecodingResult[JsonElement]] = {
-    ConfigurationSearcher.candidates(
-      app,
-      app.env.preferencesDirectory,
-      app.binaryName
-    )
+    ConfigurationSearcher
+      .candidates(app, app.env.preferencesDirectory, app.binaryName)
   }
 }
 
@@ -57,16 +54,9 @@ object ProjectSearcher extends BlockingConfigurationSearcher {
     val buf = mutable.ListBuffer.empty[DecodingResult[JsonElement]]
     val cwd = app.env.workingDirectory
     List(
-      ConfigurationSearcher.candidates(
-        app,
-        cwd.resolve(".config"),
-        app.binaryName
-      ),
-      ConfigurationSearcher.candidates(
-        app,
-        cwd,
-        "." + app.binaryName
-      )
+      ConfigurationSearcher
+        .candidates(app, cwd.resolve(".config"), app.binaryName),
+      ConfigurationSearcher.candidates(app, cwd, "." + app.binaryName)
     ).flatten
   }
 }

@@ -25,35 +25,31 @@ final case class CommandParser[A <: BaseCommand](
     this(codec, codec, default, codec.shape)
   override def decode(context: DecodingContext): DecodingResult[A] =
     decoder.decode(context)
-  override def encode(value: A): JsonElement =
-    encoder.encode(value)
+  override def encode(value: A): JsonElement = encoder.encode(value)
   type Value = A
   def asClassShaper: ClassShaper[Value] = this
   def asDecoder: JsonDecoder[Value] = this
   def withApplication(app: Application): CommandParser[A] =
-    copy(
-      shape = app.preProcessClassShape(shape)
-    )
-  def description: Doc =
-    commandLineDescription.getOrElse(Doc.empty)
-  def longDescription: Doc =
-    commandLineLongDescription.getOrElse(description)
+    copy(shape = app.preProcessClassShape(shape))
+  def description: Doc = commandLineDescription.getOrElse(Doc.empty)
+  def longDescription: Doc = commandLineLongDescription.getOrElse(description)
   def usage: Doc = commandLineUsage.getOrElse(Doc.empty)
-  def options: Doc =
-    HelpMessage.generate(default)(encoder, ClassShaper(shape))
+  def options: Doc = HelpMessage.generate(default)(encoder, ClassShaper(shape))
   def optionsManpage: Doc =
     HelpMessage.generateManpage(default)(encoder, ClassShaper(shape))
   def positional: Doc =
     parametersFlat
       .collectFirst {
-        case param if param.isPositionalArgument => param.description
+        case param if param.isPositionalArgument =>
+          param.description
       }
       .flatten
       .getOrElse(Doc.empty)
   def trailing: Doc =
     parametersFlat
       .collectFirst {
-        case param if param.isTrailingArgument => param.description
+        case param if param.isTrailingArgument =>
+          param.description
       }
       .flatten
       .getOrElse(Doc.empty)
@@ -83,18 +79,22 @@ final case class CommandParser[A <: BaseCommand](
     out.println(helpMessage.renderTrim(width))
   }
   def nestedCommands: List[CommandParser[_]] =
-    annotations.collect {
-      case Subcommand(cmd) => cmd
+    annotations.collect { case Subcommand(cmd) =>
+      cmd
     }
   def subcommandName: String =
     subcommandNames.headOption.getOrElse(fallbackSubcommandName)
   def subcommandNames: List[String] = {
     val fromAnnotations = annotations.flatMap {
-      case CommandName(names @ _*) => names.toList
-      case _ => Nil
+      case CommandName(names @ _*) =>
+        names.toList
+      case _ =>
+        Nil
     }
-    if (fromAnnotations.isEmpty) List(fallbackSubcommandName)
-    else fromAnnotations
+    if (fromAnnotations.isEmpty)
+      List(fallbackSubcommandName)
+    else
+      fromAnnotations
   }
   private def fallbackSubcommandName =
     Cases.camelToKebab(shape.name).stripSuffix("-command").toLowerCase()
@@ -108,14 +108,18 @@ final case class CommandParser[A <: BaseCommand](
       fn: TabCompletionContext => List[TabCompletionItem]
   ): CommandParser[A] = ???
   def complete(context: TabCompletionContext): List[TabCompletionItem] = {
-    val allAnnotations: Iterator[StaticAnnotation] = Iterator(
-      annotations.iterator,
-      parametersFlat.iterator
-        .filter(_.isPositionalArgument)
-        .flatMap(_.annotations.iterator)
-    ).flatten
+    val allAnnotations: Iterator[StaticAnnotation] =
+      Iterator(
+        annotations.iterator,
+        parametersFlat
+          .iterator
+          .filter(_.isPositionalArgument)
+          .flatMap(_.annotations.iterator)
+      ).flatten
     val completer = allAnnotations
-      .collectFirst { case TabCompleter(fn) => fn }
+      .collectFirst { case TabCompleter(fn) =>
+        fn
+      }
       .getOrElse(Completer.empty)
     completer.complete(context)
   }
@@ -129,7 +133,6 @@ object CommandParser {
   def fromCodec[A <: BaseCommand](
       codec: JsonCodec[A],
       default: A
-  ): CommandParser[A] =
-    new CommandParser(codec, default)
+  ): CommandParser[A] = new CommandParser(codec, default)
 
 }

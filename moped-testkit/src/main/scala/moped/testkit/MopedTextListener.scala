@@ -8,10 +8,7 @@ import org.junit.runner.notification.Failure
 
 class MopedTextListener(writer: PrintStream = Console.out)
     extends TextListener(writer) {
-  override def printFailure(
-      each: Failure,
-      prefix: String
-  ): Unit = {
+  override def printFailure(each: Failure, prefix: String): Unit = {
     writer.println(prefix + ") " + each.getTestHeader())
     writer.print(AnsiColors.filterAnsi(each.getTrimmedTrace()))
   }

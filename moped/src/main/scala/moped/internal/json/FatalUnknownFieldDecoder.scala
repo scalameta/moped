@@ -12,13 +12,15 @@ object FatalUnknownFieldDecoder {
       ev: ClassShaper[_],
       context: DecodingContext
   ): Option[Diagnostic] = {
-    if (!context.fatalUnknownFields) return None
-    val members: List[JsonMember] = context.json match {
-      case obj: JsonObject =>
-        obj.members
-      case _ =>
-        List()
-    }
+    if (!context.fatalUnknownFields)
+      return None
+    val members: List[JsonMember] =
+      context.json match {
+        case obj: JsonObject =>
+          obj.members
+        case _ =>
+          List()
+      }
     val validKeys = ev.allNames.toSet
     val invalidKeys = members.collect {
       case member if !validKeys.contains(member.key.value) =>

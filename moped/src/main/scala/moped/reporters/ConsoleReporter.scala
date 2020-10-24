@@ -15,8 +15,9 @@ class ConsoleReporter private (
     Severity.all.map(s => s -> new AtomicInteger).toMap
 
   override def log(diag: Diagnostic): Unit = {
-    val severity =
-      severityColor(diag.severity).apply(diag.severity.name).toString()
+    val severity = severityColor(diag.severity)
+      .apply(diag.severity.name)
+      .toString()
     counts(diag.severity).incrementAndGet()
     ps.println(diag.position.pretty(severity, diag.message))
   }
@@ -34,9 +35,12 @@ object ConsoleReporter {
   def apply(ps: PrintStream, isColorEnabled: Boolean): ConsoleReporter = {
     new ConsoleReporter(
       ps,
-      severityColor = sev =>
-        if (isColorEnabled) Severity.color(sev)
-        else Attrs.Empty
+      severityColor =
+        sev =>
+          if (isColorEnabled)
+            Severity.color(sev)
+          else
+            Attrs.Empty
     )
   }
 }

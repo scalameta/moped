@@ -23,8 +23,8 @@ import org.typelevel.paiges.Doc
 
 class InstallManCommand(app: Application) extends Command {
   override def run(): Int = {
-    val manPageCandidates: List[Path] =
-      InstallManCommand.manPageDirectories(app.env.environmentVariables)
+    val manPageCandidates: List[Path] = InstallManCommand
+      .manPageDirectories(app.env.environmentVariables)
     manPageCandidates.headOption match {
       case Some(man1) =>
         val out = man1.resolve(app.binaryName + ".1")
@@ -39,39 +39,43 @@ class InstallManCommand(app: Application) extends Command {
     0
   }
   def formatManPage: String = {
-    val now =
-      LocalDateTime.now(app.env.clock).format(DateTimeFormatter.ISO_DATE)
-    val header = TH + Doc.text(app.binaryName) + Doc.text(" 1 ") +
-      quoted(now) + Doc.space + quoted(s"${app.binaryName.capitalize} Manual")
+    val now = LocalDateTime
+      .now(app.env.clock)
+      .format(DateTimeFormatter.ISO_DATE)
+    val header =
+      TH + Doc.text(app.binaryName) + Doc.text(" 1 ") + quoted(now) +
+        Doc.space + quoted(s"${app.binaryName.capitalize} Manual")
 
     val name = {
       val tagline =
-        if (app.tagline.nonEmpty) Doc.text(" \\- ") + Doc.text(app.tagline)
-        else Doc.empty
+        if (app.tagline.nonEmpty)
+          Doc.text(" \\- ") + Doc.text(app.tagline)
+        else
+          Doc.empty
       Doc.text(app.binaryName) + tagline
     }
 
-    val commands: List[Doc] = for {
-      c <- app.commands
-      if c.nonHidden
-    } yield {
-      val commandExamples =
-        if (c.examples.isEmpty) Doc.empty
-        else
-          Doc.text("EXAMPLES:") + RS +
-            c.examples + Doc.line + RE + Doc.line
-      val commandOptions =
-        if (c.optionsManpage.isEmpty) Doc.empty
-        else
-          Doc.text("OPTIONS:") + RS +
-            c.optionsManpage + Doc.line + RE + Doc.line
-      val subsections =
-        Doc.intercalate(Doc.line, List(commandExamples, commandOptions))
-      PP + Doc.line +
-        Doc.text(c.subcommandName) + RS +
-        c.description + blankLine +
-        subsections + RE
-    }
+    val commands: List[Doc] =
+      for {
+        c <- app.commands
+        if c.nonHidden
+      } yield {
+        val commandExamples =
+          if (c.examples.isEmpty)
+            Doc.empty
+          else
+            Doc.text("EXAMPLES:") + RS + c.examples + Doc.line + RE + Doc.line
+        val commandOptions =
+          if (c.optionsManpage.isEmpty)
+            Doc.empty
+          else
+            Doc.text("OPTIONS:") + RS + c.optionsManpage + Doc.line + RE +
+              Doc.line
+        val subsections = Doc
+          .intercalate(Doc.line, List(commandExamples, commandOptions))
+        PP + Doc.line + Doc.text(c.subcommandName) + RS + c.description +
+          blankLine + subsections + RE
+      }
 
     val trailing = Doc.intercalate(
       Doc.line,
@@ -120,11 +124,10 @@ object InstallManCommand {
             )
           )
         ),
-        JsonEncoder.stringJsonEncoder
-          .contramap[InstallManCommand](_ => ""),
-        JsonDecoder.applicationJsonDecoder.map(app =>
-          new InstallManCommand(app)
-        )
+        JsonEncoder.stringJsonEncoder.contramap[InstallManCommand](_ => ""),
+        JsonDecoder
+          .applicationJsonDecoder
+          .map(app => new InstallManCommand(app))
       ),
       new InstallManCommand(Application.default)
     )

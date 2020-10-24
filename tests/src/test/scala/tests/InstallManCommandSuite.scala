@@ -14,23 +14,19 @@ object InstallManCommandSuite {
   @ExampleUsage("example foobar hello world")
   @Description("foobar subcommand description")
   case class FoobarCommand(
-      @Description("if true, does something")
-      flag: Boolean = false
+      @Description("if true, does something") flag: Boolean = false
   ) extends Command {
     def run(): Int = 0
   }
   object FoobarCommand {
-    implicit val parser: CommandParser[FoobarCommand] =
-      CommandParser.derive(FoobarCommand())
+    implicit val parser: CommandParser[FoobarCommand] = CommandParser
+      .derive(FoobarCommand())
   }
   val app: Application = Application
     .fromName(
       "example",
       "1.0",
-      List(
-        CommandParser[ManCommand],
-        CommandParser[FoobarCommand]
-      )
+      List(CommandParser[ManCommand], CommandParser[FoobarCommand])
     )
     .copy(
       tagline = "my testing binary",
@@ -48,7 +44,9 @@ class InstallManCommandSuite extends MopedSuite(InstallManCommandSuite.app) {
     runSuccessfully(List("man", "install"))
     val manFile = manDirectory.resolve("example.1")
     println()
-    val rendered = scala.sys.process
+    val rendered = scala
+      .sys
+      .process
       .Process(List("man", manFile.toString()))
       .!!
       .replaceAll(".\b", "")

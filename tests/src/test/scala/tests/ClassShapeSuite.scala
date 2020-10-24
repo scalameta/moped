@@ -9,8 +9,7 @@ import munit.FunSuite
 
 class CustomCompleter
 object CustomCompleter {
-  implicit val completer: Completer[CustomCompleter] =
-    _ => List()
+  implicit val completer: Completer[CustomCompleter] = _ => List()
 }
 
 case class ExampleClass(
@@ -57,8 +56,10 @@ class ClassShapeSuite extends FunSuite {
 
   test("all-nested") {
     val shaper = implicitly[ClassShaper[VeryNestedOptions]]
-    val obtained =
-      shaper.allNestedParameters.map(_.map(_.name).mkString(".")).mkString("\n")
+    val obtained = shaper
+      .allNestedParameters
+      .map(_.map(_.name).mkString("."))
+      .mkString("\n")
     assertNoDiff(
       obtained,
       """|nested

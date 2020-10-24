@@ -6,29 +6,32 @@ import moped.cli.Command
 import moped.cli.CommandParser
 import moped.json.JsonCodec
 
-case class InlineConfig(
-    useSuperShell: Boolean = true
-)
+case class InlineConfig(useSuperShell: Boolean = true)
 
 object InlineConfig {
-  implicit val codec: JsonCodec[InlineConfig] =
-    moped.macros.deriveCodec(InlineConfig())
+  implicit val codec: JsonCodec[InlineConfig] = moped
+    .macros
+    .deriveCodec(InlineConfig())
 }
 
 case class ConfigCommand(
     foobar: Boolean = false,
-    @Inline in: InlineConfig = InlineConfig(),
+    @Inline
+    in: InlineConfig = InlineConfig(),
     app: Application = Application.default
 ) extends Command {
   def run(): Int = {
-    if (foobar) app.out.println("foobar")
-    else app.out.println("no foobar")
-    if (!in.useSuperShell) app.out.println("--no-use-super-shell")
+    if (foobar)
+      app.out.println("foobar")
+    else
+      app.out.println("no foobar")
+    if (!in.useSuperShell)
+      app.out.println("--no-use-super-shell")
     0
   }
 }
 
 object ConfigCommand {
-  implicit lazy val parser: CommandParser[ConfigCommand] =
-    CommandParser.derive(ConfigCommand())
+  implicit lazy val parser: CommandParser[ConfigCommand] = CommandParser
+    .derive(ConfigCommand())
 }

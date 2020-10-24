@@ -36,7 +36,8 @@ object Utils {
   }
 
   def filterLinesMatching(path: Path, query: String): Unit = {
-    if (!Files.isRegularFile(path)) return
+    if (!Files.isRegularFile(path))
+      return
     val before = Files.readAllLines(path).asScala
     val after = before.filterNot(_.contains(query))
     if (!before.sameElements(after)) {
@@ -58,7 +59,8 @@ object Utils {
     var nread = -1
     do {
       nread = is.read(buffer, 0, buffer.length)
-      if (nread != -1) baos.write(buffer, 0, nread)
+      if (nread != -1)
+        baos.write(buffer, 0, nread)
     } while (nread != -1)
     baos.toByteArray
   }

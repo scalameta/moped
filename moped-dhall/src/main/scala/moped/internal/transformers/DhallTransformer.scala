@@ -20,14 +20,23 @@ class DhallTransformer(input: Input) extends AstTransformer[Expr] {
     val index = -1
     j match {
       case ast.BoolLiteral(c) =>
-        if (c) f.visitTrue(index) else f.visitFalse(index)
-      case ast.DoubleLiteral(c) => f.visitFloat64(c, index)
-      case ast.TextLiteral(c, _) => f.visitString(c, index)
+        if (c)
+          f.visitTrue(index)
+        else
+          f.visitFalse(index)
+      case ast.DoubleLiteral(c) =>
+        f.visitFloat64(c, index)
+      case ast.TextLiteral(c, _) =>
+        f.visitString(c, index)
       // case ast.NullLiteral(c) => f.visitNull(c, index) // Does not exist
-      case ast.ListLiteral(c) => transformArray(f, c)
-      case ast.RecordLiteral(c) => transformObject(f, c)
-      case ast.Identifier(c) => fail(s"unresolved identifier: $j")
-      case _ => fail(s"can't convert this Dhall expression into JSON: $j")
+      case ast.ListLiteral(c) =>
+        transformArray(f, c)
+      case ast.RecordLiteral(c) =>
+        transformObject(f, c)
+      case ast.Identifier(c) =>
+        fail(s"unresolved identifier: $j")
+      case _ =>
+        fail(s"can't convert this Dhall expression into JSON: $j")
     }
   }
   def visitArray(length: Int, index: Int): ArrVisitor[Expr, Expr] =
@@ -45,8 +54,10 @@ class DhallTransformer(input: Input) extends AstTransformer[Expr] {
       index: Int
   ): Expr =
     ast.DoubleLiteral(
-      if (decIndex != -1 || expIndex != -1) s.toString.toDouble
-      else Util.parseIntegralNum(s, decIndex, expIndex, index)
+      if (decIndex != -1 || expIndex != -1)
+        s.toString.toDouble
+      else
+        Util.parseIntegralNum(s, decIndex, expIndex, index)
     )
   def visitString(s: CharSequence, index: Int): Expr =
     ast.TextLiteral(s.toString())

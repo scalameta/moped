@@ -19,7 +19,8 @@ object FileLayout {
       includePath: Path => Boolean = _ => true,
       charset: Charset = StandardCharsets.UTF_8
   ): String = {
-    if (!Files.isDirectory(root)) return ""
+    if (!Files.isDirectory(root))
+      return ""
     import scala.collection.JavaConverters._
     val out = new StringBuilder()
     val buf = mutable.ArrayBuffer.empty[Path]
@@ -30,8 +31,10 @@ object FileLayout {
             dir: Path,
             attrs: BasicFileAttributes
         ): FileVisitResult = {
-          if (!includePath(dir)) FileVisitResult.SKIP_SUBTREE
-          else FileVisitResult.CONTINUE
+          if (!includePath(dir))
+            FileVisitResult.SKIP_SUBTREE
+          else
+            FileVisitResult.CONTINUE
         }
         override def visitFile(
             file: Path,
@@ -44,20 +47,20 @@ object FileLayout {
         }
       }
     )
-    buf.sorted.foreach { file =>
-      val relpath = root.relativize(file).iterator().asScala.mkString("/")
-      out.append("/").append(relpath)
-      if (Files.isSymbolicLink(file)) {
-        out
-          .append(" -> ")
-          .append(Files.readSymbolicLink(file))
+    buf
+      .sorted
+      .foreach { file =>
+        val relpath = root.relativize(file).iterator().asScala.mkString("/")
+        out.append("/").append(relpath)
+        if (Files.isSymbolicLink(file)) {
+          out.append(" -> ").append(Files.readSymbolicLink(file))
 
-      } else {
-        val text = Utils.readFile(file)
-        out.append("\n").append(text)
+        } else {
+          val text = Utils.readFile(file)
+          out.append("\n").append(text)
+        }
+        out.append("\n")
       }
-      out.append("\n")
-    }
     out.toString()
   }
 
@@ -70,7 +73,10 @@ object FileLayout {
           row.stripPrefix("\n").split("\n", 2).toList match {
             case path :: contents :: Nil =>
               val withEndOfFileLine =
-                if (contents.endsWith("\n")) contents else contents + "\n"
+                if (contents.endsWith("\n"))
+                  contents
+                else
+                  contents + "\n"
               path.stripPrefix("/") -> withEndOfFileLine
             case els =>
               throw new IllegalArgumentException(
@@ -90,21 +96,21 @@ object FileLayout {
       charset: Charset = StandardCharsets.UTF_8
   ): Path = {
     if (!layout.trim.isEmpty) {
-      mapFromString(layout).foreach {
-        case (path, contents) =>
-          val file =
-            path.split("/").foldLeft(root)(_ resolve _)
-          val parent = file.getParent
-          if (!Files.exists(parent)) { // cannot create directories when parent is a symlink
-            Files.createDirectories(parent)
-          }
-          Files.deleteIfExists(file)
-          Files.write(
-            file,
-            contents.getBytes(charset),
-            StandardOpenOption.WRITE,
-            StandardOpenOption.CREATE
-          )
+      mapFromString(layout).foreach { case (path, contents) =>
+        val file = path.split("/").foldLeft(root)(_ resolve _)
+        val parent = file.getParent
+        if (
+          !Files.exists(parent)
+        ) { // cannot create directories when parent is a symlink
+          Files.createDirectories(parent)
+        }
+        Files.deleteIfExists(file)
+        Files.write(
+          file,
+          contents.getBytes(charset),
+          StandardOpenOption.WRITE,
+          StandardOpenOption.CREATE
+        )
       }
     }
     root

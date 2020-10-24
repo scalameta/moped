@@ -20,20 +20,26 @@ import moped.reporters.Terminals
 import moped.reporters.Tput
 
 /**
- * A progress bar that renders updates at a fixed duration interval until it's canceled.
+ * A progress bar that renders updates at a fixed duration interval until it's
+ * canceled.
  *
- * @param out the output stream to emit the progress bar to. This progress bar should have
- *            exclusive access to the output stream between the start()/stop() methods. There
- *            are no guarantees what happens if this output stream is used concurrently while
- *            this progress bar is running.
- * @param renderer pretty-printer for this progress bar. The `renderStep()`
- *                 method runs on a single thread and should not take longer than the
- *                 `intervalDuration` time to complete.
- * @param intervalDuration the duration for which
- * @param terminal the active part of the progress bar is truncated by the screen width/height
- *                 constraints to avoid wonky output.
- * @param reportFailure callback in case of any errors, by default prints the
- *                      stack trace to `System.out`.
+ * @param out
+ *   the output stream to emit the progress bar to. This progress bar should
+ *   have exclusive access to the output stream between the start()/stop()
+ *   methods. There are no guarantees what happens if this output stream is used
+ *   concurrently while this progress bar is running.
+ * @param renderer
+ *   pretty-printer for this progress bar. The `renderStep()` method runs on a
+ *   single thread and should not take longer than the `intervalDuration` time
+ *   to complete.
+ * @param intervalDuration
+ *   the duration for which
+ * @param terminal
+ *   the active part of the progress bar is truncated by the screen width/height
+ *   constraints to avoid wonky output.
+ * @param reportFailure
+ *   callback in case of any errors, by default prints the stack trace to
+ *   `System.out`.
  */
 class InteractiveProgressBar(
     out: Writer,
@@ -48,8 +54,8 @@ class InteractiveProgressBar(
   // `renderStart()` and `renderStop()` methods run on the callee thread.
   private val sh: ScheduledExecutorService = new ScheduledThreadPoolExecutor(1)
   InteractiveProgressBar.discardRejectedRunnables(sh)
-  private implicit val ec: ExecutionContextExecutorService =
-    ExecutionContext.fromExecutorService(sh)
+  private implicit val ec: ExecutionContextExecutorService = ExecutionContext
+    .fromExecutorService(sh)
 
   private var printedWidth, printedHeight = 0
   private val scheduledJobs = new ConcurrentLinkedQueue[Future[_]]
@@ -119,8 +125,10 @@ class InteractiveProgressBar(
   }
 
   private def writeDynamicPart(active: String, size: ScreenSize): Unit = {
-    if (!isDynamicPartEnabled) return
-    if (!isActive()) return
+    if (!isDynamicPartEnabled)
+      return
+    if (!isActive())
+      return
     var i, w, h = 0
     def isHeightOk = h < (size.height - 3)
     def isWidthOk = w < size.width
@@ -153,18 +161,26 @@ class InteractiveProgressBar(
   }
 
   private def clearActivePart(): Unit = {
-    if (!hasPrinted()) return
+    if (!hasPrinted())
+      return
 
     def control(n: Int, c: Char): Unit = out.write("\u001b[" + n + c)
-    def up(n: Int): Unit = if (n > 0) control(n, 'A')
-    def down(n: Int): Unit = if (n > 0) control(n, 'B')
-    def left(n: Int): Unit = if (n > 0) control(n, 'D')
+    def up(n: Int): Unit =
+      if (n > 0)
+        control(n, 'A')
+    def down(n: Int): Unit =
+      if (n > 0)
+        control(n, 'B')
+    def left(n: Int): Unit =
+      if (n > 0)
+        control(n, 'D')
     def clearLine(): Unit = control(2, 'K')
 
-    1.to(printedHeight).foreach { _ =>
-      clearLine()
-      up(1)
-    }
+    1.to(printedHeight)
+      .foreach { _ =>
+        clearLine()
+        up(1)
+      }
     clearLine()
     left(printedWidth)
     out.flush()
@@ -173,7 +189,10 @@ class InteractiveProgressBar(
     printedWidth = 0
   }
 
-  /** Cancel old `renderStep()` calls in case the render method is slower than `durationInterval`. */
+  /**
+   * Cancel old `renderStep()` calls in case the render method is slower than
+   * `durationInterval`.
+   */
   private def cancelScheduledJobs(): Unit = {
     var job = scheduledJobs.poll()
     while (job != null) {

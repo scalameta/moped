@@ -10,12 +10,11 @@ import moped.json.JsonElement
 import moped.json.ValueResult
 import munit.TestOptions
 
-case class NestedList(
-    a: String = ""
-)
+case class NestedList(a: String = "")
 object NestedList {
-  implicit val codec: JsonCodec[NestedList] =
-    moped.macros.deriveCodec(NestedList())
+  implicit val codec: JsonCodec[NestedList] = moped
+    .macros
+    .deriveCodec(NestedList())
 }
 
 case class MyClass(
@@ -27,8 +26,8 @@ case class MyClass(
 }
 object MyClass {
   val default: MyClass = MyClass()
-  implicit lazy val parser: CommandParser[MyClass] =
-    CommandParser.derive[MyClass](default)
+  implicit lazy val parser: CommandParser[MyClass] = CommandParser
+    .derive[MyClass](default)
 }
 
 class JsonDecoderSuite extends BaseSuite {
@@ -62,11 +61,7 @@ class JsonDecoderSuite extends BaseSuite {
     }
   }
 
-  checkDecoded(
-    "a",
-    parseJson("{'a': 2, 'b': 42}"),
-    MyClass(a = 2)
-  )
+  checkDecoded("a", parseJson("{'a': 2, 'b': 42}"), MyClass(a = 2))
 
   checkErrorDecoded(
     "fatal-unknown-field",

@@ -11,7 +11,8 @@ import upickle.core.SimpleVisitor
 import upickle.core.Util
 import upickle.core.Visitor
 
-trait TransformerUtils[I] { outer: AstTransformer[I] =>
+trait TransformerUtils[I] {
+  outer: AstTransformer[I] =>
   def pos(index: Int): Position
   def parseFloat64StringParts(
       s: CharSequence,
@@ -19,8 +20,10 @@ trait TransformerUtils[I] { outer: AstTransformer[I] =>
       expIndex: Int,
       index: Int
   ): Double =
-    if (decIndex != -1 || expIndex != -1) s.toString.toDouble
-    else Util.parseIntegralNum(s, decIndex, expIndex, index)
+    if (decIndex != -1 || expIndex != -1)
+      s.toString.toDouble
+    else
+      Util.parseIntegralNum(s, decIndex, expIndex, index)
 
   def transformObjectWithPositionedKeys[T](
       f: Visitor[_, T],
@@ -45,8 +48,10 @@ trait TransformerUtils[I] { outer: AstTransformer[I] =>
     def visitKey(index: Int) = JsonStringVisitor
     def visitKeyValue(s: Any): Unit =
       s match {
-        case s: JsonString => key = s
-        case _ => key = JsonString(s.toString)
+        case s: JsonString =>
+          key = s
+        case _ =>
+          key = JsonString(s.toString)
       }
 
     def visitValue(v: I, index: Int): Unit = vs += (key -> v)

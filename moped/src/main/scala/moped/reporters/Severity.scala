@@ -14,20 +14,31 @@ object Severity {
   val all: List[Severity] = 0.to(4).toList.map(fromPriority)
   def fromPriority(n: Int): Severity =
     n match {
-      case 0 => SilentSeverity
-      case 1 => DebugSeverity
-      case 2 => InfoSeverity
-      case 3 => WarningSeverity
-      case 4 => ErrorSeverity
-      case other => throw new IndexOutOfBoundsException(other.toString())
+      case 0 =>
+        SilentSeverity
+      case 1 =>
+        DebugSeverity
+      case 2 =>
+        InfoSeverity
+      case 3 =>
+        WarningSeverity
+      case 4 =>
+        ErrorSeverity
+      case other =>
+        throw new IndexOutOfBoundsException(other.toString())
     }
   def color(sev: Severity): Attrs =
     sev match {
-      case SilentSeverity => Color.LightMagenta
-      case DebugSeverity => Color.LightGreen
-      case InfoSeverity => Color.LightBlue
-      case WarningSeverity => Color.LightYellow
-      case ErrorSeverity => Color.LightRed
+      case SilentSeverity =>
+        Color.LightMagenta
+      case DebugSeverity =>
+        Color.LightGreen
+      case InfoSeverity =>
+        Color.LightBlue
+      case WarningSeverity =>
+        Color.LightYellow
+      case ErrorSeverity =>
+        Color.LightRed
     }
 }
 object SilentSeverity extends Severity("silent", 0)

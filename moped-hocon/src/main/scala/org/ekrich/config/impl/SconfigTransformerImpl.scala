@@ -23,17 +23,26 @@ class SconfigTransformerImpl(input: Input) extends AstTransformer[ConfigValue] {
         -1
       }
     j match {
-      case c: ConfigObject => transformObject(f, c.asScala)
-      case c: ConfigList => transformArray(f, c.asScala)
+      case c: ConfigObject =>
+        transformObject(f, c.asScala)
+      case c: ConfigList =>
+        transformArray(f, c.asScala)
       case o =>
         o.unwrapped match {
-          case java.lang.Boolean.TRUE => f.visitTrue(index)
-          case java.lang.Boolean.FALSE => f.visitFalse(index)
-          case c: java.lang.String => f.visitString(c, index)
-          case c: java.lang.Integer => f.visitInt32(c, index)
-          case c: java.lang.Double => f.visitFloat64(c, index)
-          case c: java.lang.Float => f.visitFloat32(c, index)
-          case c: java.lang.Long => f.visitInt64(c, index)
+          case java.lang.Boolean.TRUE =>
+            f.visitTrue(index)
+          case java.lang.Boolean.FALSE =>
+            f.visitFalse(index)
+          case c: java.lang.String =>
+            f.visitString(c, index)
+          case c: java.lang.Integer =>
+            f.visitInt32(c, index)
+          case c: java.lang.Double =>
+            f.visitFloat64(c, index)
+          case c: java.lang.Float =>
+            f.visitFloat32(c, index)
+          case c: java.lang.Long =>
+            f.visitInt64(c, index)
         }
     }
   }
@@ -44,7 +53,13 @@ class SconfigTransformerImpl(input: Input) extends AstTransformer[ConfigValue] {
     new AstArrVisitor[mutable.ListBuffer](buf =>
       new SimpleConfigList(
         origin,
-        buf.iterator.collect { case a: AbstractConfigValue => a }.toList.asJava
+        buf
+          .iterator
+          .collect { case a: AbstractConfigValue =>
+            a
+          }
+          .toList
+          .asJava
       )
     )
   override def visitObject(
@@ -54,7 +69,11 @@ class SconfigTransformerImpl(input: Input) extends AstTransformer[ConfigValue] {
     new AstObjVisitor[mutable.LinkedHashMap[String, ConfigValue]](map =>
       new SimpleConfigObject(
         origin,
-        map.collect { case (k, v: AbstractConfigValue) => (k, v) }.asJava
+        map
+          .collect { case (k, v: AbstractConfigValue) =>
+            (k, v)
+          }
+          .asJava
       )
     )
   override def visitNull(index: Int): ConfigValue = new ConfigNull(origin)
@@ -70,8 +89,10 @@ class SconfigTransformerImpl(input: Input) extends AstTransformer[ConfigValue] {
   ): ConfigValue =
     ConfigNumber.newNumber(
       origin,
-      if (decIndex != -1 || expIndex != -1) s.toString.toDouble
-      else Util.parseIntegralNum(s, decIndex, expIndex, index),
+      if (decIndex != -1 || expIndex != -1)
+        s.toString.toDouble
+      else
+        Util.parseIntegralNum(s, decIndex, expIndex, index),
       s.toString()
     )
   override def visitString(s: CharSequence, index: Int): ConfigValue =

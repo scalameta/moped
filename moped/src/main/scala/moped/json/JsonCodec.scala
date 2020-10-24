@@ -6,14 +6,13 @@ import moped.macros.ClassShaper
 trait JsonCodec[A]
     extends JsonDecoder[A]
     with JsonEncoder[A]
-    with ClassShaper[A] { self =>
+    with ClassShaper[A] {
+  self =>
 
   def bimap[B](in: B => A, out: A => B): JsonCodec[B] =
     new JsonCodec[B] {
-      override def shape: ClassShape =
-        self.shape
-      override def encode(value: B): JsonElement =
-        self.encode(in(value))
+      override def shape: ClassShape = self.shape
+      override def encode(value: B): JsonElement = self.encode(in(value))
       override def decode(conf: DecodingContext): DecodingResult[B] =
         self.decode(conf).map(out)
     }
@@ -27,10 +26,8 @@ object JsonCodec {
       d: JsonDecoder[A]
   ): JsonCodec[A] =
     new JsonCodec[A] {
-      override def shape: ClassShape =
-        c.shape
-      override def encode(value: A): JsonElement =
-        e.encode(value)
+      override def shape: ClassShape = c.shape
+      override def encode(value: A): JsonElement = e.encode(value)
       override def decode(conf: DecodingContext): DecodingResult[A] =
         d.decode(conf)
     }

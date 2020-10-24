@@ -27,25 +27,26 @@ final case class Environment(
     clock: Clock = Clock.systemDefaultZone()
 ) {
 
-  /** Returns true if the key has is equal to "true" in environment variables or system properties. */
+  /**
+   * Returns true if the key has is equal to "true" in environment variables or
+   * system properties.
+   */
   def isSettingTrue(key: String): Boolean =
     "true".equalsIgnoreCase(environmentVariables.getOrElse(key, "false")) ||
       "true".equalsIgnoreCase(systemProperties.getProperty(key, "false"))
 
-  /** Returns true if the key is defined in the environment variables or system properties, regardless of value. */
+  /**
+   * Returns true if the key is defined in the environment variables or system
+   * properties, regardless of value.
+   */
   def isSettingPresent(key: String): Boolean =
-    environmentVariables.contains(key) ||
-      systemProperties.contains(key)
+    environmentVariables.contains(key) || systemProperties.contains(key)
 
-  val isCI: Boolean =
-    isSettingTrue("CI")
+  val isCI: Boolean = isSettingTrue("CI")
   val isColorEnabled: Boolean =
-    !isSettingPresent("NO_COLOR") &&
-      !isSettingPresent("INSIDE_EMACS")
+    !isSettingPresent("NO_COLOR") && !isSettingPresent("INSIDE_EMACS")
   val isProgressBarEnabled: Boolean =
-    isColorEnabled &&
-      !isCI &&
-      !isSettingPresent("NO_PROGRESS_BAR")
+    isColorEnabled && !isCI && !isSettingPresent("NO_PROGRESS_BAR")
   def withProjectDirectories(dirs: ProjectDirectories): Environment =
     copy(
       dataDirectory = Paths.get(dirs.dataDir),

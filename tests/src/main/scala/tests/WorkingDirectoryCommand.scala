@@ -7,8 +7,8 @@ import moped.cli.Command
 import moped.cli.CommandParser
 
 object WorkingDirectoryCommand {
-  implicit val parser: CommandParser[WorkingDirectoryCommand] =
-    CommandParser.derive(WorkingDirectoryCommand())
+  implicit val parser: CommandParser[WorkingDirectoryCommand] = CommandParser
+    .derive(WorkingDirectoryCommand())
 }
 
 case class WorkingDirectoryCommand(

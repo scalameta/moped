@@ -14,9 +14,11 @@ import moped.macros.ClassShaper
 
 class UninstallCompletionsCommand(app: Application) extends Command {
   override def run(): Int = {
-    ShellCompletion.all(app).foreach { shell =>
-      shell.uninstall()
-    }
+    ShellCompletion
+      .all(app)
+      .foreach { shell =>
+        shell.uninstall()
+      }
     0
   }
 }
@@ -38,12 +40,12 @@ object UninstallCompletionsCommand {
             )
           )
         ),
-        JsonEncoder.stringJsonEncoder.contramap[UninstallCompletionsCommand](
-          _ => ""
-        ),
-        JsonDecoder.applicationJsonDecoder.map(app =>
-          new UninstallCompletionsCommand(app)
-        )
+        JsonEncoder
+          .stringJsonEncoder
+          .contramap[UninstallCompletionsCommand](_ => ""),
+        JsonDecoder
+          .applicationJsonDecoder
+          .map(app => new UninstallCompletionsCommand(app))
       ),
       default
     )

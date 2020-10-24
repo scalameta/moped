@@ -10,9 +10,12 @@ import org.typelevel.paiges.Doc
 /**
  * Metadata about one parameter of a class.
  *
- * @param name the parameter name of this parameter.
- * @param tpe the pretty-printed type of this parameter
- * @param annotations static annotations attached to this parameter.
+ * @param name
+ *   the parameter name of this parameter.
+ * @param tpe
+ *   the pretty-printed type of this parameter
+ * @param annotations
+ *   static annotations attached to this parameter.
  */
 final case class ParameterShape(
     val name: String,
@@ -29,69 +32,73 @@ final case class ParameterShape(
 
   def description: Option[Doc] =
     annotations.collectFirst {
-      case Description(value) => Doc.paragraph(value)
-      case DescriptionDoc(value) => value
+      case Description(value) =>
+        Doc.paragraph(value)
+      case DescriptionDoc(value) =>
+        value
     }
   def extraNames: List[String] =
     annotations.collect {
-      case PositionalArguments() => CommandLineParser.PositionalArgument
-      case TrailingArguments() => CommandLineParser.TrailingArgument
-      case ExtraName(value) => value
+      case PositionalArguments() =>
+        CommandLineParser.PositionalArgument
+      case TrailingArguments() =>
+        CommandLineParser.TrailingArgument
+      case ExtraName(value) =>
+        value
     }
   def deprecatedNames: List[DeprecatedName] =
-    annotations.collect {
-      case d: DeprecatedName => d
+    annotations.collect { case d: DeprecatedName =>
+      d
     }
   def exampleValues: List[String] =
-    annotations.collect {
-      case ExampleValue(value) => value
+    annotations.collect { case ExampleValue(value) =>
+      value
     }
   def sinceVersion: Option[String] =
-    annotations.collectFirst {
-      case SinceVersion(value) => value
+    annotations.collectFirst { case SinceVersion(value) =>
+      value
     }
   def deprecated: Option[Deprecated] =
-    annotations.collectFirst {
-      case value: Deprecated => value
+    annotations.collectFirst { case value: Deprecated =>
+      value
     }
   def tabCompleteOneOf: Option[List[String]] =
-    annotations.collectFirst {
-      case oneof: TabCompleteAsOneOf => oneof.options.toList
+    annotations.collectFirst { case oneof: TabCompleteAsOneOf =>
+      oneof.options.toList
     }
   def tabCompleter: Option[Completer[_]] =
-    annotations.collectFirst {
-      case TabCompleter(completer) => completer
+    annotations.collectFirst { case TabCompleter(completer) =>
+      completer
     }
 
-  def isRepeated: Boolean =
-    annotations.exists(_.isInstanceOf[Repeated])
-  def isDynamic: Boolean =
-    annotations.exists(_.isInstanceOf[Dynamic])
-  def isHidden: Boolean =
-    annotations.exists(_.isInstanceOf[Hidden])
-  def isBoolean: Boolean =
-    annotations.exists(_.isInstanceOf[Flag])
-  def isNumber: Boolean =
-    annotations.exists(_.isInstanceOf[ParseAsNumber])
+  def isRepeated: Boolean = annotations.exists(_.isInstanceOf[Repeated])
+  def isDynamic: Boolean = annotations.exists(_.isInstanceOf[Dynamic])
+  def isHidden: Boolean = annotations.exists(_.isInstanceOf[Hidden])
+  def isBoolean: Boolean = annotations.exists(_.isInstanceOf[Flag])
+  def isNumber: Boolean = annotations.exists(_.isInstanceOf[ParseAsNumber])
   def isTabCompleteOneOf: Boolean =
     annotations.exists(_.isInstanceOf[TabCompleteAsOneOf])
-  def isTabComplete: Boolean =
-    annotations.exists(_.isInstanceOf[TabCompleter])
+  def isTabComplete: Boolean = annotations.exists(_.isInstanceOf[TabCompleter])
   def isTreatInvalidFlagAsPositional: Boolean =
     annotations.exists(_.isInstanceOf[TreatInvalidFlagAsPositional])
-  def isInline: Boolean =
-    annotations.exists(_.isInstanceOf[Inline])
+  def isInline: Boolean = annotations.exists(_.isInstanceOf[Inline])
   def isPositionalArgument: Boolean =
     annotations.exists {
-      case ExampleValue(CommandLineParser.PositionalArgument) => true
-      case _: PositionalArguments => true
-      case _ => false
+      case ExampleValue(CommandLineParser.PositionalArgument) =>
+        true
+      case _: PositionalArguments =>
+        true
+      case _ =>
+        false
     }
   def isTrailingArgument: Boolean =
     annotations.exists {
-      case ExampleValue(CommandLineParser.TrailingArgument) => true
-      case _: TrailingArguments => true
-      case _ => false
+      case ExampleValue(CommandLineParser.TrailingArgument) =>
+        true
+      case _: TrailingArguments =>
+        true
+      case _ =>
+        false
     }
 
 }

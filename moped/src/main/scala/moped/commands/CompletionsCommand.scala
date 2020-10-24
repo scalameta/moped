@@ -25,9 +25,7 @@ object CompletionsCommand {
               Description("Manage tab completions for bash, zsh and fish"),
               moped.annotations.Subcommand(HelpCommand.parser),
               moped.annotations.Subcommand(InstallCompletionsCommand.parser),
-              moped.annotations.Subcommand(
-                UninstallCompletionsCommand.parser
-              ),
+              moped.annotations.Subcommand(UninstallCompletionsCommand.parser),
               moped.annotations.Subcommand(RunCompletionsCommand.parser)
             )
           )

@@ -2,8 +2,8 @@ package moped.parsers
 
 import moped.internal.transformers.InputTransformer
 import moped.internal.transformers.JsonTransformer
-import moped.json.Result
 import moped.json.JsonElement
+import moped.json.Result
 import moped.reporters.Input
 import ujson._
 

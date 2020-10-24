@@ -1,7 +1,7 @@
 package moped.reporters
 
-import moped.json.Result
 import moped.json.ErrorResult
+import moped.json.Result
 import moped.json.ValueResult
 
 abstract class Reporter {

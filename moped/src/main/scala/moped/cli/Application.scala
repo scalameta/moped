@@ -20,12 +20,12 @@ import moped.internal.diagnostics.AggregateDiagnostic
 import moped.json.AlwaysDerivedParameter
 import moped.json.AlwaysHiddenParameter
 import moped.json.DecodingContext
-import moped.json.Result
 import moped.json.ErrorResult
 import moped.json.JsonDecoder
 import moped.json.JsonElement
 import moped.json.JsonEncoder
 import moped.json.JsonObject
+import moped.json.Result
 import moped.json.ValueResult
 import moped.macros.ClassShape
 import moped.macros.ClassShaper

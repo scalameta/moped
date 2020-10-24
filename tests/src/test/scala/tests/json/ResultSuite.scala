@@ -1,17 +1,17 @@
 package tests.json
 
-import munit.FunSuite
+import moped.internal.diagnostics.AggregateDiagnostic
+import moped.json.ErrorResult
 import moped.json.Result
 import moped.json.ValueResult
 import moped.reporters.Diagnostic
-import moped.json.ErrorResult
-import moped.internal.diagnostics.AggregateDiagnostic
+import munit.FunSuite
 
 class ResultSuite extends FunSuite {
-  val a = Diagnostic.error("a")
-  val b = Diagnostic.error("b")
-  val value = Result.value(1)
-  val error = Result.error[Int](a)
+  val a: Diagnostic = Diagnostic.error("a")
+  val b: Diagnostic = Diagnostic.error("b")
+  val value: Result[Int] = Result.value(1)
+  val error: Result[Int] = Result.error[Int](a)
 
   test("value.equals") {
     assertEquals(value, ValueResult(1))

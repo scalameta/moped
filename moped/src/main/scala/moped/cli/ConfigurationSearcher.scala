@@ -8,8 +8,8 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 import moped.internal.console.EagerExecutionContext
-import moped.json.Result
 import moped.json.JsonElement
+import moped.json.Result
 import moped.reporters.Input
 
 trait ConfigurationSearcher {

@@ -1,9 +1,9 @@
 package tests.diagnostics
 
-import tests.BaseSuite
 import moped.internal.diagnostics.AggregateDiagnostic
 import moped.reporters.Diagnostic
 import munit.TestOptions
+import tests.BaseSuite
 
 class AggregateDiagnosticSuite extends BaseSuite {
   def check(

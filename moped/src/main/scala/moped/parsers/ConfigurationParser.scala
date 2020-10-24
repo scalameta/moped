@@ -1,7 +1,7 @@
 package moped.parsers
 
-import moped.json.Result
 import moped.json.JsonElement
+import moped.json.Result
 import moped.reporters.Input
 
 trait ConfigurationParser {

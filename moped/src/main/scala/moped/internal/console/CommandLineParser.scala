@@ -12,7 +12,7 @@ import moped.reporters._
 
 class CommandLineParser[T](
     settings: ClassShaper[T],
-    toInline: Map[String, List[InlinedFlag]]
+    toInline: Map[String, List[ValidOption]]
 ) {
   private val pendingMembers = mutable.ListBuffer.empty[JsonElement]
   private val pendingArrays = mutable
@@ -76,9 +76,9 @@ class CommandLineParser[T](
             else
               JsonString(head)
           if (setting.shape.isRepeated) {
-            appendValues(setting.keys, List(value))
+            appendValues(setting.path, List(value))
           } else {
-            addMember(setting.keys, value)
+            addMember(setting.path, value)
           }
         }
         loop(tail, NoFlag)
@@ -112,7 +112,7 @@ class CommandLineParser[T](
 
   private def tryFlag(
       kebabFlag: String
-  ): Either[Diagnostic, List[InlinedFlag]] = {
+  ): Either[Diagnostic, List[ValidOption]] = {
     val camel = Cases.kebabToCamel(dash.replaceFirstIn(kebabFlag, ""))
     toInline.get(camel) match {
       case None =>
@@ -129,8 +129,15 @@ class CommandLineParser[T](
   }
 
   def didYouMean(kebabFlag: String, camel: String): Diagnostic = {
-    val closestCandidate = Levenshtein
-      .closestCandidate(camel, toInline.keysIterator.toList)
+    val validCandidates =
+      toInline
+        .iterator
+        .collect {
+          case (key, options) if options.exists(_.isCanonical) =>
+            key
+        }
+        .toList
+    val closestCandidate = Levenshtein.closestCandidate(camel, validCandidates)
     val didYouMean =
       closestCandidate match {
         case None =>
@@ -146,7 +153,7 @@ class CommandLineParser[T](
 
   def loopSettings(
       tail: List[String],
-      settings: List[InlinedFlag],
+      settings: List[ValidOption],
       defaultBooleanValue: Boolean
   ): Unit = {
     require(settings.nonEmpty)
@@ -154,14 +161,14 @@ class CommandLineParser[T](
     val isOnlyBoolean = settings.forall(_.shape.isBoolean)
     if (isOnlyBoolean) {
       settings.map { setting =>
-        addMember(setting.keys, JsonBoolean(defaultBooleanValue))
+        addMember(setting.path, JsonBoolean(defaultBooleanValue))
       }
       loop(tail, NoFlag)
     } else {
       if (hasBoolean) {
         val name = settings.head.shape.name
         val names = settings
-          .map(s => s.keys.mkString("."))
+          .map(s => s.path.mkString("."))
           .mkString("{", ",", "}")
         errors += Diagnostic.error(s"""
                                       |invalid usage of @Inline. The field name '$name' inlines to conflicting nested parameters $names, which mix boolean and non-boolean parameters.
@@ -221,24 +228,29 @@ object CommandLineParser {
 
   def inlinedSettings(
       settings: ClassShaper[_]
-  ): Map[String, List[InlinedFlag]] = {
-    val buf = mutable.Map.empty[String, mutable.ListBuffer[InlinedFlag]]
+  ): Map[String, List[ValidOption]] = {
+    val buf = mutable.Map.empty[String, mutable.ListBuffer[ValidOption]]
     settings
       .allNestedParameters
       .foreach { nested =>
         val param = nested.last
         val keys = nested.map(_.name)
-        val name = nested.dropWhile(_.isInline).map(_.name).mkString(".")
-        if (name.nonEmpty) {
-          val lst = buf.getOrElseUpdate(name, mutable.ListBuffer.empty)
-          lst += InlinedFlag(keys, param)
-        }
+        val inlines = nested.iterator.takeWhile(_.isInline).size
+        0.to(inlines)
+          .foreach { i =>
+            val name = nested.drop(i).map(_.name).mkString(".")
+            if (name.nonEmpty) {
+              val lst = buf.getOrElseUpdate(name, mutable.ListBuffer.empty)
+              val isCanonical = i == inlines
+              lst += ValidOption(name, keys, isCanonical, param)
+            }
+          }
       }
     buf.mapValues(_.toList).toMap
   }
 
   private sealed trait State
-  private case class Flag(flags: List[InlinedFlag]) extends State {
+  private case class Flag(flags: List[ValidOption]) extends State {
     require(flags.nonEmpty)
   }
   private case object NoFlag extends State

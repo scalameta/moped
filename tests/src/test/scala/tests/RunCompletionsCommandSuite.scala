@@ -79,4 +79,10 @@ class RunCompletionsCommandSuite extends BaseSuite {
   checkCompletions("help-subcommand-repeat", List("help", "echo", ""), List())
 
   checkCompletions("path", List("help", "echo", ""), List())
+
+  checkCompletions(
+    "inline-nested",
+    List("example-cwd", "-"),
+    List("--cwd", "--help")
+  )
 }

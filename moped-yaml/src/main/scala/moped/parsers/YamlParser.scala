@@ -3,8 +3,8 @@ package moped.parsers
 import moped.internal.diagnostics.DiagnosticException
 import moped.internal.transformers.JsonTransformer
 import moped.internal.transformers.YamlNodeTransformer
-import moped.json.DecodingResult
 import moped.json.JsonElement
+import moped.json.Result
 import moped.reporters.Diagnostic
 import moped.reporters.Input
 import moped.reporters.RangePosition
@@ -18,8 +18,8 @@ import org.yaml.snakeyaml.resolver.Resolver
 object YamlParser extends YamlParser
 class YamlParser extends ConfigurationParser {
   def supportedFileExtensions: List[String] = List("yml", "yaml")
-  def parse(input: Input): DecodingResult[JsonElement] = {
-    DecodingResult.fromUnsafe { () =>
+  def parse(input: Input): Result[JsonElement] = {
+    Result.fromUnsafe { () =>
       try {
         val composer =
           new Composer(

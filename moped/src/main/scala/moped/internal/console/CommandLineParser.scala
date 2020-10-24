@@ -28,7 +28,7 @@ class CommandLineParser[T](
   private def pushMember(member: JsonMember): Unit = {
     pendingMembers += JsonObject(List(member))
   }
-  def parseArgs(args: List[String]): DecodingResult[JsonObject] = {
+  def parseArgs(args: List[String]): Result[JsonObject] = {
     loop(args, NoFlag)
     flushArrays()
     Diagnostic.fromDiagnostics(errors.toList) match {
@@ -217,7 +217,7 @@ object CommandLineParser {
 
   def parseArgs[T](
       args: List[String]
-  )(implicit settings: ClassShaper[T]): DecodingResult[JsonObject] = {
+  )(implicit settings: ClassShaper[T]): Result[JsonObject] = {
     val toInline = inlinedSettings(settings)
     val parser = new CommandLineParser[T](settings, toInline)
     parser.parseArgs(args)

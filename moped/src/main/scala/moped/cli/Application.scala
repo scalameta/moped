@@ -20,12 +20,12 @@ import moped.internal.diagnostics.AggregateDiagnostic
 import moped.json.AlwaysDerivedParameter
 import moped.json.AlwaysHiddenParameter
 import moped.json.DecodingContext
-import moped.json.DecodingResult
 import moped.json.ErrorResult
 import moped.json.JsonDecoder
 import moped.json.JsonElement
 import moped.json.JsonEncoder
 import moped.json.JsonObject
+import moped.json.Result
 import moped.json.ValueResult
 import moped.macros.ClassShape
 import moped.macros.ClassShaper
@@ -87,7 +87,6 @@ case class Application(
   }
 
   def process(command: Shellable*): SpawnableProcess =
-    // TODO(olafur): support automatic logging of process
     new SpawnableProcess(command, env, mockedProcesses)
 
   def consumedArguments: List[String] =
@@ -124,11 +123,11 @@ case class Application(
     }
   }
 
+  // TODO(olafur): avoid this hacky replace.
   def usageDoc: Doc = Doc.text(usage.replace("{BINARY_NAME}", binaryName))
 
   def documentation: List[(String, Doc)] =
     List[(String, Doc)](
-      // TODO(olafur): avoid this hacky replace.
       "USAGE" -> usageDoc,
       "DESCRIPTION" -> description,
       "COMMANDS" -> {
@@ -292,12 +291,12 @@ object Application {
                   Some[CommandParser[_]](command)
                 )
               } else {
-                val conf: DecodingResult[JsonObject] =
+                val conf: Result[JsonObject] =
                   CommandLineParser
                     .parseArgs[command.Value](tail)(command.asClassShaper)
                 for {
                   parsedConfig <- app.searcher.findAsync(app)
-                  configs = DecodingResult.fromResults(conf :: parsedConfig)
+                  configs = Result.fromResults(conf :: parsedConfig)
                   mergedConfig = configs.map(JsonElement.merge)
                   configured = mergedConfig.flatMap(elem =>
                     command.decodeCommand(

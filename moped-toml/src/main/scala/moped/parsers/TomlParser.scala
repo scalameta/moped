@@ -8,8 +8,8 @@ import moped.internal.diagnostics.DiagnosticException
 import moped.internal.transformers.JsonTransformer
 import moped.internal.transformers.TomlTransformer
 import moped.json.Cursor
-import moped.json.DecodingResult
 import moped.json.JsonElement
+import moped.json.Result
 import moped.reporters.Diagnostic
 import moped.reporters.Input
 import moped.reporters.RangePosition
@@ -19,8 +19,8 @@ import toml.Rules
 object TomlParser extends TomlParser
 class TomlParser extends ConfigurationParser {
   def supportedFileExtensions: List[String] = List("toml")
-  def parse(input: Input): DecodingResult[JsonElement] = {
-    DecodingResult.fromUnsafe { () =>
+  def parse(input: Input): Result[JsonElement] = {
+    Result.fromUnsafe { () =>
       val rules = new Rules(Set(toml.Extension.MultiLineInlineTables))
       val parsed = rules.root.parse(input.text)
       parsed match {

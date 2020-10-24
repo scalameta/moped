@@ -22,17 +22,19 @@ sealed abstract class Position {
    */
   final def pretty(severity: String, message: String): String = {
     // Predef.augmentString = work around scala/bug#11125 on JDK 11
-    val content = augmentString(lineContent).lines
     val sb = new StringBuilder()
     // TODO(olafur): check error when column number is huge like in auto-generated JSON
     sb.append(lineInput(severity, message)).append("\n")
+    val content = lineContent.linesIterator
     if (content.hasNext) {
       sb.append(content.next()).append("\n").append(lineCaret).append("\n")
     }
     content.foreach { line =>
       sb.append(line).append("\n")
     }
-    // TODO(olafur): trim away last newline
+    if (sb.nonEmpty && sb.last == '\n') {
+      sb.setLength(sb.length - 1)
+    }
     sb.toString()
   }
 
@@ -53,9 +55,9 @@ sealed abstract class Position {
     }
 
     if (!severity.isEmpty) {
-      out
-        // TODO(olafur): out can be empty
-        .append(" ").append(severity).append(":")
+      if (out.nonEmpty)
+        out.append(" ")
+      out.append(severity).append(":")
     }
     if (!message.isEmpty) {
       out.append(" ").append(message)

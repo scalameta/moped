@@ -139,7 +139,7 @@ class Macros(val c: blackbox.Context) {
        new ${weakTypeOf[JsonDecoder[T]]} {
          override def decode(
              context: ${weakTypeOf[DecodingContext]}
-         ): ${weakTypeOf[DecodingResult[T]]} = {
+         ): ${weakTypeOf[Result[T]]} = {
            val conf = context.json
            if (!context.json.isObject) {
              return _root_.moped.json.ErrorResult(

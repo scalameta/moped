@@ -4,8 +4,8 @@ import fastparse.Parsed.Failure
 import moped.internal.diagnostics.DiagnosticException
 import moped.internal.transformers.JsonTransformer
 import moped.internal.transformers.JsonnetInterpreter
-import moped.json.DecodingResult
 import moped.json.JsonElement
+import moped.json.Result
 import moped.reporters.Diagnostic
 import moped.reporters.Input
 import moped.reporters.NoPosition
@@ -16,8 +16,8 @@ class JsonnetParser(interpreter: JsonnetInterpreter)
     extends ConfigurationParser {
 
   def supportedFileExtensions: List[String] = List("jsonnet")
-  def parse(input: Input): DecodingResult[JsonElement] = {
-    DecodingResult.fromUnsafe { () =>
+  def parse(input: Input): Result[JsonElement] = {
+    Result.fromUnsafe { () =>
       val interpreted = interpreter
         .interp
         .interpret(

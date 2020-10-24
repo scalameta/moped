@@ -3,8 +3,8 @@ package moped.parsers
 import moped.internal.diagnostics.DiagnosticException
 import moped.internal.transformers.DhallTransformer
 import moped.internal.transformers.JsonTransformer
-import moped.json.DecodingResult
 import moped.json.JsonElement
+import moped.json.Result
 import moped.reporters.Diagnostic
 import moped.reporters.Input
 import moped.reporters.RangePosition
@@ -14,8 +14,8 @@ import org.dhallj.parser.support.JavaCCParserInternals
 object DhallParser extends DhallParser
 class DhallParser extends ConfigurationParser {
   def supportedFileExtensions: List[String] = List("dhall")
-  def parse(input: Input): DecodingResult[JsonElement] =
-    DecodingResult.fromUnsafe { () =>
+  def parse(input: Input): Result[JsonElement] =
+    Result.fromUnsafe { () =>
       try {
         val value = JavaCCParserInternals.parse(input.text)
         new DhallTransformer(input)

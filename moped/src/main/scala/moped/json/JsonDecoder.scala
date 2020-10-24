@@ -14,12 +14,12 @@ import moped.reporters.Diagnostic
 trait JsonDecoder[A] {
   self =>
 
-  def decode(context: DecodingContext): DecodingResult[A]
+  def decode(context: DecodingContext): Result[A]
 
   final def map[B](fn: A => B): JsonDecoder[B] =
     context => decode(context).map(fn)
 
-  final def flatMap[B](fn: A => DecodingResult[B]): JsonDecoder[B] =
+  final def flatMap[B](fn: A => Result[B]): JsonDecoder[B] =
     context => decode(context).flatMap(fn)
 
 }
@@ -29,10 +29,10 @@ object JsonDecoder {
   def apply[A](implicit ev: JsonDecoder[A]): JsonDecoder[A] = ev
   def constant[A](value: A): JsonDecoder[A] = _ => ValueResult(value)
 
-  def fromJson[A](expected: String)(
-      fn: PartialFunction[JsonElement, DecodingResult[A]]
-  ): JsonDecoder[A] = { context =>
-    fn.applyOrElse[JsonElement, DecodingResult[A]](
+  def fromJson[A](
+      expected: String
+  )(fn: PartialFunction[JsonElement, Result[A]]): JsonDecoder[A] = { context =>
+    fn.applyOrElse[JsonElement, Result[A]](
       // TODO: missing context on success
       context.json,
       _ => ErrorResult(new TypeMismatchDiagnostic(expected, context))
@@ -64,10 +64,10 @@ object JsonDecoder {
     }
   implicit val unitJsonDecoder: JsonDecoder[Unit] = constant(())
   implicit lazy val pathJsonDecoder: JsonDecoder[Path] = stringJsonDecoder
-    .flatMap(path => DecodingResult.fromUnsafe(() => Paths.get(path)))
+    .flatMap(path => Result.fromUnsafe(() => Paths.get(path)))
   implicit val applicationJsonDecoder: JsonDecoder[Application] =
     new JsonDecoder[Application] {
-      def decode(context: DecodingContext): DecodingResult[Application] = {
+      def decode(context: DecodingContext): Result[Application] = {
         val app = context.app
         if (context.json.isObject) {
           DrillIntoJson

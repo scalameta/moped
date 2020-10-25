@@ -83,6 +83,7 @@ object JsonElement {
     }
   }
 }
+
 sealed abstract class JsonPrimitive extends JsonElement
 final case class JsonNull() extends JsonPrimitive {
   type ThisType = JsonNull

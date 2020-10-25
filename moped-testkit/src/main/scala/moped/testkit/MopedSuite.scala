@@ -207,6 +207,5 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
 
   def parseJson(json: String): JsonElement = {
     JsonParser.parse(Input.filename("moped.json", json.replace("'", "\""))).get
-
   }
 }

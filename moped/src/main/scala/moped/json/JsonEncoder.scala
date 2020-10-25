@@ -13,6 +13,8 @@ trait JsonEncoder[A] {
 object JsonEncoder {
   def empty[A]: JsonEncoder[A] = _ => JsonNull()
   def apply[A](implicit ev: JsonEncoder[A]): JsonEncoder[A] = ev
+  def encode[A](value: A)(implicit ev: JsonEncoder[A]): JsonElement =
+    ev.encode(value)
 
   private val anyElementJsonEncoder: JsonEncoder[JsonElement] = elem => elem
   implicit def jsonElementEncoder[A <: JsonElement]: JsonEncoder[A] =
@@ -28,11 +30,14 @@ object JsonEncoder {
     value => JsonNumber(value.toDouble)
   implicit val doubleJsonEncoder: JsonEncoder[Double] =
     value => JsonNumber(value)
+  implicit val floatJsonEncoder: JsonEncoder[Float] =
+    value => JsonNumber(value.toDouble)
   implicit val unitJsonEncoder: JsonEncoder[Unit] = _ => JsonNull()
   implicit val pathJsonEncoder: JsonEncoder[Path] =
     value => JsonString(value.toString())
   implicit val applicationJsonEncoder: JsonEncoder[Application] =
     value => JsonString(value.binaryName)
+  implicit val noneJsonEncoder: JsonEncoder[None.type] = value => JsonNull()
 
   implicit def iterableJsonEncoder[A, C[x] <: Iterable[x]](implicit
       ev: JsonEncoder[A]
@@ -53,9 +58,9 @@ object JsonEncoder {
       )
     }
 
-  implicit def optionJsonEncoder[A](implicit
+  implicit def optionJsonEncoder[A, C[x] <: Option[x]](implicit
       ev: JsonEncoder[A]
-  ): JsonEncoder[Option[A]] = {
+  ): JsonEncoder[C[A]] = {
     case Some(value) =>
       ev.encode(value)
     case None =>

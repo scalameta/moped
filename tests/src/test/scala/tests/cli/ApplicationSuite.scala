@@ -1,4 +1,6 @@
-package tests
+package tests.cli
+
+import tests.BaseSuite
 
 class ApplicationSuite extends BaseSuite {
 

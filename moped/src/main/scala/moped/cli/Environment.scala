@@ -22,6 +22,7 @@ final case class Environment(
     standardError: PrintStream = Console.err,
     standardInput: BufferedReader = Console.in,
     systemProperties: ju.Properties = System.getProperties(),
+    exit: Int => Nothing = Environment.defaultSystemExit(_),
     environmentVariables: collection.Map[String, String] =
       System.getenv().asScala,
     clock: Clock = Clock.systemDefaultZone()
@@ -65,4 +66,11 @@ object Environment {
       cacheDirectory = Paths.get(dirs.cacheDir),
       preferencesDirectory = Paths.get(dirs.preferenceDir)
     )
+
+  def defaultSystemExit(code: Int): Nothing = {
+    System.exit(code)
+    throw new IllegalStateException(
+      s"System.exit($code) failed to exit the process"
+    )
+  }
 }

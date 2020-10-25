@@ -40,11 +40,13 @@ object CancelToken {
   )(implicit ec: ExecutionContext): CancelToken = {
     create(() => cancelAll(iterable))
   }
-  def cancelAll(iterable: Iterable[CancelToken]): Unit = {
+  def cancelAll(iterable: Iterable[CancelToken]): Boolean = {
     var errors = mutable.ListBuffer.empty[Throwable]
+    var isCanceled = true
     iterable.foreach { cancelable =>
-      try cancelable.cancel()
-      catch {
+      try {
+        isCanceled = cancelable.cancel() && isCanceled
+      } catch {
         case ex if NonFatal(ex) =>
           errors += ex
       }
@@ -58,6 +60,7 @@ object CancelToken {
         }
         throw head
       case _ =>
+        isCanceled
     }
   }
 }

@@ -16,6 +16,7 @@ import moped.annotations.TreatInvalidFlagAsPositional
 import moped.commands._
 import moped.internal.console.CommandLineParser
 import moped.internal.console.PathCompleter
+import moped.internal.console.StackTraces
 import moped.internal.diagnostics.AggregateDiagnostic
 import moped.json.AlwaysDerivedParameter
 import moped.json.AlwaysHiddenParameter
@@ -85,6 +86,21 @@ case class Application(
   def info(message: Str): Unit = {
     env.standardError.println(Color.LightBlue("info: ") ++ message)
   }
+  def println(doc: Doc): Unit = {
+    print(doc + Doc.line)
+  }
+  def println(message: String): Unit = {
+    out.println(message)
+  }
+  def print(doc: Doc): Unit = {
+    print(doc.render(terminal.screenWidth()))
+  }
+  def print(message: String): Unit = {
+    out.print(message)
+  }
+  def printStackTrace(e: Throwable): Unit = {
+    StackTraces.trimStackTrace(e).printStackTrace(err)
+  }
 
   def process(command: Shellable*): SpawnableProcess =
     new SpawnableProcess(command, env, mockedProcesses)
@@ -95,7 +111,7 @@ case class Application(
   def runAndExitIfNonZero(args: List[String]): Unit = {
     val exit = run(args)
     if (exit != 0)
-      System.exit(exit)
+      env.exit(exit)
   }
   def run(arguments: List[String]): Int = {
     if (isSingleCommand)
@@ -186,55 +202,46 @@ object Application {
   }
 
   def simple(binaryName: String)(fn: Application => Int): Application = {
-    single(
-      binaryName,
-      app =>
-        new Command {
-          def run(): Int = {
-            try fn(app)
-            catch {
-              case NonFatal(e) =>
-                e.printStackTrace(app.err)
-                1
-            }
-          }
-        }
-    )
+    single(binaryName, app => new SimpleCommand(app, fn))
   }
 
   def single(
       binaryName: String,
-      command: Application => BaseCommand
+      command: Application => BaseCommand,
+      extraCommands: List[CommandParser[_]] = List(
+        CommandParser[HelpCommand],
+        CommandParser[VersionCommand]
+      )
   ): Application = {
+    val singleCommand: CommandParser[_] =
+      new CommandParser[BaseCommand](
+        JsonEncoder.unitJsonEncoder.contramap[BaseCommand](_ => ()),
+        JsonDecoder.applicationJsonDecoder.map(a => command(a)),
+        command(Application.default),
+        ClassShape(
+          binaryName,
+          binaryName,
+          List(
+            List(
+              new ParameterShape(
+                "arguments",
+                "List[String]",
+                List(
+                  new PositionalArguments(),
+                  new TreatInvalidFlagAsPositional()
+                ),
+                None
+              )
+            )
+          ),
+          List(new CommandName(binaryName))
+        )
+      )
     val app = Application
       .fromName(
         binaryName,
         version = "1.0.0",
-        commands = List(
-          new CommandParser[BaseCommand](
-            JsonEncoder.unitJsonEncoder.contramap[BaseCommand](_ => ()),
-            JsonDecoder.applicationJsonDecoder.map(a => command(a)),
-            command(Application.default),
-            ClassShape(
-              binaryName,
-              binaryName,
-              List(
-                List(
-                  new ParameterShape(
-                    "arguments",
-                    "List[String]",
-                    List(
-                      new PositionalArguments(),
-                      new TreatInvalidFlagAsPositional()
-                    ),
-                    None
-                  )
-                )
-              ),
-              List(new CommandName(binaryName))
-            )
-          )
-        )
+        commands = singleCommand :: extraCommands
       )
       .copy(isSingleCommand = true)
     app

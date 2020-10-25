@@ -1,18 +1,17 @@
 package tests.cli
 
-import munit.FunSuite
-import moped.cli.CancelToken
-import moped.internal.console.EagerExecutionContext
 import scala.concurrent.ExecutionContext
 
+import moped.cli.CancelToken
+import munit.FunSuite
+
 class CancelTokenSuite extends FunSuite {
-  implicit val ec =
+  implicit val ec: ExecutionContext =
     new ExecutionContext {
       def execute(runnable: Runnable): Unit = runnable.run()
       def reportFailure(cause: Throwable): Unit = throw cause
     }
 
-  EagerExecutionContext
   test("toString") {
     assertNoDiff(
       CancelToken.empty().toString(),

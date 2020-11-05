@@ -6,8 +6,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Clock
-import java.time.Instant
-import java.time.ZoneId
 
 import scala.collection.immutable.Nil
 
@@ -28,11 +26,7 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
   def fatalUnknownFields = false
   val reporter: ConsoleReporter = ConsoleReporter(System.out)
   val temporaryDirectory = new DirectoryFixture
-  def clock: Clock =
-    Clock.fixed(
-      Instant.parse("2020-09-24T18:48:03.790Z"),
-      ZoneId.of("Europe/Oslo")
-    )
+  def clock: Clock = new TestingClock()
   def workingDirectory: Path = temporaryDirectory().resolve("workingDirectory")
   def preferencesDirectory: Path = temporaryDirectory().resolve("preferences")
   def cacheDirectory: Path = temporaryDirectory().resolve("cache")

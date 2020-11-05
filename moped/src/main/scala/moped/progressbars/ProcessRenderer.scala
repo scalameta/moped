@@ -1,5 +1,6 @@
 package moped.progressbars
 
+import java.time.Clock
 import java.time.Duration
 import java.util.concurrent.ConcurrentLinkedDeque
 
@@ -17,14 +18,15 @@ import os.ProcessOutput
 class ProcessRenderer(
     command: List[String],
     prettyCommand: List[String],
-    onStop: PrettyTimer => Doc = _ => Doc.empty,
-    minimumDuration: Duration = Duration.ofSeconds(1)
+    onStop: Timer => Doc = _ => Doc.empty,
+    minimumDuration: Duration = Duration.ofSeconds(1),
+    clock: Clock = Clock.systemDefaultZone()
 ) extends ProgressRenderer {
   val lines = new ConcurrentLinkedDeque[String]()
   val output: ProcessOutput.Readlines = os
     .ProcessOutput
     .Readlines(line => lines.addLast(line))
-  lazy val timer = new PrettyTimer
+  lazy val timer = new Timer(clock)
   private def prettyPrintCommand(c: List[String]) =
     c.map(arg =>
         if (arg.contains(" "))
@@ -47,14 +49,14 @@ class ProcessRenderer(
     ErrorResult(Diagnostic.error(lines.asScala.mkString("\n")))
   }
   override def renderStop(): Doc = {
-    if (timer.elapsed > minimumDuration) {
+    if (timer.duration > minimumDuration) {
       Docs.successMessage(s"Ran '$prettyCommandString' in $timer")
     } else {
       Doc.empty
     }
   }
   override def renderStep(): ProgressStep = {
-    val elapsed = timer.elapsed()
+    val elapsed = timer.duration()
     val lastLine = lines.peekLast()
     if (elapsed > minimumDuration && lastLine != null) {
       // Strip out ANSI escape codes since they mess up with the progress bar.

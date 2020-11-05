@@ -2,29 +2,41 @@ package moped.progressbars
 
 import java.time.Clock
 import java.time.Duration
-import java.time.LocalTime
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
-class PrettyTimer(clock: Clock = Clock.systemDefaultZone()) {
-  val start: LocalTime = LocalTime.now(clock)
-  def elapsed(): Duration = Duration.between(start, LocalTime.now())
-  def format(): String = PrettyTimer.formatDuration(elapsed())
-  def formatPadded(): String = PrettyTimer.formatDurationPadded(elapsed())
+class Timer(val clock: Clock = Clock.systemDefaultZone()) {
+  val start: Instant = clock.instant()
+
+  def instant(): Instant = clock.instant()
+  def duration(): Duration = Duration.between(start, clock.instant())
+
+  def format(): String = Timer.formatDuration(start, clock.instant())
+  def formatPadded(): String =
+    Timer.formatDurationPadded(start, clock.instant())
   override def toString(): String = format()
 }
 
-object PrettyTimer {
-  def formatDurationPadded(elapsed: Duration): String =
-    formatDuration(elapsed).padTo("10.4s".length(), ' ')
+object Timer {
+  def formatDurationPadded(start: Instant, end: Instant): String =
+    formatDuration(start, end).padTo("10.4s".length(), ' ')
 
-  def formatDuration(elapsed: Duration): String = {
-    val sec = elapsed.getSeconds()
-    val hr = TimeUnit.SECONDS.toHours(sec)
-    val min = TimeUnit.SECONDS.toMinutes(sec)
-    val n = elapsed.getNano()
-    val ms = TimeUnit.NANOSECONDS.toMillis(elapsed.getNano()).toDouble / 1000
-    val s = (sec % 60).toDouble + ms
+  def formatDuration(start: Instant, end: Instant): String = {
+    val ms = ChronoUnit.MILLIS.between(start, end)
+    val days = TimeUnit.MILLISECONDS.toDays(ms)
+    val hr = TimeUnit.MILLISECONDS.toHours(ms) % 24
+    val min = TimeUnit.MILLISECONDS.toMinutes(ms) % 60
+    val s = (ms.toDouble / 1000) % 60
     new StringBuilder()
+      .append(
+        if (days <= 0)
+          ""
+        else if (days == 1)
+          s"${days}day"
+        else
+          s"${days}days"
+      )
       .append(
         if (hr > 0)
           s"${hr}hr"

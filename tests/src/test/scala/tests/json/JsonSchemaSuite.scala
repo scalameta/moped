@@ -1,4 +1,4 @@
-package tests
+package tests.json
 
 import moped.annotations.Description
 import moped.json.JsonCodec

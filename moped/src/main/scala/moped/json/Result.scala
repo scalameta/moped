@@ -14,7 +14,15 @@ sealed abstract class Result[+A] extends Product with Serializable {
   def isError: Boolean = this.isInstanceOf[ErrorResult]
   def isValue: Boolean = this.isInstanceOf[ValueResult[_]]
 
-  def get: A = fold(identity, d => throw new NoSuchElementException(d.pretty))
+  def get: A =
+    fold(
+      identity,
+      d => {
+        pprint.log(d)
+        pprint.log(d.position)
+        throw new NoSuchElementException(d.pretty)
+      }
+    )
   def getOrElse[B >: A](other: => B): B = fold(identity, _ => other)
   def orElse[B >: A](other: => Result[B]): Result[B] =
     fold(ValueResult(_), _ => other)

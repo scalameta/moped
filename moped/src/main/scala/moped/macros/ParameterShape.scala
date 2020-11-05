@@ -74,6 +74,9 @@ final case class ParameterShape(
   def isRepeated: Boolean = annotations.exists(_.isInstanceOf[Repeated])
   def isDynamic: Boolean = annotations.exists(_.isInstanceOf[Dynamic])
   def isHidden: Boolean = annotations.exists(_.isInstanceOf[Hidden])
+  def isAlwaysDerived: Boolean =
+    annotations.exists(_.isInstanceOf[AlwaysDerived]) ||
+      underlying.exists(_.parameters.exists(_.exists(_.isAlwaysDerived)))
   def isBoolean: Boolean = annotations.exists(_.isInstanceOf[Flag])
   def isNumber: Boolean = annotations.exists(_.isInstanceOf[ParseAsNumber])
   def isTabCompleteOneOf: Boolean =

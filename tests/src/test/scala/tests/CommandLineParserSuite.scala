@@ -87,6 +87,13 @@ class CommandLineParserSuite extends BaseSuite {
        |""".stripMargin
   )
 
+  checkOutput(
+    "nested-app",
+    List("example-nested", "--print-cwd"),
+    """|cwd=/workingDirectory
+       |""".stripMargin
+  )
+
   checkErrorOutput(
     "inline-conflict-string-boolean",
     List("example-nested", "--ij", "value"),

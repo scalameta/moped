@@ -1,6 +1,7 @@
 package moped.internal.macros
 
 import scala.annotation.StaticAnnotation
+import scala.collection.mutable
 import scala.reflect.macros.blackbox
 
 import moped.cli._
@@ -95,7 +96,7 @@ class Macros(val c: blackbox.Context) {
       val getter = T.member(param.name)
       val fallback = q"tmp.$getter"
       if (param.info <:< typeOf[AlwaysDerivedParameter]) {
-        q"""_root_.moped.internal.json.DrillIntoJson.decodeKey[$P]($name, context)"""
+        q"""_root_.moped.internal.json.DrillIntoJson.decodeAlwaysDerivedParameter[$P]($name, context)"""
       } else {
         q"""_root_.moped.internal.json.DrillIntoJson.getOrElse[$P](
            conf,
@@ -181,30 +182,25 @@ class Macros(val c: blackbox.Context) {
           val isMap = paramTpe <:< typeOf[Map[_, _]]
           val isConf = paramTpe <:< typeOf[JsonElement]
           val isIterable = paramTpe <:< typeOf[Iterable[_]] && !isMap
-          val repeated =
-            if (isIterable) {
-              q"new _root_.moped.annotations.Repeated" :: Nil
-            } else {
-              Nil
-            }
-          val dynamic =
-            if (isMap || isConf) {
-              q"new _root_.moped.annotations.Dynamic" :: Nil
-            } else {
-              Nil
-            }
-          val flag =
-            if (paramTpe <:< typeOf[Boolean]) {
-              q"new _root_.moped.annotations.Flag" :: Nil
-            } else {
-              Nil
-            }
-          val hidden =
-            if (paramTpe <:< typeOf[AlwaysHiddenParameter]) {
-              q"new _root_.moped.annotations.Hidden" :: Nil
-            } else {
-              Nil
-            }
+          val finalAnnots = mutable.ListBuffer.empty[Tree]
+
+          if (isIterable) {
+            finalAnnots += q"new _root_.moped.annotations.Repeated"
+          }
+          if (isMap || isConf) {
+            finalAnnots += q"new _root_.moped.annotations.Dynamic"
+          }
+          if (paramTpe <:< typeOf[Boolean]) {
+            finalAnnots += q"new _root_.moped.annotations.Flag"
+          }
+
+          if (paramTpe <:< typeOf[AlwaysHiddenParameter]) {
+            finalAnnots += q"new _root_.moped.annotations.Hidden"
+          }
+
+          if (paramTpe <:< typeOf[AlwaysDerivedParameter]) {
+            finalAnnots += q"new _root_.moped.annotations.AlwaysDerived"
+          }
 
           val completerType = c
             .internal
@@ -214,18 +210,13 @@ class Macros(val c: blackbox.Context) {
               paramTpe :: Nil
             )
           val completerInferred = c.inferImplicitValue(completerType)
+          if (completerInferred != null && !completerInferred.isEmpty) {
+            finalAnnots +=
+              q"new _root_.moped.annotations.TabCompleter($completerInferred)"
+          }
 
-          val tabCompletePath =
-            if (completerInferred == null || completerInferred.isEmpty) {
-              Nil
-            } else {
-              q"new _root_.moped.annotations.TabCompleter($completerInferred)" ::
-                Nil
-            }
+          finalAnnots ++= baseAnnots
 
-          val finalAnnots =
-            repeated ::: dynamic ::: flag ::: hidden ::: tabCompletePath :::
-              baseAnnots
           val fieldsParamTpe = c
             .internal
             .typeRef(
@@ -253,7 +244,7 @@ class Macros(val c: blackbox.Context) {
             q"""new ${weakTypeOf[ParameterShape]}(
            ${param.name.decodedName.toString},
            $tpeString.render,
-           _root_.scala.List.apply(..$finalAnnots),
+           _root_.scala.List.apply(..${finalAnnots.toList}),
            $underlying
          )"""
           field

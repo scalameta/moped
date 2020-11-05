@@ -65,4 +65,10 @@ class ApplicationSuite extends BaseSuite {
     List("example-cwd", "--shared.app.cwd", "custom-working-directory"),
     "cwd=custom-working-directory"
   )
+
+  checkOutput(
+    "shared.app.cwd",
+    List("example-cwd", "--shared.app.cwd", "custom-working-directory"),
+    "cwd=custom-working-directory"
+  )
 }

@@ -42,7 +42,8 @@ object InlinedOptions {
 final case class Inlined2Options(
     ih: Boolean = false,
     ii: String = "",
-    ij: Boolean = false
+    ij: Boolean = false,
+    app: Application = Application.default
 )
 object Inlined2Options {
   implicit val codec: JsonCodec[Inlined2Options] = moped
@@ -57,9 +58,13 @@ final case class ExampleNestedCommand(
     inlined: InlinedOptions = InlinedOptions(),
     @Inline
     inlined2: Inlined2Options = Inlined2Options(),
-    app: Application = Application.default
+    printCwd: Boolean = false
 ) extends Command {
+  def app = inlined2.app
   def run(): Int = {
+    if (printCwd) {
+      app.out.println(s"cwd=${app.env.workingDirectory}")
+    }
     if (nested.a)
       app.out.println(s"nested.a=${nested.a}")
     if (nested.b)

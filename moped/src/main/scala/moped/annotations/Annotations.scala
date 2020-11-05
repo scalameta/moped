@@ -33,6 +33,7 @@ final case class Repeated() extends StaticAnnotation
 final case class Inline() extends StaticAnnotation
 final case class Dynamic() extends StaticAnnotation
 final case class Hidden() extends StaticAnnotation
+final case class AlwaysDerived() extends StaticAnnotation
 final case class Flag() extends StaticAnnotation
 final case class ParseAsNumber() extends StaticAnnotation
 final case class PositionalArguments() extends StaticAnnotation

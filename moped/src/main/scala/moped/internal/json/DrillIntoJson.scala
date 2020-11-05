@@ -6,12 +6,12 @@ import moped.json._
 import moped.macros.ParameterShape
 
 object DrillIntoJson {
-  def decodeKey[T](key: String, context: DecodingContext)(implicit
-      ev: JsonDecoder[T]
+  def decodeAlwaysDerivedParameter[T](key: String, context: DecodingContext)(
+      implicit ev: JsonDecoder[T]
   ): Result[T] = {
     ev.decode(
       context
-        .withJson(getKey(context.json, List(key)).getOrElse(JsonNull()))
+        .withJson(getKey(context.json, List(key)).getOrElse(JsonObject(Nil)))
         .withCursor(SelectMemberCursor(key).withParent(context.cursor))
     )
   }
@@ -53,7 +53,10 @@ object DrillIntoJson {
       case Some(value) =>
         ev.decode(context.withJson(value))
       case None =>
-        ValueResult(default)
+        if (param.isAlwaysDerived)
+          ev.decode(context.withJson(JsonObject(Nil)))
+        else
+          ValueResult(default)
     }
   }
 

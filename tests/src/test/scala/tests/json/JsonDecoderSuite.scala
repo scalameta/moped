@@ -1,14 +1,8 @@
-package tests
+package tests.json
 
 import moped.cli.Command
 import moped.cli.CommandParser
-import moped.json.DecodingContext
-import moped.json.ErrorResult
 import moped.json.JsonCodec
-import moped.json.JsonDecoder
-import moped.json.JsonElement
-import moped.json.ValueResult
-import munit.TestOptions
 
 case class NestedList(a: String = "")
 object NestedList {
@@ -30,36 +24,7 @@ object MyClass {
     .derive[MyClass](default)
 }
 
-class JsonDecoderSuite extends BaseSuite {
-  def checkDecoded(
-      name: TestOptions,
-      original: JsonElement,
-      expected: MyClass,
-      context: DecodingContext => DecodingContext = identity
-  ): Unit = {
-    test(name) {
-      val obtained =
-        JsonDecoder[MyClass].decode(context(DecodingContext(original))).get
-      assertEquals(obtained, expected)
-    }
-  }
-
-  def checkErrorDecoded(
-      name: TestOptions,
-      original: JsonElement,
-      expected: String,
-      context: DecodingContext => DecodingContext = identity
-  )(implicit loc: munit.Location): Unit = {
-    test(name) {
-      JsonDecoder[MyClass].decode(context(DecodingContext(original))) match {
-        case ValueResult(value) =>
-          fail(s"expected error, obtained success $value")
-        case ErrorResult(error) =>
-          val obtained = error.position.pretty("error", error.message)
-          assertNoDiff(obtained, expected)
-      }
-    }
-  }
+class JsonDecoderSuite extends BaseJsonDecoderSuite[MyClass] {
 
   checkDecoded("a", parseJson("{'a': 2, 'b': 42}"), MyClass(a = 2))
 

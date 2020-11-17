@@ -9,10 +9,11 @@ import java.{util => ju}
 
 import scala.collection.JavaConverters._
 
+import dataclass.data
 import dev.dirs.ProjectDirectories
 
-final case class Environment(
-    console: java.io.Console = System.console(),
+@data
+class Environment(
     dataDirectory: Path,
     cacheDirectory: Path,
     preferencesDirectory: Path,
@@ -25,7 +26,8 @@ final case class Environment(
     exit: Int => Nothing = Environment.defaultSystemExit(_),
     environmentVariables: collection.Map[String, String] =
       System.getenv().asScala,
-    clock: Clock = Clock.systemDefaultZone()
+    clock: Clock = Clock.systemDefaultZone(),
+    console: java.io.Console = System.console()
 ) {
 
   /**
@@ -49,11 +51,10 @@ final case class Environment(
   val isProgressBarEnabled: Boolean =
     isColorEnabled && !isCI && !isSettingPresent("NO_PROGRESS_BAR")
   def withProjectDirectories(dirs: ProjectDirectories): Environment =
-    copy(
-      dataDirectory = Paths.get(dirs.dataDir),
-      cacheDirectory = Paths.get(dirs.cacheDir),
-      preferencesDirectory = Paths.get(dirs.preferenceDir)
-    )
+    this
+      .withDataDirectory(Paths.get(dirs.dataDir))
+      .withCacheDirectory(Paths.get(dirs.cacheDir))
+      .withPreferencesDirectory(Paths.get(dirs.preferenceDir))
 }
 
 object Environment {

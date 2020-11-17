@@ -1,6 +1,9 @@
 package moped.reporters
 
-final case class ScreenSize(width: Int, height: Int) {
+import dataclass.data
+
+@data
+class ScreenSize(width: Int, height: Int) {
   def withinWidth(minWidth: Int, maxWidth: Int): ScreenSize =
     withinConstraints(
       ScreenConstraints(

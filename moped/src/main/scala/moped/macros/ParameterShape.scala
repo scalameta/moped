@@ -2,6 +2,7 @@ package moped.macros
 
 import scala.annotation.StaticAnnotation
 
+import dataclass.data
 import moped.annotations._
 import moped.cli.Completer
 import moped.internal.console.CommandLineParser
@@ -17,11 +18,12 @@ import org.typelevel.paiges.Doc
  * @param annotations
  *   static annotations attached to this parameter.
  */
-final case class ParameterShape(
-    val name: String,
-    val tpe: String,
-    val annotations: List[StaticAnnotation],
-    val underlying: Option[ClassShaper[_]]
+@data
+class ParameterShape(
+    name: String,
+    tpe: String,
+    annotations: List[StaticAnnotation],
+    underlying: Option[ClassShaper[_]]
 ) {
 
   def alternativeNames: List[String] =

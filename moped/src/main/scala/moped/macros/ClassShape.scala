@@ -2,12 +2,15 @@ package moped.macros
 
 import scala.annotation.StaticAnnotation
 
+import dataclass.data
+
 /** Metadata about one class definition. */
-final case class ClassShape(
-    val name: String,
-    val fullyQualifiedName: String,
-    val parameters: List[List[ParameterShape]],
-    val annotations: List[StaticAnnotation]
+@data
+class ClassShape(
+    name: String,
+    fullyQualifiedName: String,
+    parameters: List[List[ParameterShape]],
+    annotations: List[StaticAnnotation]
 )
 
 object ClassShape {

@@ -2,11 +2,13 @@ package moped.internal.diagnostics
 
 import scala.collection.immutable.Nil
 
+import dataclass.data
 import moped.reporters.Diagnostic
 import moped.reporters.ErrorSeverity
 import moped.reporters.NoPosition
 
-case class AggregateDiagnostic(head: Diagnostic, tail: List[Diagnostic])
+@data
+class AggregateDiagnostic(head: Diagnostic, tail: List[Diagnostic])
     extends Diagnostic(ErrorSeverity, "", NoPosition, None, head :: tail) {
   def message: String =
     tail match {

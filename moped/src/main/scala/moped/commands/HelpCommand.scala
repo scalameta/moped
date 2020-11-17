@@ -38,7 +38,7 @@ object HelpCommand {
   }
 
   def insertHelpFlag(shape: ClassShape): ClassShape = {
-    shape.copy(parameters =
+    shape.withParameters(
       List(
         new ParameterShape(
           "help",

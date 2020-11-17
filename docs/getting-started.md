@@ -106,7 +106,7 @@ object EchoCommand {
       CommandParser[HelpCommand],
       CommandParser[VersionCommand],
     )
-  ).copy(isSingleCommand = true)
+  ).withIsSingleCommand(true)
   def main(args: Array[String]): Unit = {
     System.exit(app.run(args.toList))
   }

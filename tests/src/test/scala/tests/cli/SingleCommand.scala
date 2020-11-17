@@ -40,5 +40,5 @@ object SingleCommand {
         parser ::
           List(CommandParser[HelpCommand], CommandParser[VersionCommand])
     )
-    .copy(isSingleCommand = true)
+    .withIsSingleCommand(true)
 }

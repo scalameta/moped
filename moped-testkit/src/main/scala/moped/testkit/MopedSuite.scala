@@ -56,27 +56,27 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
     private val tput = Tput.constant(120)
     private val reporter = ConsoleReporter(ps, isColorEnabled = false)
     private def instrumentedApp =
-      app.copy(
-        env = app
-          .env
-          .copy(
-            dataDirectory = dataDirectory,
-            cacheDirectory = cacheDirectory,
-            preferencesDirectory = preferencesDirectory,
-            workingDirectory = workingDirectory,
-            homeDirectory = homeDirectory,
-            standardOutput = ps,
-            standardError = ps,
-            environmentVariables = environmentVariables,
-            clock = clock
-          ),
-        fatalUnknownFields = fatalUnknownFields,
-        tput = tput,
-        reporter = reporter,
-        mockedProcesses = app
-          .mockedProcesses
-          .map(_.copy(tput = tput, reporter = reporter))
-      )
+      app
+        .withEnv(
+          app
+            .env
+            .withDataDirectory(dataDirectory)
+            .withCacheDirectory(cacheDirectory)
+            .withPreferencesDirectory(preferencesDirectory)
+            .withWorkingDirectory(workingDirectory)
+            .withHomeDirectory(homeDirectory)
+            .withStandardOutput(ps)
+            .withStandardError(ps)
+            .withEnvironmentVariables(environmentVariables)
+            .withClock(clock)
+        )
+        .withFatalUnknownFields(fatalUnknownFields)
+        .withTput(tput)
+        .withReporter(reporter)
+        .withMockedProcesses(
+          app.mockedProcesses.map(_.withTput(tput).withReporter(reporter))
+        )
+
     def apply(): Application = instrumentedApp
     def reset(): Unit = {
       out.reset()

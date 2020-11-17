@@ -6,6 +6,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.util.control.NonFatal
 
+import dataclass.data
 import dev.dirs.ProjectDirectories
 import fansi.Color
 import fansi.Str
@@ -41,7 +42,8 @@ import moped.reporters.Tput
 import org.typelevel.paiges.Doc
 import os.Shellable
 
-case class Application(
+@data
+class Application(
     binaryName: String,
     version: String,
     commands: List[CommandParser[_]],
@@ -117,7 +119,7 @@ case class Application(
     if (isSingleCommand)
       runSingleCommand(arguments)
     else
-      Application.run(this.copy(arguments = arguments))
+      Application.run(this.withArguments(arguments))
   }
   private def runSingleCommand(arguments: List[String]): Int = {
     val singleCommand = commands
@@ -128,8 +130,7 @@ case class Application(
     singleCommand match {
       case Some(command) =>
         val newArguments = command.subcommandName :: arguments
-        Application
-          .run(this.copy(arguments = command.subcommandName :: arguments))
+        Application.run(this.withArguments(command.subcommandName :: arguments))
       case None =>
         this.error(
           "can't run command since the commands list is empty. " +
@@ -243,14 +244,14 @@ object Application {
         version = "1.0.0",
         commands = singleCommand :: extraCommands
       )
-      .copy(isSingleCommand = true)
+      .withIsSingleCommand(true)
     app
   }
 
   def run(app: Application): Int = {
     implicit val ec = app.executionContext
     val args = app.preProcessArguments(app.arguments)
-    val base = app.copy(commands = app.commands.map(_.withApplication(app)))
+    val base = app.withCommands(app.commands.map(_.withApplication(app)))
     def onError(error: Diagnostic): Future[Int] = {
       error
         .all
@@ -266,11 +267,10 @@ object Application {
         relativeCommands: List[CommandParser[_]],
         baseCommand: Option[CommandParser[_]]
     ): Future[Int] = {
-      val app = base.copy(
-        arguments = args,
-        relativeArguments = args.drop(n + 1),
-        relativeCommands = relativeCommands
-      )
+      val app = base
+        .withArguments(args)
+        .withRelativeArguments(args.drop(n + 1))
+        .withRelativeCommands(relativeCommands)
       val remainingArguments = args.drop(n)
       remainingArguments match {
         case Nil =>

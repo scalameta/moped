@@ -75,7 +75,7 @@ object JsonDecoder {
         if (context.json.isObject) {
           DrillIntoJson
             .decodeMember[Path](context, "cwd", app.env.workingDirectory)
-            .map(cwd => app.copy(env = app.env.copy(workingDirectory = cwd)))
+            .map(cwd => app.withEnv(app.env.withWorkingDirectory(cwd)))
         } else if (context.json.isNull) {
           ValueResult(context.app)
         } else {

@@ -178,15 +178,13 @@ final class SpawnableProcess(
     val in = new PipedInputStream()
     val out = new PipedOutputStream()
     val err = new PipedOutputStream()
-    val app = toMock.copy(env =
+    val app = toMock.withEnv(
       this
         .env
-        .copy(
-          workingDirectory = cwd,
-          standardInput = new BufferedReader(new InputStreamReader(in)),
-          standardOutput = new PrintStream(out),
-          standardError = new PrintStream(err)
-        )
+        .withWorkingDirectory(cwd)
+        .withStandardInput(new BufferedReader(new InputStreamReader(in)))
+        .withStandardOutput(new PrintStream(out))
+        .withStandardError(new PrintStream(err))
     )
     @volatile
     var exit = -1

@@ -70,7 +70,7 @@ class ProcessRenderer(
         Doc.text(timer.formatPadded()) + Doc.space +
           Doc.text(prettyCommandString) + Doc.line + Doc.text(lastLineClean) +
           endLine
-      ProgressStep(dynamic = dynamic)
+      ProgressStep(static = Doc.empty, dynamic = dynamic)
     } else {
       ProgressStep.empty
     }

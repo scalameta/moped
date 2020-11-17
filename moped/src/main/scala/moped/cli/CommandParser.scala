@@ -15,11 +15,11 @@ import moped.json._
 import moped.macros._
 import org.typelevel.paiges.Doc
 
-final case class CommandParser[A <: BaseCommand](
-    encoder: JsonEncoder[A],
-    decoder: JsonDecoder[A],
-    default: A,
-    shape: ClassShape
+final class CommandParser[A <: BaseCommand](
+    val encoder: JsonEncoder[A],
+    val decoder: JsonDecoder[A],
+    val default: A,
+    val shape: ClassShape
 ) extends JsonCodec[A] {
   def this(codec: JsonCodec[A], default: A) =
     this(codec, codec, default, codec.shape)
@@ -100,10 +100,6 @@ final case class CommandParser[A <: BaseCommand](
     Cases.camelToKebab(shape.name).stripSuffix("-command").toLowerCase()
   def decodeCommand(context: DecodingContext): Result[BaseCommand] =
     this.decode(context)
-  // def parseCommand(arguments: List[String]): Result[BaseCommand] =
-  //   CommandLineParser
-  //     .parseArgs[A](arguments)(this)
-  //     .flatMap(elem => decodeCommand(DecodingContext(elem)))
   def withTabCompletion(
       fn: TabCompletionContext => List[TabCompletionItem]
   ): CommandParser[A] = ???
@@ -123,6 +119,19 @@ final case class CommandParser[A <: BaseCommand](
       .getOrElse(Completer.empty)
     completer.complete(context)
   }
+
+  private[this] def copy(
+      encoder: JsonEncoder[A] = this.encoder,
+      decoder: JsonDecoder[A] = this.decoder,
+      default: A = this.default,
+      shape: ClassShape = this.shape
+  ): CommandParser[A] =
+    new CommandParser[A](
+      encoder = encoder,
+      decoder = decoder,
+      default = default,
+      shape = shape
+    )
 }
 
 object CommandParser {

@@ -28,11 +28,9 @@ object InstallManCommandSuite {
       "1.0",
       List(CommandParser[ManCommand], CommandParser[FoobarCommand])
     )
-    .copy(
-      tagline = "my testing binary",
-      description = Doc.text("An example description"),
-      examples = Doc.text("example hello world")
-    )
+    .withTagline("my testing binary")
+    .withDescription(Doc.text("An example description"))
+    .withExamples(Doc.text("example hello world"))
 }
 
 class InstallManCommandSuite extends MopedSuite(InstallManCommandSuite.app) {

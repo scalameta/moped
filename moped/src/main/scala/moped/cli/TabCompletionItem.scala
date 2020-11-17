@@ -1,3 +1,6 @@
 package moped.cli
 
-final case class TabCompletionItem(name: String, description: String = "")
+import dataclass.data
+
+@data
+class TabCompletionItem(name: String, description: String = "")

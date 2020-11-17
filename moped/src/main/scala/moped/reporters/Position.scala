@@ -1,5 +1,7 @@
 package moped.reporters
 
+import dataclass.data
+
 sealed abstract class Position {
   pos =>
   def input: Input
@@ -139,8 +141,8 @@ case object NoPosition extends Position {
   def text = ""
 }
 
-final case class RangePosition(input: Input, start: Int, end: Int)
-    extends Position {
+@data
+class RangePosition(input: Input, start: Int, end: Int) extends Position {
   def startLine: Int = input.offsetToLine(start)
   def startColumn: Int = start - input.lineToOffset(startLine)
   def endLine: Int = input.offsetToLine(end)

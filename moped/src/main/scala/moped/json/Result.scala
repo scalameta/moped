@@ -18,8 +18,6 @@ sealed abstract class Result[+A] extends Product with Serializable {
     fold(
       identity,
       d => {
-        pprint.log(d)
-        pprint.log(d.position)
         throw new NoSuchElementException(d.pretty)
       }
     )

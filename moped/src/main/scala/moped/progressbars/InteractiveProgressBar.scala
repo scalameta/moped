@@ -18,6 +18,7 @@ import scala.util.control.NonFatal
 import moped.reporters.ScreenSize
 import moped.reporters.Terminals
 import moped.reporters.Tput
+import org.typelevel.paiges.Doc
 
 /**
  * A progress bar that renders updates at a fixed duration interval until it's
@@ -71,7 +72,9 @@ class InteractiveProgressBar(
 
   override def start(): Unit = {
     if (state.compareAndSet(BeforeStart, Active)) {
-      emitNow(ProgressStep(static = renderer.renderStart()))
+      emitNow(
+        ProgressStep(static = renderer.renderStart(), dynamic = Doc.empty)
+      )
       sh.scheduleAtFixedRate(
         { () =>
           try {
@@ -93,7 +96,7 @@ class InteractiveProgressBar(
   override def stop(): Unit = {
     // TODO: Should we guarantee `state == AfterStop` here?
     if (state.compareAndSet(Active, AfterStop)) {
-      emitNow(ProgressStep(static = renderer.renderStop()))
+      emitNow(ProgressStep(static = renderer.renderStop(), dynamic = Doc.empty))
       sh.shutdownNow()
     }
   }

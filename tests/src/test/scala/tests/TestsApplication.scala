@@ -31,18 +31,18 @@ object TestsApplication {
         CommandParser[ManCommand]
       )
     )
-    .copy(
-      parsers = List(
+    .withParsers(
+      List(
         JsonParser,
         HoconParser,
         TomlParser,
         YamlParser,
         DhallParser,
         JsonnetParser
-      ),
-      mockedProcesses = List(
-        Application.single("zsh", app => new MockedZshCommand(app))
       )
+    )
+    .withMockedProcesses(
+      List(Application.single("zsh", app => new MockedZshCommand(app)))
     )
 
 }

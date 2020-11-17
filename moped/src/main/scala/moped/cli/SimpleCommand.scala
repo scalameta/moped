@@ -15,7 +15,7 @@ class SimpleCommand(app: Application, fn: Application => Int) extends Command {
             other
         }
       StackTraces.dropOutside {
-        fn(app.copy(arguments = args))
+        fn(app.withArguments(args))
       }
     } catch {
       case NonFatal(e) =>

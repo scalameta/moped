@@ -1,5 +1,6 @@
 package moped.internal.console
 
+import dataclass.data
 import moped.macros.ParameterShape
 
 /**
@@ -18,7 +19,8 @@ import moped.macros.ParameterShape
  *   this option? For example
  * @param shape
  */
-final case class ValidOption(
+@data
+class ValidOption(
     name: String,
     path: List[String],
     isCanonical: Boolean,

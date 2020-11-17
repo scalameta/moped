@@ -1,9 +1,11 @@
 package moped.cli
 
+import dataclass.data
 import moped.internal.console.ValidOption
 import moped.macros.ParameterShape
 
-final case class TabCompletionContext(
+@data
+class TabCompletionContext(
     shell: ShellCompletion,
     arguments: List[String],
     last: String,

@@ -29,7 +29,7 @@ final class DecodingContext private (
     new DecodingContext(json, cursor, app, fatalUnknownFields)
   }
   override def toString(): String =
-    s"DecodingContext(json=${pprint.PPrinter.BlackWhite.tokenize(json).mkString}, cursor=$cursor)",
+    s"DecodingContext(json=${pprint.PPrinter.BlackWhite.tokenize(json).mkString}, cursor=$cursor)"
 }
 
 object DecodingContext {

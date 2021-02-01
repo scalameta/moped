@@ -3,6 +3,7 @@ package moped.reporters
 import java.nio.file.Files
 import java.nio.file.Paths
 
+import scala.sys.process.ProcessLogger
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -23,6 +24,12 @@ object Tput {
             else
               "tput"
           try {
+            val nullLog =
+              new ProcessLogger {
+                override def out(s: => String): Unit = ()
+                override def err(s: => String): Unit = ()
+                override def buffer[T](f: => T): T = f
+              }
             val output =
               scala
                 .sys
@@ -34,7 +41,7 @@ object Tput {
                     s"""echo "cols\nlines" | $tputPath -S 2> /dev/tty"""
                   )
                 )
-                .!!
+                .!!(nullLog)
                 .linesIterator
                 .map(_.toInt)
                 .toList

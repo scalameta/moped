@@ -81,8 +81,11 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
     def reset(): Unit = {
       out.reset()
     }
+    def capturedRawOutput: String = {
+      out.toString(StandardCharsets.UTF_8.name())
+    }
     def capturedOutput: String = {
-      AnsiColors.filterAnsi(out.toString(StandardCharsets.UTF_8.name()))
+      AnsiColors.filterAnsi(capturedRawOutput)
     }
     override def beforeEach(context: BeforeEach): Unit = {
       Files.createDirectories(workingDirectory)
@@ -127,7 +130,14 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
   }
 
   def runSuccessfully(arguments: List[String]): Unit = {
-    val exit = app().run(arguments)
+    runSuccessfully(arguments, app())
+  }
+
+  def runSuccessfully(
+      arguments: List[String],
+      application: Application
+  ): Unit = {
+    val exit = application.run(arguments)
     assertEquals(exit, 0, clues(app.capturedOutput))
   }
 

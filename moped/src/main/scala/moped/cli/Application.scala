@@ -19,6 +19,7 @@ import moped.internal.console.CommandLineParser
 import moped.internal.console.PathCompleter
 import moped.internal.console.StackTraces
 import moped.internal.diagnostics.AggregateDiagnostic
+import moped.internal.reporters.NoColorPrintStream
 import moped.json.AlwaysDerivedParameter
 import moped.json.AlwaysHiddenParameter
 import moped.json.DecodingContext
@@ -251,7 +252,17 @@ object Application {
   def run(app: Application): Int = {
     implicit val ec = app.executionContext
     val args = app.preProcessArguments(app.arguments)
-    val base = app.withCommands(app.commands.map(_.withApplication(app)))
+    val base = app
+      .withCommands(app.commands.map(_.withApplication(app)))
+      .withEnv(
+        if (app.env.isColorEnabled)
+          app.env
+        else
+          app
+            .env
+            .withStandardOutput(new NoColorPrintStream(app.env.standardOutput))
+            .withStandardError(new NoColorPrintStream(app.env.standardError))
+      )
     def onError(error: Diagnostic): Future[Int] = {
       error
         .all

@@ -24,14 +24,13 @@ inThisBuild(
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
-    publishArtifact.in(Compile, packageDoc) := isCI,
-    publishArtifact.in(packageDoc) := isCI,
+    semanticdbOptions += s"-P:semanticdb:sourceroot:${baseDirectory.value}",
     scalacOptions ++= List("-Ywarn-unused:imports", "-Yrangepos")
   )
 )
 
 crossScalaVersions := Nil
-skip.in(publish) := true
+(publish / skip) := true
 lazy val isAtLeastScala213 = Def.setting {
   import Ordering.Implicits._
   CrossVersion.partialVersion(scalaVersion.value).exists(_ >= (2, 13))
@@ -125,14 +124,14 @@ lazy val testkit = project
 
 lazy val tests = project
   .settings(
-    skip.in(publish) := true,
+    (publish / skip) := true,
     testFrameworks := List(new TestFramework("munit.Framework")),
     buildInfoPackage := "tests",
     buildInfoKeys :=
       Seq[BuildInfoKey](
-        "expectDirectory" -> sourceDirectory.in(Test).value./("expect")
+        "expectDirectory" -> (Test / sourceDirectory).value./("expect")
       ),
-    mainClass.in(Compile) := Some("tests.EchoCommand"),
+    (Compile / mainClass) := Some("tests.EchoCommand"),
     nativeImageOptions ++=
       List(
         "--initialize-at-build-time",
@@ -164,7 +163,7 @@ lazy val docs = project
   .settings(
     moduleName := "moped-docs",
     fork := isCI,
-    skip in publish := true,
+    (publish / skip) := true,
     libraryDependencies ++=
       List("com.lihaoyi" %% "scalatags" % scalatagsVersion.value),
     mdocVariables :=
@@ -174,9 +173,9 @@ lazy val docs = project
         "SCALA_VERSION" -> scalaVersion.value
       ),
     mdocOut :=
-      baseDirectory.in(ThisBuild).value / "website" / "target" / "docs",
+      (ThisBuild / baseDirectory).value / "website" / "target" / "docs",
     mdocExtraArguments := {
-      val cwd = baseDirectory.in(ThisBuild).value
+      val cwd = (ThisBuild / baseDirectory).value
       List(
         "--no-link-hygiene",
         "--in",

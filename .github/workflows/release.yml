@@ -1,7 +1,9 @@
 name: Release
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - main
     tags: ["*"]
   release:
     types: [published]

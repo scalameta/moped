@@ -28,6 +28,8 @@ object JsonEncoder {
     value => JsonString(value)
   implicit val intJsonEncoder: JsonEncoder[Int] =
     value => JsonNumber(value.toDouble)
+  implicit val longJsonEncoder: JsonEncoder[Long] =
+    value => JsonNumber(value.toDouble)
   implicit val doubleJsonEncoder: JsonEncoder[Double] =
     value => JsonNumber(value)
   implicit val floatJsonEncoder: JsonEncoder[Float] =

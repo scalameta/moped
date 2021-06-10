@@ -53,9 +53,17 @@ object JsonDecoder {
     fromJson[Int]("Int") { case JsonNumber(value) =>
       ValueResult(value.toInt)
     }
+  implicit val longJsonDecoder: JsonDecoder[Long] =
+    fromJson[Long]("Long") { case JsonNumber(value) =>
+      ValueResult(value.toLong)
+    }
   implicit val doubleJsonDecoder: JsonDecoder[Double] =
     fromJson[Double]("Double") { case JsonNumber(value) =>
       ValueResult(value)
+    }
+  implicit val floatJsonDecoder: JsonDecoder[Float] =
+    fromJson[Float]("Float") { case JsonNumber(value) =>
+      ValueResult(value.toFloat)
     }
   implicit val stringJsonDecoder: JsonDecoder[String] =
     fromJson[String]("String") { case JsonString(value) =>

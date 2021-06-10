@@ -26,7 +26,9 @@ class SingleCommandApplicationSuite extends MopedSuite(SingleCommand.app) {
        |""".stripMargin
   )
 
-  checkOutput("version", List("--version"), "1.0.0")
+  checkOutput("--version", List("--version"), "1.0.0")
+
+  checkOutput("-version", List("-version"), "1.0.0")
 
   checkOutput(
     "positional",

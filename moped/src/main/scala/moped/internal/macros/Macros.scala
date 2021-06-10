@@ -193,6 +193,12 @@ class Macros(val c: blackbox.Context) {
           if (paramTpe <:< typeOf[Boolean]) {
             finalAnnots += q"new _root_.moped.annotations.Flag"
           }
+          if (
+            paramTpe <:< typeOf[Int] || paramTpe <:< typeOf[Long] ||
+            paramTpe <:< typeOf[Double] || paramTpe <:< typeOf[Float]
+          ) {
+            finalAnnots += q"new _root_.moped.annotations.ParseAsNumber"
+          }
 
           if (paramTpe <:< typeOf[AlwaysHiddenParameter]) {
             finalAnnots += q"new _root_.moped.annotations.Hidden"

@@ -131,5 +131,33 @@ class CommandLineParserSuite extends BaseSuite {
        |""".stripMargin
   )
 
+  checkOutput(
+    "int",
+    List("parser", "--port", "4040"),
+    """|port=4040
+       |""".stripMargin
+  )
+
+  checkOutput(
+    "long",
+    List("parser", "--long-port", "4040"),
+    """|longPort=4040
+       |""".stripMargin
+  )
+
+  checkOutput(
+    "double",
+    List("parser", "--ratio", "0.3"),
+    """|ratio=0.3
+       |""".stripMargin
+  )
+
+  checkOutput(
+    "float",
+    List("parser", "--float-ratio", "0.3"),
+    """|floatRatio=0.3
+       |""".stripMargin
+  )
+
   // TODO: did you mean?
 }

@@ -38,10 +38,10 @@ DESCRIPTION
   Write arguments to the standard output
 
 OPTIONS
-  --help: Boolean              Print this help message
-  --uppercase: Boolean = false If true, the output will be all UPPERCASE
-  --unchanged: Boolean = true  If false, the output will be changed to '--no-unchanged'
-  --lowercase: Boolean = false If false, the output will be all lowercase
+  --help: Boolean                   Print this help message
+  --[no-]uppercase: Boolean = false If true, the output will be all UPPERCASE
+  --[no-]unchanged: Boolean = true  If false, the output will be changed to '--no-unchanged'
+  --[no-]lowercase: Boolean = false If false, the output will be all lowercase
 
 POSITIONAL ARGUMENTS
   The arguments to write out to standard output
@@ -58,9 +58,9 @@ EXAMPLES
 
 $ tests config --help
 OPTIONS
-  --help: Boolean                   Print this help message
-  --foobar: Boolean = false
-  --use-super-shell: Boolean = true
+  --help: Boolean                        Print this help message
+  --[no-]foobar: Boolean = false
+  --[no-]use-super-shell: Boolean = true
 
 $ tests man install --help
 DESCRIPTION
@@ -73,4 +73,12 @@ DESCRIPTION
 $ tests man help --help
 DESCRIPTION
   Print this help message
+
+$ tests parser --help
+OPTIONS
+  --help: Boolean            Print this help message
+  --port: Int = 8080
+  --long-port: Long = 8080
+  --ratio: Double = 0.5
+  --float-ratio: Float = 0.5
 

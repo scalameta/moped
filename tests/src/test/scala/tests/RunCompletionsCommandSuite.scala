@@ -43,7 +43,8 @@ class RunCompletionsCommandSuite extends BaseSuite {
       "working-directory",
       "echo",
       "config",
-      "man"
+      "man",
+      "parser"
     )
 
   checkCompletions("empty", List(), List())

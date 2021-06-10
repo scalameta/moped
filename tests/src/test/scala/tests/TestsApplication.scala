@@ -28,7 +28,8 @@ object TestsApplication {
         CommandParser[ExampleNestedCommand],
         CommandParser[ExampleFallbackCommand],
         CommandParser[ExampleCwdCommand],
-        CommandParser[ManCommand]
+        CommandParser[ManCommand],
+        CommandParser[ParserCommand]
       )
     )
     .withParsers(

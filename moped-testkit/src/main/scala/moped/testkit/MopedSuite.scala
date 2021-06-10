@@ -27,6 +27,7 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
   val reporter: ConsoleReporter = ConsoleReporter(System.out)
   val temporaryDirectory = new DirectoryFixture
   def clock: Clock = new TestingClock()
+  def createTempDirectory(): Path = Files.createTempDirectory("moped")
   def workingDirectory: Path = temporaryDirectory().resolve("workingDirectory")
   def preferencesDirectory: Path = temporaryDirectory().resolve("preferences")
   def cacheDirectory: Path = temporaryDirectory().resolve("cache")
@@ -42,7 +43,7 @@ abstract class MopedSuite(applicationToTest: Application) extends FunSuite {
     private var path: Path = _
     def apply(): Path = path
     override def beforeAll(): Unit = {
-      path = Files.createTempDirectory("moped")
+      path = createTempDirectory()
     }
     override def afterEach(context: AfterEach): Unit = {
       DeleteVisitor.deleteRecursively(path)

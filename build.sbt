@@ -29,6 +29,17 @@ inThisBuild(
   )
 )
 
+commands +=
+  Command.command("fixAll") { s =>
+    "scalafixAll" :: "scalafmtAll" :: "scalafmtSbt" :: s
+  }
+
+commands +=
+  Command.command("checkAll") { s =>
+    "scalafmtCheckAll" :: "scalafmtSbtCheck" :: "scalafixAll --check" ::
+      "publishLocal" :: "docs/docusaurusCreateSite" :: s
+  }
+
 crossScalaVersions := Nil
 (publish / skip) := true
 lazy val isAtLeastScala213 = Def.setting {

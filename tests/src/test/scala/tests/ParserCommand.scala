@@ -1,8 +1,8 @@
 package tests
 
-import moped.cli.Command
-import moped.cli.Application
 import moped.annotations.CommandName
+import moped.cli.Application
+import moped.cli.Command
 import moped.cli.CommandParser
 
 @CommandName("parser")
@@ -27,6 +27,7 @@ final case class ParserCommand(
 }
 
 object ParserCommand {
-  val default = ParserCommand()
-  implicit val parser = CommandParser.derive(default)
+  val default: ParserCommand = ParserCommand()
+  implicit val parser: CommandParser[ParserCommand] = CommandParser
+    .derive(default)
 }

@@ -31,6 +31,7 @@ sealed abstract class Result[+A] extends Product with Serializable {
   def iterator(): Iterator[A] = fold(Iterator(_), _ => Iterator())
 
   def foreach[B](fn: A => B): Unit = fold(a => fn(a), _ => ())
+  def exists(fn: A => Boolean): Boolean = fold(a => fn(a), _ => false)
   def map[B](fn: A => B): Result[B] =
     fold(a => ValueResult(fn(a)), ErrorResult(_))
   def flatMap[B](fn: A => Result[B]): Result[B] =

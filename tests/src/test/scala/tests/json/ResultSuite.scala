@@ -45,6 +45,12 @@ class ResultSuite extends FunSuite {
     value.foreach(n => foreach = n)
     assertEquals(foreach, 1)
   }
+  test("value.exists") {
+    assertEquals(ValueResult(1).exists(_ > 0), true)
+    assertEquals(ValueResult(1).exists(_ > 1), false)
+    val error: Result[Int] = ErrorResult(Diagnostic.error("error"))
+    assertEquals(error.exists(_ > 1), false)
+  }
   test("value.filter-true") {
     assertEquals(value.filter(_ > 0), value)
   }

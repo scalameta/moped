@@ -49,4 +49,5 @@ class HelpCommandSuite extends BaseSuite {
     List("--uppercase=true", "echo", "hello world"),
     List("echo", "--uppercase=true", "hello world")
   )
+
 }

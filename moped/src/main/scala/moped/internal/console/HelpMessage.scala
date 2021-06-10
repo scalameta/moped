@@ -40,7 +40,12 @@ object HelpMessage {
           case _ =>
             s" = ${value.toDoc.render(80)}"
         }
-      val key = s"--$name: ${setting.tpe}$defaultValue "
+      val flagNegation =
+        if (setting.isBoolean)
+          "[no-]"
+        else
+          ""
+      val key: String = s"--$flagNegation$name: ${setting.tpe}$defaultValue "
       key -> setting.description.getOrElse(Doc.empty)
     }
     val defaultConf = defaults(default)

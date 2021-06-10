@@ -17,9 +17,9 @@ class SingleCommandApplicationSuite extends MopedSuite(SingleCommand.app) {
     "help",
     List("--help"),
     """|OPTIONS
-       |  --help: Boolean         Print this help message
-       |  --value: String = ""    Optional string option
-       |  --flag: Boolean = false Optional boolean option
+       |  --help: Boolean              Print this help message
+       |  --value: String = ""         Optional string option
+       |  --[no-]flag: Boolean = false Optional boolean option
        |
        |POSITIONAL ARGUMENTS
        |  Arguments to print out, if non-empty

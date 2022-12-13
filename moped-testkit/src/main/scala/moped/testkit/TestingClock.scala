@@ -15,7 +15,7 @@ class TestingClock(
     val instant = underlying.instant().plus(duration)
     underlying = Clock.fixed(instant, underlying.getZone())
   }
-  def getZone(): ZoneId = underlying.getZone()
-  def withZone(x: ZoneId): Clock = underlying.withZone(x)
-  def instant(): Instant = underlying.instant()
+  override def getZone(): ZoneId = underlying.getZone()
+  override def withZone(x: ZoneId): Clock = underlying.withZone(x)
+  override def instant(): Instant = underlying.instant()
 }

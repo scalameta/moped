@@ -120,6 +120,8 @@ final class InputTransformer[J](input: Input)
   def atEof(i: Int): Boolean = i >= chars.length
   def close(): Unit = ()
   final def dropBufferUntil(i: Int): Unit = ()
-  final def char(i: Int): Char = upickle.core.Platform.charAt(chars, i)
-  final def sliceString(i: Int, j: Int): CharSequence = chars.subSequence(i, j)
+  final def char(i: Int): Char =
+    upickle.core.Platform.charAt(ArrayCharSequence(chars), i)
+  final def sliceString(i: Int, j: Int): CharSequence =
+    ArrayCharSequence(chars).subSequence(i, j)
 }

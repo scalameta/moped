@@ -158,16 +158,6 @@ val scalatagsVersion = Def.setting {
     "0.11.1"
 }
 
-lazy val plugin = project
-  .in(file("moped-sbt"))
-  .settings(
-    sbtPlugin := true,
-    moduleName := "sbt-moped",
-    buildInfoPackage := "sbtmoped",
-    buildInfoKeys := Seq[BuildInfoKey](version)
-  )
-  .enablePlugins(BuildInfoPlugin)
-
 lazy val docs = project
   .in(file("moped-docs"))
   .settings(

@@ -156,39 +156,39 @@ val scalatagsVersion = Def.setting {
     "0.11.1"
 }
 
-lazy val docs = project
-  .in(file("moped-docs"))
-  .settings(
-    moduleName := "moped-docs",
-    fork := isCI,
-    (publish / skip) := true,
-    libraryDependencies ++=
-      List("com.lihaoyi" %% "scalatags" % scalatagsVersion.value),
-    mdocVariables :=
-      Map(
-        "VERSION" -> version.value.replaceFirst("\\+.*", ""),
-        "NATIVE_IMAGE_PLUGIN" -> "???",
-        "SCALA_VERSION" -> scalaVersion.value
-      ),
-    mdocOut :=
-      (ThisBuild / baseDirectory).value / "website" / "target" / "docs",
-    mdocExtraArguments := {
-      val cwd = (ThisBuild / baseDirectory).value
-      List(
-        "--no-link-hygiene",
-        "--in",
-        (cwd / "docs").getAbsolutePath,
-        "--out",
-        (cwd / "website" / "target" / "docs").getAbsolutePath,
-        "--in",
-        (cwd / "blog").getAbsolutePath,
-        "--out",
-        (cwd / "website" / "blog").getAbsolutePath
-      )
-    }
-  )
-  .dependsOn(tests)
-  .enablePlugins(DocusaurusPlugin)
+//lazy val docs = project
+//  .in(file("moped-docs"))
+//  .settings(
+//    moduleName := "moped-docs",
+//    fork := isCI,
+//    (publish / skip) := true,
+//    libraryDependencies ++=
+//      List("com.lihaoyi" %% "scalatags" % scalatagsVersion.value),
+//    mdocVariables :=
+//      Map(
+//        "VERSION" -> version.value.replaceFirst("\\+.*", ""),
+//        "NATIVE_IMAGE_PLUGIN" -> "???",
+//        "SCALA_VERSION" -> scalaVersion.value
+//      ),
+//    mdocOut :=
+//      (ThisBuild / baseDirectory).value / "website" / "target" / "docs",
+//    mdocExtraArguments := {
+//      val cwd = (ThisBuild / baseDirectory).value
+//      List(
+//        "--no-link-hygiene",
+//        "--in",
+//        (cwd / "docs").getAbsolutePath,
+//        "--out",
+//        (cwd / "website" / "target" / "docs").getAbsolutePath,
+//        "--in",
+//        (cwd / "blog").getAbsolutePath,
+//        "--out",
+//        (cwd / "website" / "blog").getAbsolutePath
+//      )
+//    }
+//  )
+//  .dependsOn(tests)
+//  .enablePlugins(DocusaurusPlugin)
 
 addCommandAlias("native-image", "tests/mopedNativeImage")
 addCommandAlias("scalafixCheckAll", "scalafixAll --check")

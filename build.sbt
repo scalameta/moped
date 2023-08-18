@@ -1,5 +1,5 @@
-def scala212 = "2.12.17"
-def scala213 = "2.13.10"
+def scala212 = "2.12.18"
+def scala213 = "2.13.11"
 def isCI = "true".equalsIgnoreCase(System.getenv("CI"))
 inThisBuild(
   List(
@@ -18,8 +18,6 @@ inThisBuild(
       ),
     useSuperShell := false,
     scalaVersion := scala213,
-    scalafixDependencies +=
-      "com.github.liancheng" %% "organize-imports" % "0.6.0",
     scalafixCaching := true,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
     semanticdbEnabled := true,

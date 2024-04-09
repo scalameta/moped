@@ -73,7 +73,8 @@ lazy val moped = project.settings(
     else
       Seq(
         compilerPlugin(
-          "org.scalamacros" % "paradise" % V.macroParadise cross CrossVersion.full
+          "org.scalamacros" % "paradise" % V.macroParadise cross
+            CrossVersion.full
         )
       )
   },
@@ -87,7 +88,8 @@ lazy val moped = project.settings(
     List(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "dev.dirs" % "directories" % V.dirs,
-      "org.scala-lang.modules" %% "scala-collection-compat" % V.collectionCompat,
+      "org.scala-lang.modules" %% "scala-collection-compat" %
+        V.collectionCompat,
       "io.github.alexarchambault" %% "data-class" % V.dataClass,
       "com.lihaoyi" %% "os-lib" % V.osLib,
       "com.lihaoyi" %% "ujson" % V.ujson,
@@ -170,17 +172,7 @@ lazy val tests = project
       )
   )
   .enablePlugins(BuildInfoPlugin, NativeImagePlugin)
-  .dependsOn(testkit, hocon, toml, yaml, dhall/*, jsonnet*/)
-
-lazy val plugin = project
-  .in(file("moped-sbt"))
-  .settings(
-    sbtPlugin := true,
-    moduleName := "sbt-moped",
-    buildInfoPackage := "sbtmoped",
-    buildInfoKeys := Seq[BuildInfoKey](version)
-  )
-  .enablePlugins(BuildInfoPlugin)
+  .dependsOn(testkit, hocon, toml, yaml, dhall /*, jsonnet*/ )
 
 lazy val docs = project
   .in(file("moped-docs"))

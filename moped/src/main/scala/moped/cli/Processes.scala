@@ -93,7 +93,7 @@ final class SpawnableProcess(
     sub.join(timeout)
 
     val chunksArr = chunks.iterator.asScala.toArray
-    val res = CommandResult(sub.exitCode(), chunksArr)
+    val res = CommandResult(command.flatMap(_.value), sub.exitCode(), chunksArr)
     if (res.exitCode == 0 || !check)
       res
     else

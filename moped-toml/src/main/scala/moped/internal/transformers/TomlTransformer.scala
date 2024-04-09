@@ -5,7 +5,7 @@ import toml.Value
 import ujson.AstTransformer
 import upickle.core.ArrVisitor
 import upickle.core.ObjVisitor
-import upickle.core.Util
+import upickle.core.ParseUtils
 import upickle.core.Visitor
 
 object TomlTransformer extends TomlTransformer(Input.none)
@@ -29,7 +29,10 @@ class TomlTransformer(input: Input) extends AstTransformer[toml.Value] {
     }
   override def visitArray(length: Int, index: Int): ArrVisitor[Value, Value] =
     new AstArrVisitor[List](Value.Arr(_))
-  override def visitObject(length: Int, index: Int): ObjVisitor[Value, Value] =
+  override def visitJsonableObject(
+      length: Int,
+      index: Int
+  ): ObjVisitor[Value, Value] =
     new AstObjVisitor[Map[String, Value]](Value.Tbl(_))
   override def visitNull(index: Int): Value =
     Value
@@ -46,7 +49,7 @@ class TomlTransformer(input: Input) extends AstTransformer[toml.Value] {
       if (decIndex != -1 || expIndex != -1)
         s.toString.toDouble
       else
-        Util.parseIntegralNum(s, decIndex, expIndex, index)
+        ParseUtils.parseIntegralNum(s, decIndex, expIndex, index)
     )
   override def visitString(s: CharSequence, index: Int): Value =
     Value.Str(s.toString())

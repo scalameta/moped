@@ -8,6 +8,7 @@ import scala.collection.JavaConverters._
 import moped.json.JsonString
 import moped.reporters.Input
 import moped.reporters.Position
+import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.constructor.Constructor
 import org.yaml.snakeyaml.error.Mark
 import org.yaml.snakeyaml.nodes.MappingNode
@@ -23,7 +24,7 @@ class YamlNodeTransformer(input: Input)
     extends AstTransformer[Node]
     with TransformerUtils[Node] {
   def pos(index: Int): Position = Position.offset(input, index)
-  class YamlNodeConstructor extends Constructor() {
+  class YamlNodeConstructor extends Constructor(new LoaderOptions()) {
     def transformNode(n: Node): Object = constructObject(n)
   }
   val constructor = new YamlNodeConstructor()
@@ -93,8 +94,10 @@ class YamlNodeTransformer(input: Input)
     }
   }
   override def visitArray(length: Int, index: Int): ArrVisitor[Node, Node] = ???
-  override def visitObject(length: Int, index: Int): ObjVisitor[Node, Node] =
-    ???
+  override def visitJsonableObject(
+      length: Int,
+      index: Int
+  ): ObjVisitor[Node, Node] = ???
   override def visitNull(index: Int): Node = ???
   override def visitFalse(index: Int): Node = ???
   override def visitTrue(index: Int): Node = ???

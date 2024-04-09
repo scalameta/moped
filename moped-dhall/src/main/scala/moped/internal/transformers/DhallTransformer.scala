@@ -8,7 +8,7 @@ import org.dhallj.core.Expr
 import ujson.AstTransformer
 import upickle.core.ArrVisitor
 import upickle.core.ObjVisitor
-import upickle.core.Util
+import upickle.core.ParseUtils
 import upickle.core.Visitor
 
 object DhallTransformer extends DhallTransformer(Input.none)
@@ -41,7 +41,7 @@ class DhallTransformer(input: Input) extends AstTransformer[Expr] {
   }
   def visitArray(length: Int, index: Int): ArrVisitor[Expr, Expr] =
     new AstArrVisitor[List](lst => Expr.makeNonEmptyListLiteral(lst.toArray))
-  def visitObject(length: Int, index: Int): ObjVisitor[Expr, Expr] =
+  def visitJsonableObject(length: Int, index: Int): ObjVisitor[Expr, Expr] =
     new AstObjVisitor[Map[String, Expr]](ast.RecordLiteral(_))
   def visitNull(index: Int): Expr =
     ast.TextLiteral("null") // does not exist in Dhall
@@ -57,7 +57,7 @@ class DhallTransformer(input: Input) extends AstTransformer[Expr] {
       if (decIndex != -1 || expIndex != -1)
         s.toString.toDouble
       else
-        Util.parseIntegralNum(s, decIndex, expIndex, index)
+        ParseUtils.parseIntegralNum(s, decIndex, expIndex, index)
     )
   def visitString(s: CharSequence, index: Int): Expr =
     ast.TextLiteral(s.toString())

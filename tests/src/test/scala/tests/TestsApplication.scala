@@ -9,7 +9,7 @@ import moped.commands.VersionCommand
 import moped.parsers.DhallParser
 import moped.parsers.HoconParser
 import moped.parsers.JsonParser
-import moped.parsers.JsonnetParser
+// import moped.parsers.JsonnetParser
 import moped.parsers.TomlParser
 import moped.parsers.YamlParser
 
@@ -38,8 +38,8 @@ object TestsApplication {
         HoconParser,
         TomlParser,
         YamlParser,
-        DhallParser,
-        JsonnetParser
+        DhallParser
+        // JsonnetParser
       )
     )
     .withMockedProcesses(

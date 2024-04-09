@@ -15,17 +15,25 @@ object InputTransformer extends Transformer[Input] {
     new InputTransformer(j).parse(f)
 }
 
-final class InputTransformer[J](input: Input)
-    extends Parser[J]
-    with CharBasedParser[J] {
+final class InputTransformer[J](input: Input) extends CharParser[J] {
   var line = 0
   val chars = input.chars
   val wrapped: CharBuffer = CharBuffer.wrap(chars)
 
+  override def readDataIntoBuffer(
+      buffer: Array[Char],
+      bufferOffset: Int
+  ): (Array[Char], Boolean, Int) = {
+    if (buffer == null)
+      (chars, false, chars.length)
+    else
+      (chars, true, -1)
+  }
+
   override def die(i: Int, msg: String): Nothing = {
     val pos = RangePosition(input, i, i)
     val error = pos.pretty("error", msg)
-    throw new ParseException(error, i, pos.startLine, pos.startColumn) {
+    throw new ParseException(error, i) {
       // super.getMessage appends useless "at index N" suffix.
       override def getMessage: String = error
     }
@@ -117,9 +125,10 @@ final class InputTransformer[J](input: Input)
     chars(i)
   }
   def at(i: Int, j: Int): CharSequence = wrapped.subSequence(i, j)
-  def atEof(i: Int): Boolean = i >= chars.length
+  override def atEof(i: Int): Boolean = i >= chars.length
   def close(): Unit = ()
-  final def dropBufferUntil(i: Int): Unit = ()
-  final def char(i: Int): Char = upickle.core.Platform.charAt(chars, i)
-  final def sliceString(i: Int, j: Int): CharSequence = chars.subSequence(i, j)
+  override def dropBufferUntil(i: Int): Unit = ()
+  final def char(i: Int): Char =
+    chars(i) //upickle.core.Platform.charAt(chars, i)
+  // final def sliceString(i: Int, j: Int): CharSequence = chars.subsequence(i, j)
 }

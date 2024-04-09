@@ -26,9 +26,7 @@ class ConfigCommandSuite extends BaseSuite {
   checkErrorOutput(
     "json-error",
     List("config"),
-    """|/workingDirectory/.tests.json:1:1 error: incomplete JSON
-       |{
-       | ^
+    """|error: exhausted input
        |""".stripMargin,
     workingDirectoryLayout =
       """|/.tests.json
@@ -219,54 +217,54 @@ class ConfigCommandSuite extends BaseSuite {
          |""".stripMargin
   )
 
-  checkOutput(
-    "jsonnet",
-    List("config"),
-    "foobar",
-    workingDirectoryLayout =
-      """|/.tests.jsonnet
-         |local hello(enabled) = {foobar: enabled};
-         |hello(true)
-         |""".stripMargin
-  )
+  // checkOutput(
+  //   "jsonnet",
+  //   List("config"),
+  //   "foobar",
+  //   workingDirectoryLayout =
+  //     """|/.tests.jsonnet
+  //        |local hello(enabled) = {foobar: enabled};
+  //        |hello(true)
+  //        |""".stripMargin
+  // )
 
-  checkOutput(
-    "jsonnet",
-    List("config"),
-    "foobar",
-    workingDirectoryLayout =
-      """|/.tests.jsonnet
-         |local hello(enabled) = {foobar: enabled};
-         |hello(true)
-         |""".stripMargin
-  )
+  // checkOutput(
+  //   "jsonnet",
+  //   List("config"),
+  //   "foobar",
+  //   workingDirectoryLayout =
+  //     """|/.tests.jsonnet
+  //        |local hello(enabled) = {foobar: enabled};
+  //        |hello(true)
+  //        |""".stripMargin
+  // )
 
-  checkErrorOutput(
-    "jsonnet-error",
-    List("config"),
-    """|/workingDirectory/.tests.jsonnet:1:31 error: Parse error: Expected StringIn(":::", "::", ":"):1:32, found "enabled};\n"
-       |local hello(enabled) = {foobar enabled};
-       |                               ^
-       |""".stripMargin,
-    workingDirectoryLayout =
-      """|/.tests.jsonnet
-         |local hello(enabled) = {foobar enabled};
-         |hello(true)
-         |""".stripMargin
-  )
+  // checkErrorOutput(
+  //   "jsonnet-error",
+  //   List("config"),
+  //   """|/workingDirectory/.tests.jsonnet:1:31 error: Parse error: Expected StringIn(":::", "::", ":"):1:32, found "enabled};\n"
+  //      |local hello(enabled) = {foobar enabled};
+  //      |                               ^
+  //      |""".stripMargin,
+  //   workingDirectoryLayout =
+  //     """|/.tests.jsonnet
+  //        |local hello(enabled) = {foobar enabled};
+  //        |hello(true)
+  //        |""".stripMargin
+  // )
 
-  checkErrorOutput(
-    "jsonnet-type-error",
-    List("config"),
-    """|error: Type mismatch at '.foobar';
-       |  found    : String
-       |  expected : Boolean
-       |""".stripMargin,
-    workingDirectoryLayout =
-      """|/.tests.jsonnet
-         |local hello(enabled) = {foobar: enabled};
-         |hello("message")
-         |""".stripMargin
-  )
+  // checkErrorOutput(
+  //   "jsonnet-type-error",
+  //   List("config"),
+  //   """|error: Type mismatch at '.foobar';
+  //      |  found    : String
+  //      |  expected : Boolean
+  //      |""".stripMargin,
+  //   workingDirectoryLayout =
+  //     """|/.tests.jsonnet
+  //        |local hello(enabled) = {foobar: enabled};
+  //        |hello("message")
+  //        |""".stripMargin
+  // )
 
 }

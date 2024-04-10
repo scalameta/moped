@@ -18,8 +18,4 @@ jobs:
           java-version: 17
           cache: 'sbt'
 
-      - run: sbt coverage +test coverageReport
-      - run: bash <(curl -s https://codecov.io/bash)
-        shell: bash
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - run: sbt +test

@@ -9,7 +9,6 @@ import moped.commands.VersionCommand
 import moped.parsers.DhallParser
 import moped.parsers.HoconParser
 import moped.parsers.JsonParser
-import moped.parsers.JsonnetParser
 import moped.parsers.TomlParser
 import moped.parsers.YamlParser
 
@@ -33,14 +32,7 @@ object TestsApplication {
       )
     )
     .withParsers(
-      List(
-        JsonParser,
-        HoconParser,
-        TomlParser,
-        YamlParser,
-        DhallParser,
-        JsonnetParser
-      )
+      List(JsonParser, HoconParser, TomlParser, YamlParser, DhallParser)
     )
     .withMockedProcesses(
       List(Application.single("zsh", app => new MockedZshCommand(app)))

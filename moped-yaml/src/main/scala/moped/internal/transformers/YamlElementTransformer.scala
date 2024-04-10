@@ -10,7 +10,7 @@ import moped.reporters.Input
 import ujson.AstTransformer
 import upickle.core.ArrVisitor
 import upickle.core.ObjVisitor
-import upickle.core.Util
+import upickle.core.ParseUtils
 import upickle.core.Visitor
 
 object YamlElementTransformer extends YamlElementTransformer(Input.none)
@@ -62,7 +62,7 @@ class YamlElementTransformer(input: Input) extends AstTransformer[YamlElement] {
       index: Int
   ): ArrVisitor[YamlElement, YamlElement] =
     new AstArrVisitor[mutable.ListBuffer](buf => new YamlElement(buf.asJava))
-  override def visitObject(
+  override def visitJsonableObject(
       length: Int,
       index: Int
   ): ObjVisitor[YamlElement, YamlElement] =
@@ -84,7 +84,7 @@ class YamlElementTransformer(input: Input) extends AstTransformer[YamlElement] {
       if (decIndex != -1 || expIndex != -1)
         s.toString.toDouble
       else
-        Util.parseIntegralNum(s, decIndex, expIndex, index)
+        ParseUtils.parseIntegralNum(s, decIndex, expIndex, index)
     )
   override def visitString(s: CharSequence, index: Int): YamlElement =
     new YamlElement(s.toString())

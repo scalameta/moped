@@ -23,7 +23,7 @@ class YamlParser extends ConfigurationParser {
       try {
         val composer =
           new Composer(
-            new ParserImpl(new StreamReader(input.text)),
+            new ParserImpl(new StreamReader(input.text), new LoaderOptions),
             new Resolver(),
             new LoaderOptions()
           )

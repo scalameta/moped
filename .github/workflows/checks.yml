@@ -7,13 +7,16 @@ jobs:
     name: Scalafix
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v10
-      - run: sbt scalafixCheckAll
-  scalafmt:
-    name: Scalafmt
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v10
-      - run: sbt scalafmtCheckAll
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'sbt'
+
+      - name: Scalafix
+        run: sbt scalafixCheckAll
+
+      - name: Scalafmt
+        run: sbt scalafmtCheckAll
+

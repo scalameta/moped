@@ -10,7 +10,7 @@ import org.ekrich.config.ConfigValue
 import ujson.AstTransformer
 import upickle.core.ArrVisitor
 import upickle.core.ObjVisitor
-import upickle.core.Util
+import upickle.core.ParseUtils
 import upickle.core.Visitor
 
 class SconfigTransformerImpl(input: Input) extends AstTransformer[ConfigValue] {
@@ -62,7 +62,7 @@ class SconfigTransformerImpl(input: Input) extends AstTransformer[ConfigValue] {
           .asJava
       )
     )
-  override def visitObject(
+  override def visitJsonableObject(
       length: Int,
       index: Int
   ): ObjVisitor[ConfigValue, ConfigValue] =
@@ -92,7 +92,7 @@ class SconfigTransformerImpl(input: Input) extends AstTransformer[ConfigValue] {
       if (decIndex != -1 || expIndex != -1)
         s.toString.toDouble
       else
-        Util.parseIntegralNum(s, decIndex, expIndex, index),
+        ParseUtils.parseIntegralNum(s, decIndex, expIndex, index),
       s.toString()
     )
   override def visitString(s: CharSequence, index: Int): ConfigValue =

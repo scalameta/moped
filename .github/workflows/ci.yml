@@ -2,26 +2,20 @@ name: CI
 on:
   push:
     branches:
-      - master
       - main
   pull_request:
 jobs:
   unit:
     name: Tests
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        java: [11]
     steps:
-      - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v10
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
-          java-version: "adopt@1.${{ matrix.java }}"
-      - run: sbt coverage +test docs/mdoc coverageReport
-        shell: bash
-      - run: bash <(curl -s https://codecov.io/bash)
-        shell: bash
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'sbt'
+
+      - run: sbt +test

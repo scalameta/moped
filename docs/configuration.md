@@ -10,6 +10,5 @@ title: Configuration
 | YAML    | `org.yaml:snakeyaml`      | `*.{yml,yaml}` | ✅            | ✅          |
 | TOML    | `tech.sparse::toml-scala` | `*.toml`       | ✅            | 🍠          |
 | Dhall   | `org.dhallj::dhall-scala` | `*.dhall`      | ✅            | 🍠          |
-| Jsonnet | `com.lihaoyi::sjsonnet`   | `*.jsonnet`    | ✅            | 🍠          |
 
 **🍠**: error messages are not reported with source positions.

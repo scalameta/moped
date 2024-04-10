@@ -40,7 +40,7 @@ class JsonTransformer(input: Input)
       JsonArray(buf.toList).withPosition(Position.offset(input, index))
     )
 
-  def visitObject(
+  def visitJsonableObject(
       length: Int,
       index: Int
   ): ObjVisitor[JsonElement, JsonElement] =

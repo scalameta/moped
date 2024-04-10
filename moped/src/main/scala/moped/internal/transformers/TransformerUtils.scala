@@ -7,8 +7,8 @@ import moped.json.JsonString
 import moped.reporters.Position
 import ujson.AstTransformer
 import upickle.core.ObjVisitor
+import upickle.core.ParseUtils
 import upickle.core.SimpleVisitor
-import upickle.core.Util
 import upickle.core.Visitor
 
 trait TransformerUtils[I] {
@@ -23,13 +23,13 @@ trait TransformerUtils[I] {
     if (decIndex != -1 || expIndex != -1)
       s.toString.toDouble
     else
-      Util.parseIntegralNum(s, decIndex, expIndex, index)
+      ParseUtils.parseIntegralNum(s, decIndex, expIndex, index)
 
   def transformObjectWithPositionedKeys[T](
       f: Visitor[_, T],
       items: Iterable[(JsonString, I)]
   ): T = {
-    val ctx = f.visitObject(items.size, -1).narrow
+    val ctx = f.visitObject(items.size, true, -1).narrow
     for ((key, value) <- items) {
       val keyVisitor = ctx.visitKey(-1)
       ctx.visitKeyValue(keyVisitor.visitString(key.value, key.position.start))

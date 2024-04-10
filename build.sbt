@@ -1,6 +1,26 @@
-def scala212 = "2.12.12"
-def scala213 = "2.13.3"
+val V =
+  new {
+    val scala213 = "2.13.13"
+    val scala212 = "2.12.17"
+    val dirs = "26"
+    val collectionCompat = "2.11.0"
+    val dataClass = "0.2.6"
+    val osLib = "0.9.3"
+    val ujson = "3.2.0"
+    val pprint = "0.8.1"
+    val fansi = "0.4.0"
+    val paiges = "0.4.3"
+    val macroParadise = "2.1.1"
+    val sconfig = "1.6.0"
+    val snakeyaml = "2.2"
+    val tomlScala = "0.2.2"
+    val dhallScala = "0.10.0-M2"
+    val munit = "0.7.29"
+    val scalatags = "0.12.0"
+  }
+
 def isCI = "true".equalsIgnoreCase(System.getenv("CI"))
+
 inThisBuild(
   List(
     organization := "org.scalameta",
@@ -17,9 +37,7 @@ inThisBuild(
         )
       ),
     useSuperShell := false,
-    scalaVersion := scala213,
-    scalafixDependencies +=
-      "com.github.liancheng" %% "organize-imports" % "0.4.4",
+    scalaVersion := V.scala213,
     scalafixCaching := true,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
     semanticdbEnabled := true,
@@ -54,7 +72,8 @@ lazy val moped = project.settings(
     else
       Seq(
         compilerPlugin(
-          "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full
+          "org.scalamacros" % "paradise" % V.macroParadise cross
+            CrossVersion.full
         )
       )
   },
@@ -67,24 +86,25 @@ lazy val moped = project.settings(
   libraryDependencies ++=
     List(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      "dev.dirs" % "directories" % "21",
-      "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
-      "io.github.alexarchambault" %% "data-class" % "0.2.5",
-      "com.lihaoyi" %% "os-lib" % "0.7.1",
-      "com.lihaoyi" %% "ujson" % "1.2.2",
-      "com.lihaoyi" %% "pprint" % "0.6.0",
-      "com.lihaoyi" %% "fansi" % "0.2.9",
-      "org.typelevel" %% "paiges-core" % "0.3.2"
+      "dev.dirs" % "directories" % V.dirs,
+      "org.scala-lang.modules" %% "scala-collection-compat" %
+        V.collectionCompat,
+      "io.github.alexarchambault" %% "data-class" % V.dataClass,
+      "com.lihaoyi" %% "os-lib" % V.osLib,
+      "com.lihaoyi" %% "ujson" % V.ujson,
+      "com.lihaoyi" %% "pprint" % V.pprint,
+      "com.lihaoyi" %% "fansi" % V.fansi,
+      "org.typelevel" %% "paiges-core" % V.paiges
     ),
-  crossScalaVersions := List(scala212, scala213)
+  crossScalaVersions := List(V.scala212, V.scala213)
 )
 
 lazy val hocon = project
   .in(file("moped-hocon"))
   .settings(
     moduleName := "moped-hocon",
-    libraryDependencies ++= List("org.ekrich" %% "sconfig" % "1.3.4"),
-    crossScalaVersions := List(scala212, scala213)
+    libraryDependencies ++= List("org.ekrich" %% "sconfig" % V.sconfig),
+    crossScalaVersions := List(V.scala212, V.scala213)
   )
   .dependsOn(moped)
 
@@ -92,8 +112,8 @@ lazy val yaml = project
   .in(file("moped-yaml"))
   .settings(
     moduleName := "moped-yaml",
-    libraryDependencies ++= List("org.yaml" % "snakeyaml" % "1.26"),
-    crossScalaVersions := List(scala212, scala213)
+    libraryDependencies ++= List("org.yaml" % "snakeyaml" % V.snakeyaml),
+    crossScalaVersions := List(V.scala212, V.scala213)
   )
   .dependsOn(moped)
 
@@ -101,8 +121,8 @@ lazy val toml = project
   .in(file("moped-toml"))
   .settings(
     moduleName := "moped-toml",
-    libraryDependencies ++= List("tech.sparse" %% "toml-scala" % "0.2.2"),
-    crossScalaVersions := List(scala212, scala213)
+    libraryDependencies ++= List("tech.sparse" %% "toml-scala" % V.tomlScala),
+    crossScalaVersions := List(V.scala212, V.scala213)
   )
   .dependsOn(moped)
 
@@ -110,17 +130,8 @@ lazy val dhall = project
   .in(file("moped-dhall"))
   .settings(
     moduleName := "moped-dhall",
-    libraryDependencies ++= List("org.dhallj" %% "dhall-scala" % "0.7.0-M1"),
-    crossScalaVersions := List(scala212, scala213)
-  )
-  .dependsOn(moped)
-
-lazy val jsonnet = project
-  .in(file("moped-jsonnet"))
-  .settings(
-    moduleName := "moped-jsonnet",
-    libraryDependencies ++= List("com.lihaoyi" %% "sjsonnet" % "0.2.6"),
-    crossScalaVersions := List(scala212, scala213)
+    libraryDependencies ++= List("org.dhallj" %% "dhall-scala" % V.dhallScala),
+    crossScalaVersions := List(V.scala212, V.scala213)
   )
   .dependsOn(moped)
 
@@ -128,8 +139,8 @@ lazy val testkit = project
   .in(file("moped-testkit"))
   .settings(
     moduleName := "moped-testkit",
-    libraryDependencies ++= List("org.scalameta" %% "munit" % "0.7.18"),
-    crossScalaVersions := List(scala212, scala213)
+    libraryDependencies ++= List("org.scalameta" %% "munit" % V.munit),
+    crossScalaVersions := List(V.scala212, V.scala213)
   )
   .dependsOn(moped)
 
@@ -150,24 +161,7 @@ lazy val tests = project
       )
   )
   .enablePlugins(BuildInfoPlugin, NativeImagePlugin)
-  .dependsOn(testkit, hocon, toml, yaml, dhall, jsonnet)
-
-val scalatagsVersion = Def.setting {
-  if (scalaVersion.value.startsWith("2.11"))
-    "0.6.7"
-  else
-    "0.7.0"
-}
-
-lazy val plugin = project
-  .in(file("moped-sbt"))
-  .settings(
-    sbtPlugin := true,
-    moduleName := "sbt-moped",
-    buildInfoPackage := "sbtmoped",
-    buildInfoKeys := Seq[BuildInfoKey](version)
-  )
-  .enablePlugins(BuildInfoPlugin)
+  .dependsOn(testkit, hocon, toml, yaml, dhall)
 
 lazy val docs = project
   .in(file("moped-docs"))
@@ -175,8 +169,7 @@ lazy val docs = project
     moduleName := "moped-docs",
     fork := isCI,
     (publish / skip) := true,
-    libraryDependencies ++=
-      List("com.lihaoyi" %% "scalatags" % scalatagsVersion.value),
+    libraryDependencies += "com.lihaoyi" %% "scalatags" % V.scalatags,
     mdocVariables :=
       Map(
         "VERSION" -> version.value.replaceFirst("\\+.*", ""),

@@ -32,14 +32,7 @@ object TestsApplication {
       )
     )
     .withParsers(
-      List(
-        JsonParser,
-        HoconParser,
-        TomlParser,
-        YamlParser,
-        DhallParser
-        // JsonnetParser
-      )
+      List(JsonParser, HoconParser, TomlParser, YamlParser, DhallParser)
     )
     .withMockedProcesses(
       List(Application.single("zsh", app => new MockedZshCommand(app)))

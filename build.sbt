@@ -15,7 +15,6 @@ val V =
     val snakeyaml = "2.2"
     val tomlScala = "0.2.2"
     val dhallScala = "0.10.0-M2"
-    val sjsonnet = "0.3.0"
     val munit = "0.7.29"
     val scalatags = "0.12.0"
   }
@@ -136,15 +135,6 @@ lazy val dhall = project
   )
   .dependsOn(moped)
 
-/*lazy val jsonnet = project
-  .in(file("moped-jsonnet"))
-  .settings(
-    moduleName := "moped-jsonnet",
-    libraryDependencies ++= List("com.lihaoyi" %% "sjsonnet" % V.sjsonnet),
-    crossScalaVersions := List(V.scala212, V.scala213)
-  )
-  .dependsOn(moped)*/
-
 lazy val testkit = project
   .in(file("moped-testkit"))
   .settings(
@@ -171,7 +161,7 @@ lazy val tests = project
       )
   )
   .enablePlugins(BuildInfoPlugin, NativeImagePlugin)
-  .dependsOn(testkit, hocon, toml, yaml, dhall /*, jsonnet*/ )
+  .dependsOn(testkit, hocon, toml, yaml, dhall)
 
 lazy val docs = project
   .in(file("moped-docs"))

@@ -159,7 +159,6 @@ lazy val tests = project
     (publish / skip) := true,
     testFrameworks := List(new TestFramework("munit.Framework")),
     buildInfoPackage := "tests",
-    //scalacOptions ++= "-Ymacro-debug-verbose Yshow-trees-compact -Vprint".split(" ").toList,
     buildInfoKeys :=
       Seq[BuildInfoKey](
         "expectDirectory" -> (Test / sourceDirectory).value./("expect")

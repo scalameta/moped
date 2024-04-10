@@ -40,7 +40,7 @@ final class InputTransformer[J](input: Input) extends CharParser[J] {
   }
 
   override def reject(j: Int): PartialFunction[Throwable, Nothing] = {
-    case e: IndexOutOfBoundsException =>
+    case e: StringIndexOutOfBoundsException =>
       val n = chars.length - 1
       val pos = RangePosition(input, n, n)
       throw new DiagnosticException(Diagnostic.error("incomplete JSON", pos))
@@ -124,11 +124,7 @@ final class InputTransformer[J](input: Input) extends CharParser[J] {
       throw new StringIndexOutOfBoundsException(i)
     chars(i)
   }
-  def at(i: Int, j: Int): CharSequence = wrapped.subSequence(i, j)
   override def atEof(i: Int): Boolean = i >= chars.length
-  def close(): Unit = ()
+  override def close(): Unit = ()
   override def dropBufferUntil(i: Int): Unit = ()
-  final def char(i: Int): Char =
-    chars(i) //upickle.core.Platform.charAt(chars, i)
-  // final def sliceString(i: Int, j: Int): CharSequence = chars.subsequence(i, j)
 }

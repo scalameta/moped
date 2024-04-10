@@ -26,11 +26,13 @@ class ConfigCommandSuite extends BaseSuite {
   checkErrorOutput(
     "json-error",
     List("config"),
-    """|error: exhausted input
+    """|error: /workingDirectory/.tests.json:1 error: expected false
+       |filse
+       |^
        |""".stripMargin,
     workingDirectoryLayout =
       """|/.tests.json
-         |{
+         |filse
          |""".stripMargin
   )
 
